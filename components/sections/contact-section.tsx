@@ -1,72 +1,75 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertCircle,
-  ArrowUpRight,
-  Check,
   CheckCircle2,
-  Copy,
   Loader2,
   Mail,
-  Send,
+  MapPin,
+  Phone,
 } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 
-import { Section } from "@/components/layout/section";
-import { Reveal } from "@/components/motion/reveal";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
 import { DEVELOPER_PROFILE } from "@/lib/portfolio-data";
-import { SECTION_ACCENTS } from "@/lib/section-accents";
-import {
-  contactFormSchema,
-  type ContactFormValues,
-} from "@/lib/validations/contact";
-
-const PROJECT_TYPES = [
-  "Full-Stack Product / Web App",
-  "Convex Backend & Architecture",
-  "Engineering Role / Full-Time",
-  "General Inquiry",
-] as const;
+import { cn } from "@/lib/utils";
 
 export function ContactSection() {
   const { activeSection } = useSectionFocus();
-  const accent = SECTION_ACCENTS.contact;
-  const isActive = activeSection === "contact";
+  const isSectionActive = activeSection === "contact";
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [honeypot, setHoneypot] = useState("");
+  const [activeField, setActiveField] = useState<string | null>(null);
 
   const [submitState, setSubmitState] = useState<{
     status: "idle" | "submitting" | "success" | "error";
     message?: string;
-    convexPersisted?: boolean;
   }>({ status: "idle" });
-  const [copiedEmail, setCopiedEmail] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      subject: "",
-      projectType: "Full-Stack Product / Web App",
-      message: "",
-      honeypot: "",
-    },
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const onSubmit = async (values: ContactFormValues) => {
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    if (fullName.length < 2) {
+      setSubmitState({
+        status: "error",
+        message: "Please enter your first and last name.",
+      });
+      return;
+    }
+    if (!email.trim() || !email.includes("@")) {
+      setSubmitState({
+        status: "error",
+        message: "Please enter a valid email address.",
+      });
+      return;
+    }
+    if (message.trim().length < 10) {
+      setSubmitState({
+        status: "error",
+        message: "Please write a message of at least 10 characters.",
+      });
+      return;
+    }
+
     setSubmitState({ status: "submitting" });
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          name: fullName,
+          email: email.trim(),
+          subject: `Portfolio Inquiry from ${fullName}`,
+          projectType: "General Inquiry",
+          message: message.trim(),
+          honeypot,
+        }),
       });
 
       const payload = await response.json();
@@ -83,321 +86,280 @@ export function ContactSection() {
 
       setSubmitState({
         status: "success",
-        convexPersisted: Boolean(payload.convexPersisted),
-        message: payload.convexPersisted
-          ? "Message received and stored in Convex (optimistic-bulldog-318). I'll reply within 24 hours."
-          : "Message received! I'll reply to your email within 24 hours.",
+        message:
+          "Message received and saved! I will get back to you shortly.",
       });
-      reset();
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setMessage("");
     } catch {
       setSubmitState({
         status: "error",
         message:
-          "Network error while submitting. Please use the direct email link alongside this form.",
+          "Network error while sending. Please reach out directly via email.",
       });
     }
   };
 
-  const copyDirectEmail = async () => {
-    try {
-      await navigator.clipboard.writeText(DEVELOPER_PROFILE.email);
-      setCopiedEmail(true);
-      setTimeout(() => setCopiedEmail(false), 2200);
-    } catch {
-      // Ignore clipboard permission errors
-    }
-  };
-
   return (
-    <Section sectionId="contact" className="border-b-0">
-      <div className="grid gap-10 lg:grid-cols-12">
-        {/* Left column: Direct contact info & availability */}
-        <div className="flex flex-col justify-between gap-8 lg:col-span-5">
-          <div className="flex flex-col gap-4">
-            <Reveal>
-              <div
-                data-section-badge
+    <section
+      id="contact"
+      data-section-id="contact"
+      className="relative w-full border-t border-border/60 bg-card"
+    >
+      {/* Top active orange accent bar */}
+      <div
+        data-section-accent-bar
+        className={cn(
+          "pointer-events-none absolute top-0 left-0 h-[3px] w-full origin-left bg-[#F97316] transition-all duration-500",
+          isSectionActive ? "opacity-100" : "opacity-25"
+        )}
+      />
+
+      {/* Top Banner Band matching contact.png with warm orange active tint */}
+      <div
+        style={{
+          backgroundImage: isSectionActive
+            ? "linear-gradient(135deg, rgba(249, 115, 22, 0.085) 0%, rgba(250, 204, 21, 0.05) 100%)"
+            : undefined,
+        }}
+        className="w-full bg-background px-[7%] py-14 transition-colors duration-700 sm:py-20"
+      >
+        <div className="mx-auto max-w-6xl">
+          <p
+            className={cn(
+              "inline-flex items-center gap-2 rounded-full border px-3 py-1 font-sans text-[11px] transition-all duration-500",
+              isSectionActive
+                ? "border-[#F97316]/40 bg-[#F97316]/12 font-medium text-[#EA580C]"
+                : "border-transparent text-body"
+            )}
+          >
+            <span className="size-1.5 rounded-full bg-[#F97316]" />
+            <span>Home/Contact_Us</span>
+          </p>
+          <h2 className="mt-2.5 font-sans text-4xl font-bold tracking-tight text-heading sm:text-5xl">
+            Contact Us
+          </h2>
+        </div>
+      </div>
+
+      {/* Main White Content Area matching contact.png */}
+      <div className="w-full bg-card px-[7%] py-14 sm:py-20">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* Left Column: "Need more information? Get in touch with us" + 3 circular icon rows */}
+          <div className="flex flex-col lg:col-span-5">
+            <h3 className="font-sans text-xl leading-[1.28] font-bold text-heading sm:text-2xl">
+              Need more information?
+              <br />
+              <span
+                className="transition-colors duration-500"
                 style={{
-                  backgroundColor: isActive ? accent.badgeBg : undefined,
-                  borderColor: isActive ? accent.borderTint : undefined,
+                  color: isSectionActive ? "#EA580C" : undefined,
                 }}
-                className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-surface-secondary/70 px-3 py-1 font-mono text-xs font-medium transition-colors"
               >
-                <span
-                  className="size-2 rounded-full"
-                  style={{ backgroundColor: accent.accentHex }}
-                  aria-hidden="true"
-                />
-                <span
-                  style={{
-                    color: isActive ? accent.readableTextHex : undefined,
-                  }}
-                  className="text-heading"
-                >
-                  04 / Contact
-                </span>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.05}>
-              <h2 className="text-3xl font-semibold tracking-tight text-heading sm:text-4xl">
-                Let&apos;s discuss your next product or engineering role.
-              </h2>
-            </Reveal>
-
-            <Reveal delay={0.1}>
-              <p className="text-base leading-relaxed text-body">
-                Have a scope in mind, need a Convex or Next.js architecture
-                review, or hiring for a full-stack role? Send a message directly
-                or reach out via email.
-              </p>
-            </Reveal>
-          </div>
-
-          <Reveal delay={0.15}>
-            <div className="space-y-3 rounded-2xl border border-border bg-card p-6">
-              <span className="font-mono text-[11px] font-semibold tracking-wider text-body uppercase">
-                Direct Channels
+                Get in touch with us
               </span>
+            </h3>
 
-              <div className="flex flex-col gap-2.5 pt-1">
-                <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-3.5 py-2.5">
+            <p className="mt-3 max-w-sm text-xs leading-relaxed text-body">
+              A connected set of services designed to turn strategy into scale
+            </p>
+
+            <div className="mt-9 flex flex-col gap-6">
+              {/* 1. Phone Number */}
+              <div className="group flex items-center gap-4">
+                <div
+                  className={cn(
+                    "flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300",
+                    isSectionActive
+                      ? "border-[#F97316]/35 bg-[#F97316]/12 text-[#EA580C]"
+                      : "border-transparent bg-surface-secondary/65 text-heading"
+                  )}
+                >
+                  <Phone className="size-4 stroke-[1.75]" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-heading">Phone Number</p>
+                  <p className="mt-0.5 text-xs text-body">+234 810 000 0000</p>
+                </div>
+              </div>
+
+              {/* 2. Email */}
+              <div className="group flex items-center gap-4">
+                <div
+                  className={cn(
+                    "flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300",
+                    isSectionActive
+                      ? "border-[#3B82F6]/35 bg-[#3B82F6]/12 text-[#2563EB]"
+                      : "border-transparent bg-surface-secondary/65 text-heading"
+                  )}
+                >
+                  <Mail className="size-4 stroke-[1.75]" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-heading">Email</p>
                   <a
                     href={`mailto:${DEVELOPER_PROFILE.email}`}
-                    className="inline-flex items-center gap-2 text-xs font-medium text-heading hover:underline"
+                    className="mt-0.5 block text-xs text-body transition-colors hover:text-[#2563EB]"
                   >
-                    <Mail
-                      className="size-3.5 shrink-0"
-                      style={{ color: accent.accentHex }}
-                    />
-                    <span className="truncate">{DEVELOPER_PROFILE.email}</span>
+                    {DEVELOPER_PROFILE.email}
                   </a>
-
-                  <button
-                    type="button"
-                    onClick={copyDirectEmail}
-                    className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 font-mono text-[11px] text-body transition-colors hover:text-heading"
-                  >
-                    {copiedEmail ? (
-                      <>
-                        <Check className="size-3" />
-                        <span>Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="size-3" />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-2.5">
-                  <a
-                    href={DEVELOPER_PROFILE.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-heading transition-colors hover:bg-surface-secondary"
-                  >
-                    <span>GitHub</span>
-                    <ArrowUpRight className="size-3.5 text-body" />
-                  </a>
-
-                  <a
-                    href={DEVELOPER_PROFILE.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs font-medium text-heading transition-colors hover:bg-surface-secondary"
-                  >
-                    <span>LinkedIn</span>
-                    <ArrowUpRight className="size-3.5 text-body" />
-                  </a>
+              {/* 3. Address */}
+              <div className="group flex items-center gap-4">
+                <div
+                  className={cn(
+                    "flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300",
+                    isSectionActive
+                      ? "border-[#8B5CF6]/35 bg-[#8B5CF6]/12 text-[#7C3AED]"
+                      : "border-transparent bg-surface-secondary/65 text-heading"
+                  )}
+                >
+                  <MapPin className="size-4 stroke-[1.75]" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-heading">Address</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-body">
+                    Lagos, Nigeria
+                    <br />
+                    Working Globally (UTC+1)
+                  </p>
                 </div>
               </div>
             </div>
-          </Reveal>
-        </div>
+          </div>
 
-        {/* Right column: Contact form */}
-        <div className="lg:col-span-7">
-          <Reveal delay={0.12}>
+          {/* Right Column: "Send Message" + Form matching contact.png */}
+          <div className="flex flex-col lg:col-span-7">
+            <h3 className="font-sans text-xl font-bold text-heading sm:text-2xl">
+              Send Message
+            </h3>
+            <p className="mt-2 max-w-md text-xs leading-relaxed text-body">
+              Please fill out the form below with
+              <br />
+              your details and message to contact with us
+            </p>
+
             <form
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit}
               noValidate
-              style={
-                isActive ? { borderColor: accent.borderTint } : undefined
-              }
-              className="rounded-2xl border border-border bg-card p-6 transition-colors sm:p-8"
+              className="mt-7 flex flex-col gap-3.5"
             >
-              {/* Hidden honeypot field for spam protection */}
-              <div className="hidden" aria-hidden="true">
-                <label htmlFor="contact-honeypot">
-                  Leave this field blank
-                </label>
+              {/* Hidden honeypot */}
+              <input
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                className="hidden"
+                aria-hidden="true"
+              />
+
+              {/* Row 1: First Name & Last Name */}
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                 <input
-                  id="contact-honeypot"
                   type="text"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  {...register("honeypot")}
+                  placeholder="First Name"
+                  value={firstName}
+                  onFocus={() => setActiveField("firstName")}
+                  onBlur={() => setActiveField(null)}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className={cn(
+                    "h-11 rounded-md border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                    activeField === "firstName"
+                      ? "border-[#F97316] bg-[#F97316]/[0.04]"
+                      : "border-border bg-card"
+                  )}
+                />
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onFocus={() => setActiveField("lastName")}
+                  onBlur={() => setActiveField(null)}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className={cn(
+                    "h-11 rounded-md border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                    activeField === "lastName"
+                      ? "border-[#F97316] bg-[#F97316]/[0.04]"
+                      : "border-border bg-card"
+                  )}
                 />
               </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="contact-name"
-                    className="text-xs font-medium text-heading"
-                  >
-                    Your name
-                  </label>
-                  <input
-                    id="contact-name"
-                    type="text"
-                    placeholder="Jane Doe"
-                    {...register("name")}
-                    className="h-10 rounded-xl border border-border bg-background px-3.5 text-sm text-heading placeholder:text-body/60 focus:border-heading focus:outline-none"
-                  />
-                  {errors.name && (
-                    <p className="text-xs text-destructive">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="contact-email"
-                    className="text-xs font-medium text-heading"
-                  >
-                    Email address
-                  </label>
-                  <input
-                    id="contact-email"
-                    type="email"
-                    placeholder="jane@company.com"
-                    {...register("email")}
-                    className="h-10 rounded-xl border border-border bg-background px-3.5 text-sm text-heading placeholder:text-body/60 focus:border-heading focus:outline-none"
-                  />
-                  {errors.email && (
-                    <p className="text-xs text-destructive">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="contact-project-type"
-                    className="text-xs font-medium text-heading"
-                  >
-                    Inquiry type
-                  </label>
-                  <select
-                    id="contact-project-type"
-                    {...register("projectType")}
-                    className="h-10 rounded-xl border border-border bg-background px-3 text-sm text-heading focus:border-heading focus:outline-none"
-                  >
-                    {PROJECT_TYPES.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="contact-subject"
-                    className="text-xs font-medium text-heading"
-                  >
-                    Subject
-                  </label>
-                  <input
-                    id="contact-subject"
-                    type="text"
-                    placeholder="Project scope or role opportunity"
-                    {...register("subject")}
-                    className="h-10 rounded-xl border border-border bg-background px-3.5 text-sm text-heading placeholder:text-body/60 focus:border-heading focus:outline-none"
-                  />
-                  {errors.subject && (
-                    <p className="text-xs text-destructive">
-                      {errors.subject.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-5 flex flex-col gap-1.5">
-                <label
-                  htmlFor="contact-message"
-                  className="text-xs font-medium text-heading"
-                >
-                  Message
-                </label>
-                <textarea
-                  id="contact-message"
-                  rows={5}
-                  placeholder="Share a brief overview of your project, timeline, or team..."
-                  {...register("message")}
-                  className="rounded-xl border border-border bg-background p-3.5 text-sm text-heading placeholder:text-body/60 focus:border-heading focus:outline-none"
-                />
-                {errors.message && (
-                  <p className="text-xs text-destructive">
-                    {errors.message.message}
-                  </p>
+              {/* Row 2: Email or Phone Number */}
+              <input
+                type="email"
+                placeholder="Email or Phone Number"
+                value={email}
+                onFocus={() => setActiveField("email")}
+                onBlur={() => setActiveField(null)}
+                onChange={(e) => setEmail(e.target.value)}
+                className={cn(
+                  "h-11 w-full rounded-md border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                  activeField === "email"
+                    ? "border-[#3B82F6] bg-[#3B82F6]/[0.04]"
+                    : "border-border bg-card"
                 )}
-              </div>
+              />
+
+              {/* Row 3: Write Message Here... */}
+              <textarea
+                rows={5}
+                placeholder="Write Message Here..."
+                value={message}
+                onFocus={() => setActiveField("message")}
+                onBlur={() => setActiveField(null)}
+                onChange={(e) => setMessage(e.target.value)}
+                className={cn(
+                  "w-full rounded-md border p-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                  activeField === "message"
+                    ? "border-[#8B5CF6] bg-[#8B5CF6]/[0.04]"
+                    : "border-border bg-card"
+                )}
+              />
 
               {submitState.status === "success" && (
-                <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-border bg-surface-secondary/70 p-3.5 text-xs text-heading">
-                  <CheckCircle2
-                    className="mt-0.5 size-4 shrink-0"
-                    style={{ color: accent.readableTextHex }}
-                  />
+                <div className="flex items-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs font-medium text-emerald-700">
+                  <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
                   <span>{submitState.message}</span>
                 </div>
               )}
 
               {submitState.status === "error" && (
-                <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs text-destructive">
-                  <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                  <AlertCircle className="size-4 shrink-0" />
                   <span>{submitState.message}</span>
                 </div>
               )}
 
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-                <p className="font-mono text-[11px] text-body">
-                  Backed by Convex (`optimistic-bulldog-318`)
-                </p>
-
+              <div className="pt-1">
                 <button
                   type="submit"
                   disabled={submitState.status === "submitting"}
                   style={{
-                    backgroundColor: isActive ? accent.accentHex : undefined,
+                    backgroundColor: isSectionActive ? "#F97316" : undefined,
                   }}
-                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-heading px-5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                  className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md bg-heading px-6 text-xs font-medium text-white transition-all duration-300 hover:opacity-90 disabled:opacity-50"
                 >
                   {submitState.status === "submitting" ? (
                     <>
-                      <Loader2 className="size-4 animate-spin" />
+                      <Loader2 className="size-3.5 animate-spin" />
                       <span>Sending...</span>
                     </>
                   ) : (
-                    <>
-                      <span>Send message</span>
-                      <Send className="size-3.5" />
-                    </>
+                    <span>Send Message</span>
                   )}
                 </button>
               </div>
             </form>
-          </Reveal>
+          </div>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }

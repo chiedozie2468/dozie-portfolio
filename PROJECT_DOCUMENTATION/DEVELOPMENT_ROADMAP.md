@@ -7,7 +7,7 @@ Status legend: ✅ Done · 🔶 In progress · ⬜ Not started
 ## Phase 1 — Project Foundation `✅`
 
 - [x] Next.js (App Router, TypeScript, Tailwind CSS v4) scaffolded
-- [x] Package manager standardized on **pnpm**
+- [x] Package manager standardized on **npm**
 - [x] Core dependencies installed (Convex, Anime.js, Framer Motion, React Hook Form, Zod, Lucide)
 - [x] `PROJECT_DOCUMENTATION/` updated with grayscale + 4-accent visual direction and Convex deployment guide
 
@@ -41,5 +41,5 @@ Status legend: ✅ Done · 🔶 In progress · ⬜ Not started
 
 ## Phase 5 — Production Launch Readiness Documentation `✅`
 
-- [x] Document production Convex deployment (`CONVEX_DEPLOY_KEY`, `npx convex deploy --cmd 'pnpm build'`)
+- [x] Document production Convex deployment (`CONVEX_DEPLOY_KEY`, `npx convex deploy --cmd 'npm run build'`)
 - [x] Document security checks and backup considerations in `PROJECT_DOCUMENTATION/SETUP_REQUIREMENTS.md`

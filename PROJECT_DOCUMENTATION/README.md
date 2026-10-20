@@ -52,12 +52,12 @@ dozie-portfolio/
 ## Development Commands
 
 ```bash
-pnpm install              # Install dependencies
-pnpm convex:dev --once    # Sync Convex schema & functions to dev:optimistic-bulldog-318
-pnpm dev                  # Start Next.js dev server at http://localhost:3000
-pnpm build                # Production build verification
-pnpm lint                 # ESLint check
-pnpm exec tsc --noEmit    # TypeScript check
+npm install               # Install dependencies
+npm run convex:dev -- --once # Sync Convex schema & functions to dev:optimistic-bulldog-318
+npm run dev               # Start Next.js dev server at http://localhost:3000
+npm run build             # Production build verification
+npm run lint              # ESLint check
+npx tsc --noEmit          # TypeScript check
 ```
 
 See [`SETUP_REQUIREMENTS.md`](./SETUP_REQUIREMENTS.md) for production deployment, environment variables, security checks, and backup considerations.

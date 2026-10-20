@@ -20,6 +20,8 @@ export default defineSchema({
     outcome: v.string(),
     metrics: v.array(v.string()),
     stack: v.array(v.string()),
+    imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.id("_storage")),
     liveUrl: v.optional(v.string()),
     repoUrl: v.optional(v.string()),
     featured: v.boolean(),
@@ -60,4 +62,23 @@ export default defineSchema({
     .index("by_created_at", ["createdAt"])
     .index("by_email_created", ["email", "createdAt"])
     .index("by_status", ["status"]),
+
+  siteSettings: defineTable({
+    key: v.literal("main"),
+    heroDisplayWord: v.string(),
+    dpImageUrl: v.string(),
+    dpStorageId: v.optional(v.id("_storage")),
+    dpCategory: v.string(),
+    dpTitle: v.string(),
+    dpSubtitle: v.string(),
+    secondaryImageUrl: v.string(),
+    secondaryStorageId: v.optional(v.id("_storage")),
+    secondaryCategory: v.string(),
+    secondaryTitle: v.string(),
+    secondarySubtitle: v.string(),
+    cvUrl: v.optional(v.string()),
+    cvStorageId: v.optional(v.id("_storage")),
+    cvFileName: v.optional(v.string()),
+    updatedAt: v.number(),
+  }).index("by_key", ["key"]),
 });

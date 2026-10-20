@@ -1,99 +1,238 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
+import { Download, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { Container } from "@/components/layout/container";
 import { Logo } from "@/components/layout/logo";
-import { MobileMenu } from "@/components/layout/mobile-menu";
 import { navLinks } from "@/components/layout/nav-links";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
+import { usePortfolioData } from "@/lib/hooks/use-portfolio-data";
+import { DEFAULT_SITE_SETTINGS } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const pathname = usePathname();
   const { activeSection, activeAccent, setActiveSection } = useSectionFocus();
+  const { siteSettings } = usePortfolioData();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const isHome = pathname === "/";
 
+  const cvUrl =
+    siteSettings.cvUrl ||
+    DEFAULT_SITE_SETTINGS.cvUrl ||
+    "/chiedozie-onyekwelu-cv.pdf";
+  const cvFileName =
+    siteSettings.cvFileName ||
+    DEFAULT_SITE_SETTINGS.cvFileName ||
+    "Chiedozie-Onyekwelu-CV.pdf";
+
+  // Lock body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
-      {/* Subtle 2px top accent bar that reflects the active section */}
-      <div className="h-[2px] w-full bg-surface-secondary">
-        <div
-          className="h-full transition-colors duration-300"
-          style={{
-            backgroundColor: activeAccent.accentHex,
-            width: "100%",
-            opacity: activeSection === "hero" ? 0.35 : 0.9,
-          }}
-        />
-      </div>
+    <>
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xs">
+        <div className="mx-auto flex h-14 w-full items-center justify-between px-[5.2%] sm:h-20">
+          {/* Left group: "dozie" (Home) + desktop nav links (About, Work, Contact) with no border or radius */}
+          <div className="flex items-center gap-8 md:gap-16 lg:gap-24">
+            <Logo />
 
-      <Container className="flex h-16 items-center justify-between gap-4">
-        <Logo />
+            {/* Desktop Horizontal Nav (hidden on small screens) */}
+            <nav
+              aria-label="Primary navigation"
+              className="hidden items-center gap-8 md:flex lg:gap-10"
+            >
+              {navLinks.map((link) => {
+                const isActive = isHome
+                  ? activeSection === link.sectionId
+                  : link.routeHref === pathname;
 
-        <nav
-          aria-label="Primary navigation"
-          className="hidden items-center gap-1 rounded-xl border border-border bg-surface-secondary/60 p-1 lg:flex"
-        >
-          {navLinks.map((link) => {
-            const isActive = isHome
-              ? activeSection === link.sectionId
-              : link.routeHref === pathname;
-
-            return (
-              <Link
-                key={link.sectionId}
-                href={link.href}
-                onClick={() => setActiveSection(link.sectionId)}
-                aria-current={isActive ? "true" : undefined}
-                className={cn(
-                  "relative inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-card text-heading shadow-2xs"
-                    : "text-body hover:text-heading"
-                )}
-              >
-                <span
-                  className={cn(
-                    "size-1.5 rounded-full transition-all duration-200",
-                    isActive ? "scale-100 opacity-100" : "scale-75 opacity-0"
-                  )}
-                  style={{ backgroundColor: link.accent.accentHex }}
-                  aria-hidden="true"
-                />
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-mono text-body xl:inline-flex">
-            <span
-              className="size-1.5 rounded-full"
-              style={{ backgroundColor: activeAccent.accentHex }}
-              aria-hidden="true"
-            />
-            <span>{activeAccent.label}</span>
+                return (
+                  <Link
+                    key={link.sectionId}
+                    href={link.href}
+                    onClick={() => setActiveSection(link.sectionId)}
+                    aria-current={isActive ? "true" : undefined}
+                    style={
+                      isActive
+                        ? { color: link.accent.readableTextHex }
+                        : undefined
+                    }
+                    className={cn(
+                      "py-1 text-[11px] tracking-[0.01em] transition-colors duration-200 focus:outline-none",
+                      isActive
+                        ? "font-semibold text-heading"
+                        : "font-normal text-heading/75 hover:text-heading"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
 
-          <ThemeToggle />
-
-          <Link
-            href="/#contact"
-            onClick={() => setActiveSection("contact")}
-            className="hidden items-center gap-1.5 rounded-xl border border-border bg-heading px-3.5 py-2 text-xs font-medium text-background transition-opacity hover:opacity-90 lg:inline-flex"
+          {/* Desktop Right end: Clean editorial Download CV action */}
+          <a
+            href={cvUrl}
+            download={cvFileName}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group hidden items-center gap-2 text-[11px] font-normal tracking-[0.02em] text-heading transition-opacity hover:opacity-70 md:inline-flex"
           >
-            <span>Start a conversation</span>
-            <ArrowUpRight className="size-3.5" />
-          </Link>
+            <span>Download CV</span>
+            <span className="flex flex-col items-end justify-center gap-[3.5px]">
+              <span className="h-[1.5px] w-5 bg-heading" />
+              <span className="h-[1.5px] w-5 bg-heading" />
+            </span>
+          </a>
 
-          <MobileMenu />
+          {/* Small Screen Sidebar Toggle Button (visible only < md) */}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open navigation sidebar"
+            aria-expanded={sidebarOpen}
+            className="flex h-9 w-9 cursor-pointer flex-col items-end justify-center gap-[5px] focus:outline-none md:hidden"
+          >
+            <span className="h-[1.5px] w-6 bg-heading" />
+            <span className="h-[1.5px] w-4 bg-heading" />
+          </button>
         </div>
-      </Container>
-    </header>
+      </header>
+
+      {/* Small Screen Slide-Over Sidebar Drawer (< md) */}
+      <div
+        aria-hidden={!sidebarOpen}
+        className={cn(
+          "fixed inset-0 z-50 md:hidden",
+          sidebarOpen ? "pointer-events-auto" : "pointer-events-none"
+        )}
+      >
+        {/* Backdrop */}
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className={cn(
+            "absolute inset-0 bg-heading/35 backdrop-blur-xs transition-opacity duration-300",
+            sidebarOpen ? "opacity-100" : "opacity-0"
+          )}
+        />
+
+        {/* Sidebar Panel (no rounded pills or borders on links) */}
+        <aside
+          aria-label="Mobile navigation sidebar"
+          className={cn(
+            "absolute top-0 right-0 flex h-full w-64 max-w-[80vw] flex-col justify-between bg-background p-7 shadow-2xl transition-transform duration-300 ease-out",
+            sidebarOpen ? "translate-x-0" : "translate-x-full"
+          )}
+        >
+          <div>
+            {/* Sidebar Header */}
+            <div className="flex items-center justify-between pb-6">
+              <Link
+                href="/"
+                onClick={() => {
+                  setActiveSection("hero");
+                  setSidebarOpen(false);
+                }}
+                className="font-serif text-2xl font-bold tracking-[-0.03em] text-heading"
+              >
+                chiedozie
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close sidebar"
+                className="flex size-8 cursor-pointer items-center justify-center text-heading transition-opacity hover:opacity-70"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {/* Sidebar Navigation Links (clean text, no borders or radius) */}
+            <nav className="mt-4 flex flex-col gap-5">
+              <Link
+                href="/"
+                onClick={() => {
+                  setActiveSection("hero");
+                  setSidebarOpen(false);
+                }}
+                className={cn(
+                  "text-sm tracking-[0.01em] transition-colors",
+                  isHome && activeSection === "hero"
+                    ? "font-semibold text-heading"
+                    : "font-normal text-heading/70 hover:text-heading"
+                )}
+              >
+                Home
+              </Link>
+
+              {navLinks.map((link) => {
+                const isActive = isHome
+                  ? activeSection === link.sectionId
+                  : link.routeHref === pathname;
+
+                return (
+                  <Link
+                    key={link.sectionId}
+                    href={link.href}
+                    onClick={() => {
+                      setActiveSection(link.sectionId);
+                      setSidebarOpen(false);
+                    }}
+                    style={
+                      isActive
+                        ? { color: link.accent.readableTextHex }
+                        : undefined
+                    }
+                    className={cn(
+                      "text-sm tracking-[0.01em] transition-colors",
+                      isActive
+                        ? "font-semibold text-heading"
+                        : "font-normal text-heading/70 hover:text-heading"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Sidebar Footer: Clean Download CV link */}
+          <div className="pt-6">
+            <a
+              href={cvUrl}
+              download={cvFileName}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setSidebarOpen(false)}
+              style={{
+                color:
+                  activeSection === "hero"
+                    ? undefined
+                    : activeAccent.readableTextHex,
+              }}
+              className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-heading transition-opacity hover:opacity-75"
+            >
+              <Download className="size-3.5" />
+              <span>Download CV</span>
+            </a>
+          </div>
+        </aside>
+      </div>
+    </>
   );
 }

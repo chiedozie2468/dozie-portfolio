@@ -11,9 +11,9 @@ Full documentation lives in [`PROJECT_DOCUMENTATION/`](./PROJECT_DOCUMENTATION):
 ## Quick Start
 
 ```bash
-pnpm install
+npm install
 cp .env.example .env.local   # fill in real values, see ENVIRONMENT_VARIABLES.md
-pnpm dev
+npm run dev
 ```
 
-This project uses **pnpm** exclusively — do not use `npm` or `yarn`.
+This project uses **npm** as its package manager.

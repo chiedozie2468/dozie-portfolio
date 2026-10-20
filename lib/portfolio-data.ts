@@ -1,4 +1,5 @@
 export interface PortfolioProject {
+  _id?: string;
   slug: string;
   title: string;
   subtitle: string;
@@ -11,6 +12,7 @@ export interface PortfolioProject {
   outcome: string;
   metrics: string[];
   stack: string[];
+  imageUrl?: string;
   liveUrl?: string;
   repoUrl?: string;
   featured: boolean;
@@ -26,6 +28,35 @@ export interface CapabilityGroup {
   technologies: string[];
   order: number;
 }
+
+export interface PortfolioSiteSettings {
+  heroDisplayWord: string;
+  dpImageUrl: string;
+  dpCategory: string;
+  dpTitle: string;
+  dpSubtitle: string;
+  secondaryImageUrl: string;
+  secondaryCategory: string;
+  secondaryTitle: string;
+  secondarySubtitle: string;
+  cvUrl?: string;
+  cvFileName?: string;
+  updatedAt?: number;
+}
+
+export const DEFAULT_SITE_SETTINGS: PortfolioSiteSettings = {
+  heroDisplayWord: "chiedozie.",
+  dpImageUrl: "/images/hero-dp.jpg",
+  dpCategory: "PORTRAIT",
+  dpTitle: "Chiedozie Onyekwelu",
+  dpSubtitle: "— STYLE. /47°",
+  secondaryImageUrl: "/images/hero-editorial.jpg",
+  secondaryCategory: "EDITORIAL",
+  secondaryTitle: "Untitled Res",
+  secondarySubtitle: "— PORT. GQ",
+  cvUrl: "/chiedozie-onyekwelu-cv.pdf",
+  cvFileName: "Chiedozie-Onyekwelu-CV.pdf",
+};
 
 export const INITIAL_PROJECTS: PortfolioProject[] = [
   {
@@ -200,7 +231,7 @@ export const INITIAL_CAPABILITIES: CapabilityGroup[] = [
       "Input sanitization, rate-limiting & environment security auditing",
       "Comprehensive project documentation & backup/recovery workflows",
     ],
-    technologies: ["Vercel", "Git / GitHub", "Vitest", "ESLint 9", "pnpm", "Core Web Vitals"],
+    technologies: ["Vercel", "Git / GitHub", "Vitest", "ESLint 9", "npm", "Core Web Vitals"],
     order: 3,
   },
 ];

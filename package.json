@@ -1,10 +1,11 @@
 {
-  "name": "dozie-portfolio",
+  "name": "chiedozie",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "convex:dev": "convex dev",
+    "convex:dev": "node -e \"const fs=require('fs'),path=require('path'),cp=require('child_process');const cwd=fs.realpathSync.native(process.cwd());process.exit(cp.spawnSync(process.execPath,[path.join(cwd,'node_modules/convex/bin/main.js'),'dev',...process.argv.slice(1)],{cwd,stdio:'inherit'}).status??0)\" --",
+    "convex:deploy": "node -e \"const fs=require('fs'),path=require('path'),cp=require('child_process');const cwd=fs.realpathSync.native(process.cwd());process.exit(cp.spawnSync(process.execPath,[path.join(cwd,'node_modules/convex/bin/main.js'),'deploy','-y',...process.argv.slice(1)],{cwd,stdio:'inherit'}).status??0)\" --",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

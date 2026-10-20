@@ -5,23 +5,15 @@ import Link from "next/link";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
 
 export function Logo() {
-  const { activeAccent } = useSectionFocus();
+  const { setActiveSection } = useSectionFocus();
 
   return (
     <Link
-      href="/#hero"
-      className="group inline-flex items-center gap-2 text-base font-semibold tracking-tight text-heading transition-colors"
+      href="/"
+      onClick={() => setActiveSection("hero")}
+      className="inline-flex items-baseline font-serif text-[18px] leading-none font-bold tracking-[-0.03em] text-heading transition-opacity hover:opacity-75 sm:text-[21px]"
     >
-      <span
-        data-header-accent-dot
-        style={{ backgroundColor: activeAccent.accentHex }}
-        className="size-2.5 rounded-full transition-colors duration-300"
-        aria-hidden="true"
-      />
-      <span>Chiedozie Onyekwelu</span>
-      <span className="hidden font-mono text-xs font-normal text-body sm:inline">
-        / Dozie
-      </span>
+      <span>chiedozie</span>
     </Link>
   );
 }

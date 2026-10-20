@@ -91,8 +91,7 @@ export const SECTION_ACCENTS: Record<SectionId, SectionAccentConfig> = {
 
 export const SECTION_ORDER: SectionId[] = [
   "hero",
-  "work",
-  "capabilities",
   "about",
+  "work",
   "contact",
 ];

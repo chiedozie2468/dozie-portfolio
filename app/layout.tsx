@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { ThemeProvider } from "@/components/layout/theme-provider";
+import { AntigravityTiles } from "@/components/motion/antigravity-tiles";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 import { SectionFocusProvider } from "@/components/providers/section-focus-provider";
 
@@ -17,6 +18,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -61,7 +68,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <ThemeProvider
@@ -72,8 +79,9 @@ export default function RootLayout({
         >
           <ConvexClientProvider>
             <SectionFocusProvider>
+              <AntigravityTiles />
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <main className="relative z-10 flex-1">{children}</main>
               <Footer />
             </SectionFocusProvider>
           </ConvexClientProvider>

@@ -24,7 +24,7 @@ The portfolio uses the existing Convex development deployment:
    ```
 2. Push/sync schema and functions safely without destructive flags:
    ```bash
-   pnpm convex:dev --once
+   npx convex dev --once
    ```
 3. Seed initial portfolio projects and capabilities if the tables are empty (idempotent seed function that preserves all existing records):
    ```bash
@@ -32,7 +32,7 @@ The portfolio uses the existing Convex development deployment:
    ```
 4. Start the Next.js development server:
    ```bash
-   pnpm dev
+   npm run dev
    ```
 
 ---
@@ -49,7 +49,7 @@ Before public production launch, complete the following steps:
    - Set `NEXT_PUBLIC_SITE_URL` to your production domain.
 4. Override the Vercel Build Command to deploy Convex functions and schema alongside the Next.js build:
    ```bash
-   npx convex deploy --cmd 'pnpm build'
+   npx convex deploy --cmd 'npm run build'
    ```
    *(Convex automatically injects the production `NEXT_PUBLIC_CONVEX_URL` and `NEXT_PUBLIC_CONVEX_SITE_URL` during `npx convex deploy --cmd`.)*
 
