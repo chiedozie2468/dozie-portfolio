@@ -35,15 +35,15 @@ export function FooterContent() {
   const { setActiveSection } = useSectionFocus();
 
   return (
-    <footer className="relative z-20 mt-[18px] w-full shrink-0 overflow-hidden border-t border-slate-800 bg-[#070B12] text-slate-100 md:snap-end">
+    <footer className="relative z-20 mt-[18px] flex min-h-[calc(100dvh-3.5rem)] w-full shrink-0 flex-col justify-center overflow-hidden border-t border-slate-800 bg-[#070B12] text-slate-100 sm:min-h-[calc(100dvh-5rem)] md:snap-start md:snap-always">
       {/* Subtle dark radial glow */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_50%,rgba(56,189,248,0.12),transparent_70%),radial-gradient(700px_circle_at_80%_50%,rgba(167,139,250,0.12),transparent_70%)]"
       />
 
-      <Container className="relative z-10 flex flex-col justify-between gap-5 py-8 sm:flex-row sm:items-center sm:py-10">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <Container className="relative z-10 flex flex-col justify-between gap-10 py-14">
+        <div className="flex flex-col gap-3">
           <Link
             href="/"
             onClick={(e) => {
@@ -59,49 +59,54 @@ export function FooterContent() {
                 window.history.replaceState(null, "", "/");
               }
             }}
-            className="font-sans text-base font-medium tracking-[-0.02em] text-white transition-opacity hover:opacity-80 sm:text-lg"
+            className="font-sans text-3xl font-normal tracking-[-0.03em] text-white transition-opacity hover:opacity-80 sm:text-5xl"
           >
             Chiedozie Onyekwelu
           </Link>
-          <span className="hidden text-slate-600 sm:inline">•</span>
-          <p className="text-xs text-slate-400">
-            © {year} All rights reserved.
+          <p className="font-mono text-xs text-slate-400">
+            Full-Stack Software Engineer · Lagos, Nigeria
           </p>
         </div>
 
-        <nav
-          aria-label="Footer navigation"
-          className="flex flex-wrap items-center gap-x-6 gap-y-2"
-        >
-          {navLinks.map((link) => (
-            <Link
-              key={link.sectionId}
-              href={link.href}
-              className="group inline-flex items-center gap-1.5 text-xs font-medium text-slate-200 transition-colors hover:text-white sm:text-[13px]"
-            >
-              <SectionLineIcon
-                sectionId={link.sectionId}
-                className="size-4 opacity-75 transition-opacity group-hover:opacity-100"
-              />
-              <span>{link.label}</span>
-            </Link>
-          ))}
-        </nav>
+        <div className="flex flex-col justify-between gap-8 border-t border-white/10 pt-8 sm:flex-row sm:items-center">
+          <nav
+            aria-label="Footer navigation"
+            className="flex flex-wrap items-center gap-x-8 gap-y-3"
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.sectionId}
+                href={link.href}
+                className="group inline-flex items-center gap-2 text-sm font-normal text-slate-200 transition-colors hover:text-white"
+              >
+                <SectionLineIcon
+                  sectionId={link.sectionId}
+                  className="size-5 opacity-80 transition-opacity group-hover:opacity-100"
+                />
+                <span>{link.label}</span>
+              </Link>
+            ))}
+          </nav>
 
-        <div className="flex items-center gap-2.5">
-          {socialLinks.map(({ href, label, icon: Icon }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="group flex size-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-sky-400 hover:bg-sky-500/25"
-            >
-              <Icon className="size-4 transition-transform duration-300 group-hover:scale-110" />
-            </a>
-          ))}
+          <div className="flex items-center gap-3">
+            {socialLinks.map(({ href, label, icon: Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="group flex size-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-sky-400 hover:bg-sky-500/25"
+              >
+                <Icon className="size-4.5 transition-transform duration-300 group-hover:scale-110" />
+              </a>
+            ))}
+          </div>
         </div>
+
+        <p className="font-mono text-xs text-slate-500">
+          © {year} Chiedozie Onyekwelu. All rights reserved.
+        </p>
       </Container>
     </footer>
   );

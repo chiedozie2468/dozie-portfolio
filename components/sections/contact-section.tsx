@@ -115,7 +115,7 @@ export function ContactSection() {
         backgroundImage:
           "radial-gradient(900px circle at 15% 25%, rgba(14, 165, 233, 0.10), transparent 65%), radial-gradient(850px circle at 85% 80%, rgba(16, 185, 129, 0.10), transparent 65%)",
       }}
-      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-8 transition-colors duration-700 sm:min-h-[calc(100dvh-5rem)] sm:py-10 md:snap-start md:snap-always lg:py-12"
+      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-6 transition-colors duration-700 sm:py-8 md:h-[calc(100dvh-5rem)] md:min-h-[540px] md:snap-start md:snap-always md:overflow-hidden"
     >
       {/* Top active accent bar */}
       <div
@@ -148,7 +148,7 @@ export function ContactSection() {
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-6 px-[10px] font-mono text-[12px] text-slate-700 sm:gap-8 sm:text-[13px] lg:mr-[10px]">
+        <div className="hidden items-center gap-6 px-[10px] font-mono text-[12px] text-slate-700 sm:flex sm:gap-8 sm:text-[13px] lg:mr-[10px]">
           <a
             href="https://wa.me/2349153251972"
             target="_blank"
@@ -177,44 +177,26 @@ export function ContactSection() {
         </div>
       </div>
 
-      {/* Main Two-Column Stage with generous spacing and breathing room */}
-      <div className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-10 px-[5.2%] py-6 lg:grid-cols-6 lg:gap-12 lg:py-8">
-        {/* Left Column (Columns 1-3): Editorial Heading + Interactive Contact Cards */}
+      {/* Main Two-Column Stage — strictly fits inside one full screen without extending */}
+      <div className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-8 px-[5.2%] py-2 lg:grid-cols-6 lg:gap-12">
+        {/* Left Column (Columns 1-3): Clean Heading + 3 Contact Cards */}
         <div className="flex flex-col justify-between sm:pl-[34px] lg:col-span-3 lg:pl-[38px] lg:pr-8">
-          <div className="space-y-4 sm:space-y-5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-600/25 bg-emerald-500/10 px-3.5 py-1 font-mono text-[10.5px] tracking-[0.12em] uppercase text-emerald-800">
-              <span className="relative flex size-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-600" />
-              </span>
-              <span>Available for new projects</span>
-            </div>
+          <h2 className="font-sans text-[2.1rem] leading-[1.08] font-normal tracking-[-0.03em] text-slate-900 sm:text-[2.65rem] lg:text-[3.1rem]">
+            <span className="block font-normal text-sky-700">
+              Let&apos;s build
+            </span>
+            <span className="block font-normal">your next</span>
+            <span className="block font-normal">digital product.</span>
+          </h2>
 
-            <h2 className="font-sans text-[2.2rem] leading-[1.1] font-normal tracking-[-0.03em] text-slate-900 sm:text-[2.7rem] lg:text-[3.1rem]">
-              <span className="block font-normal text-sky-700">
-                Let&apos;s build
-              </span>
-              <span className="block font-normal">your next</span>
-              <span className="block font-normal">digital product.</span>
-            </h2>
-
-            <p className="max-w-md font-sans text-sm leading-[1.7] text-slate-600 sm:text-[15px]">
-              Reach out directly for full-stack product engineering, Convex
-              backend architecture, or custom web platform collaborations.
-            </p>
-          </div>
-
-          {/* 3 Sleek Glassmorphic Contact Cards with comfortable spacing */}
-          <div className="mt-7 grid grid-cols-1 gap-3.5 sm:mt-8 sm:gap-4">
+          {/* 3 Clean Contact Cards */}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:mt-7">
             {/* 1. Phone & WhatsApp */}
-            <div className="group flex items-center gap-4 rounded-xl border border-slate-900/10 bg-white/80 px-4 py-3.5 shadow-2xs backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-900/25 hover:bg-white">
-              <div className="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800 transition-transform duration-300 group-hover:scale-105">
-                <Phone className="relative size-4 stroke-[1.6]" />
+            <div className="group flex items-center gap-3.5 rounded-xl border border-slate-900/10 bg-white/80 px-4 py-3 shadow-2xs backdrop-blur-md transition-all duration-300 hover:border-slate-900/25 hover:bg-white">
+              <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800">
+                <Phone className="relative size-3.5 stroke-[1.6]" />
               </div>
-              <div className="min-w-0 space-y-0.5">
-                <p className="font-mono text-[10px] tracking-wider uppercase text-slate-500">
-                  Phone & WhatsApp
-                </p>
+              <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5 text-sm text-slate-900">
                   <a
                     href="tel:+2349153251972"
@@ -237,14 +219,11 @@ export function ContactSection() {
             </div>
 
             {/* 2. Email */}
-            <div className="group flex items-center gap-4 rounded-xl border border-slate-900/10 bg-white/80 px-4 py-3.5 shadow-2xs backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-900/25 hover:bg-white">
-              <div className="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800 transition-transform duration-300 group-hover:scale-105">
-                <Mail className="relative size-4 stroke-[1.6]" />
+            <div className="group flex items-center gap-3.5 rounded-xl border border-slate-900/10 bg-white/80 px-4 py-3 shadow-2xs backdrop-blur-md transition-all duration-300 hover:border-slate-900/25 hover:bg-white">
+              <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800">
+                <Mail className="relative size-3.5 stroke-[1.6]" />
               </div>
-              <div className="min-w-0 space-y-0.5">
-                <p className="font-mono text-[10px] tracking-wider uppercase text-slate-500">
-                  Direct Email
-                </p>
+              <div className="min-w-0">
                 <a
                   href={`mailto:${DEVELOPER_PROFILE.email}`}
                   className="block truncate text-sm text-slate-900 transition-opacity hover:opacity-70"
@@ -255,14 +234,11 @@ export function ContactSection() {
             </div>
 
             {/* 3. Studio Location */}
-            <div className="group flex items-center gap-4 rounded-xl border border-slate-900/10 bg-white/80 px-4 py-3.5 shadow-2xs backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-900/25 hover:bg-white">
-              <div className="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800 transition-transform duration-300 group-hover:scale-105">
-                <MapPin className="relative size-4 stroke-[1.6]" />
+            <div className="group flex items-center gap-3.5 rounded-xl border border-slate-900/10 bg-white/80 px-4 py-3 shadow-2xs backdrop-blur-md transition-all duration-300 hover:border-slate-900/25 hover:bg-white">
+              <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800">
+                <MapPin className="relative size-3.5 stroke-[1.6]" />
               </div>
-              <div className="min-w-0 space-y-0.5">
-                <p className="font-mono text-[10px] tracking-wider uppercase text-slate-500">
-                  Studio Address
-                </p>
+              <div className="min-w-0">
                 <p className="truncate text-sm text-slate-900">
                   20 Abeokuta, Owode Onirin, Lagos State, Nigeria
                 </p>
@@ -271,27 +247,22 @@ export function ContactSection() {
           </div>
         </div>
 
-        {/* Right Column (Columns 4-6): Elevated Glassmorphic Message Card */}
+        {/* Right Column (Columns 4-6): Clean Message Card */}
         <div className="lg:col-span-3">
-          <div className="relative overflow-hidden rounded-2xl border border-slate-900/12 bg-white/85 p-6 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:p-8">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-900/12 bg-white/85 p-5 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:p-6">
             <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h3 className="font-sans text-lg font-normal tracking-tight text-slate-900 sm:text-xl">
-                  Send a Message
-                </h3>
-                <p className="font-mono text-xs text-slate-500">
-                  Direct to Chiedozie Onyekwelu · Replies within 24h
-                </p>
-              </div>
-              <span className="flex size-9 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800">
-                <Send className="size-4 stroke-[1.6]" />
+              <h3 className="font-sans text-lg font-normal tracking-tight text-slate-900 sm:text-xl">
+                Send a Message
+              </h3>
+              <span className="flex size-8 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800">
+                <Send className="size-3.5 stroke-[1.6]" />
               </span>
             </div>
 
             <form
               onSubmit={handleSubmit}
               noValidate
-              className="mt-6 flex flex-col gap-4"
+              className="mt-4 flex flex-col gap-3.5"
             >
               {/* Hidden honeypot */}
               <input
@@ -305,7 +276,7 @@ export function ContactSection() {
               />
 
               {/* Row 1: First Name & Last Name */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                 <input
                   type="text"
                   placeholder="First Name"
@@ -314,7 +285,7 @@ export function ContactSection() {
                   onBlur={() => setActiveField(null)}
                   onChange={(e) => setFirstName(e.target.value)}
                   className={cn(
-                    "h-11 rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none sm:h-12",
+                    "h-11 rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                     activeField === "firstName"
                       ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
                       : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
@@ -328,7 +299,7 @@ export function ContactSection() {
                   onBlur={() => setActiveField(null)}
                   onChange={(e) => setLastName(e.target.value)}
                   className={cn(
-                    "h-11 rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none sm:h-12",
+                    "h-11 rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                     activeField === "lastName"
                       ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
                       : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
@@ -336,7 +307,7 @@ export function ContactSection() {
                 />
               </div>
 
-              {/* Row 2: Email or Phone Number */}
+              {/* Row 2: Email Address */}
               <input
                 type="email"
                 placeholder="Email Address"
@@ -345,7 +316,7 @@ export function ContactSection() {
                 onBlur={() => setActiveField(null)}
                 onChange={(e) => setEmail(e.target.value)}
                 className={cn(
-                  "h-11 w-full rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none sm:h-12",
+                  "h-11 w-full rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                   activeField === "email"
                     ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
                     : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
@@ -354,14 +325,14 @@ export function ContactSection() {
 
               {/* Row 3: Message */}
               <textarea
-                rows={4}
-                placeholder="Tell me about your project, timeline, or question..."
+                rows={3}
+                placeholder="Your message..."
                 value={message}
                 onFocus={() => setActiveField("message")}
                 onBlur={() => setActiveField(null)}
                 onChange={(e) => setMessage(e.target.value)}
                 className={cn(
-                  "w-full rounded-xl border p-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
+                  "w-full rounded-xl border p-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                   activeField === "message"
                     ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
                     : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
@@ -369,24 +340,24 @@ export function ContactSection() {
               />
 
               {submitState.status === "success" && (
-                <div className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3.5 text-xs text-emerald-800">
+                <div className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs text-emerald-800">
                   <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
                   <span>{submitState.message}</span>
                 </div>
               )}
 
               {submitState.status === "error" && (
-                <div className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-xs text-rose-700">
+                <div className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-700">
                   <AlertCircle className="size-4 shrink-0" />
                   <span>{submitState.message}</span>
                 </div>
               )}
 
-              <div className="flex items-center justify-between gap-4 pt-2">
+              <div className="pt-1">
                 <button
                   type="submit"
                   disabled={submitState.status === "submitting"}
-                  className="group inline-flex h-11 cursor-pointer items-center gap-2.5 rounded-xl bg-[#0F172A] px-7 font-mono text-xs font-normal text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-50 sm:h-12 sm:px-8"
+                  className="group inline-flex h-11 cursor-pointer items-center gap-2.5 rounded-xl bg-[#0F172A] px-7 font-mono text-xs font-normal text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-50"
                 >
                   {submitState.status === "submitting" ? (
                     <>
@@ -400,42 +371,13 @@ export function ContactSection() {
                     </>
                   )}
                 </button>
-
-                <span className="hidden font-mono text-xs text-slate-400 sm:inline">
-                  Lagos · UTC+1
-                </span>
               </div>
             </form>
           </div>
         </div>
       </div>
 
-      {/* Bottom Row matching About & Projects */}
-      <div className="relative z-20 mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-[5.2%] font-mono text-[11px] text-slate-600 sm:text-xs">
-        <span className="sm:pl-[34px] lg:pl-[38px]">
-          Lagos, Nigeria · Available Worldwide (UTC+1)
-        </span>
-        <div className="flex items-center gap-8 sm:gap-12">
-          <a
-            href={DEVELOPER_PROFILE.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 transition-opacity hover:opacity-65"
-          >
-            <span>GitHub</span>
-            <ArrowUpRight className="size-3.5" />
-          </a>
-          <a
-            href={DEVELOPER_PROFILE.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 transition-opacity hover:opacity-65"
-          >
-            <span>Instagram</span>
-            <ArrowUpRight className="size-3.5" />
-          </a>
-        </div>
-      </div>
+      <div aria-hidden="true" className="h-1" />
     </section>
   );
 }
