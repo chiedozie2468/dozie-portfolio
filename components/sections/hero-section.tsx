@@ -190,14 +190,14 @@ export function HeroSection({
 
         {/* 4. Bottom-Left Personal Intro (matching exact width of "chiedozie.") + Giant "chiedozie." */}
         <div className="pointer-events-none absolute bottom-[5.5%] left-[4.8%] z-20 inline-flex flex-col">
-          {/* Big, thin live person icon + "Welcome to" starting right above where "software" starts */}
+          {/* Small heading starting right above where "software" starts */}
           <div
             style={{ color: activeTheme.heading }}
             className="mb-2 flex items-center gap-2.5 pl-[2.5rem] opacity-85 transition-colors duration-500 sm:mb-3 sm:gap-3.5 sm:pl-[3.35rem] lg:pl-[3.8rem] xl:pl-[4.25rem]"
           >
             <OverviewLineIcon className="size-7 shrink-0 stroke-[1.1] sm:size-9 lg:size-11" />
             <span className="font-sans text-2xl leading-none font-extralight tracking-[-0.03em] whitespace-nowrap sm:text-4xl lg:text-[2.65rem] xl:text-[3rem]">
-              Welcome to
+              Hi, I&apos;m Dozie.
             </span>
           </div>
 
@@ -205,8 +205,8 @@ export function HeroSection({
             style={{ color: activeTheme.body }}
             className="mb-3 w-0 min-w-full font-sans text-xs leading-snug font-normal transition-colors duration-500 sm:mb-4 sm:text-base lg:text-lg xl:text-xl"
           >
-            I’m a software engineer from Lagos who loves turning complex ideas
-            into simple, reliable web products people enjoy using.
+            I’m a software developer who enjoys building simple, useful digital
+            products that solve real problems.
           </p>
 
           <h1
