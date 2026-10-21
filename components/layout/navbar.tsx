@@ -175,9 +175,19 @@ export function Navbar() {
             <div className="flex items-center justify-between pb-6">
               <Link
                 href="/"
-                onClick={() => {
+                onClick={(e) => {
                   setActiveSection("hero");
                   setSidebarOpen(false);
+                  if (isHome) {
+                    e.preventDefault();
+                    const heroEl = document.getElementById("hero");
+                    if (heroEl) {
+                      heroEl.scrollIntoView({ behavior: "smooth" });
+                    } else {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                    window.history.replaceState(null, "", "/");
+                  }
                 }}
                 className="font-sans text-2xl font-bold tracking-[-0.03em] text-heading"
               >
@@ -198,9 +208,19 @@ export function Navbar() {
             <nav className="mt-4 flex flex-col gap-5">
               <Link
                 href="/"
-                onClick={() => {
+                onClick={(e) => {
                   setActiveSection("hero");
                   setSidebarOpen(false);
+                  if (isHome) {
+                    e.preventDefault();
+                    const heroEl = document.getElementById("hero");
+                    if (heroEl) {
+                      heroEl.scrollIntoView({ behavior: "smooth" });
+                    } else {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                    window.history.replaceState(null, "", "/");
+                  }
                 }}
                 className={cn(
                   "text-base tracking-[-0.01em] transition-colors",

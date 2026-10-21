@@ -46,7 +46,19 @@ export function FooterContent() {
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <Link
             href="/"
-            onClick={() => setActiveSection("hero")}
+            onClick={(e) => {
+              setActiveSection("hero");
+              if (window.location.pathname === "/") {
+                e.preventDefault();
+                const heroEl = document.getElementById("hero");
+                if (heroEl) {
+                  heroEl.scrollIntoView({ behavior: "smooth" });
+                } else {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+                window.history.replaceState(null, "", "/");
+              }
+            }}
             className="font-sans text-base font-medium tracking-[-0.02em] text-white transition-opacity hover:opacity-80 sm:text-lg"
           >
             Chiedozie Onyekwelu
