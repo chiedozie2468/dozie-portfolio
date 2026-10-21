@@ -310,7 +310,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
               {project.architecture && (
                 <p
                   style={{ color: bodyColor }}
-                  className="line-clamp-2 font-mono text-[12.5px] leading-[1.6] font-normal opacity-85 sm:text-[13px]"
+                  className="hidden line-clamp-2 font-mono text-[12.5px] leading-[1.6] font-normal opacity-85 sm:block sm:text-[13px]"
                 >
                   {project.architecture}
                 </p>

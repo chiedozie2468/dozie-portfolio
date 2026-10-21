@@ -440,7 +440,10 @@ export function AboutSection() {
           <p
             data-about-para
             style={{ color: chapter.bodyText }}
-            className="font-mono text-[11px] leading-[1.75] font-normal sm:text-[12px]"
+            className={cn(
+              "font-mono text-[11px] leading-[1.75] font-normal sm:text-[12px]",
+              chapter.id === "education" ? "block" : "hidden sm:block"
+            )}
           >
             {chapter.monoParagraph2}
           </p>

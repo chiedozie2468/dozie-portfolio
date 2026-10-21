@@ -65,8 +65,8 @@ export function HeroSection({
       className="relative h-[calc(100dvh-3.5rem)] min-h-[500px] w-full overflow-hidden transition-colors duration-500 ease-out select-none sm:h-[calc(100dvh-5rem)] md:snap-start md:snap-always"
     >
       <div className="relative h-full w-full">
-        {/* 1. Left Vertical "Colors +" — click to cycle Hero & Projects background & text colors */}
-        <div className="absolute top-[33%] left-[5.2%] z-20 flex -translate-y-1/2 items-center sm:top-[35%]">
+        {/* 1. Left Vertical "Colors +" — hidden on small screens to prevent crowding; visible on sm+ */}
+        <div className="absolute top-[35%] left-[5.2%] z-20 hidden -translate-y-1/2 items-center sm:flex">
           <button
             type="button"
             onClick={handleCycleHeroColor}
@@ -78,14 +78,14 @@ export function HeroSection({
           </button>
         </div>
 
-        {/* 2. Center Circular "Colors" Button — click to cycle Hero background & text colors */}
-        <div className="absolute top-[36%] left-[22%] z-20 -translate-x-1/2 -translate-y-1/2 sm:top-[38%] sm:left-[48%] lg:left-[49.4%]">
+        {/* 2. Circular "Colors" Button — positioned cleanly on mobile and desktop */}
+        <div className="absolute top-[22%] left-[18%] z-20 -translate-x-1/2 -translate-y-1/2 sm:top-[38%] sm:left-[48%] lg:left-[49.4%]">
           <button
             type="button"
             onClick={handleCycleHeroColor}
             aria-label="Change hero color theme"
             style={{ color: activeTheme.heading }}
-            className="group relative flex size-[46px] cursor-pointer items-center justify-center rounded-full transition-transform duration-300 active:scale-95 focus:outline-none sm:size-[58px] lg:size-[66px]"
+            className="group relative flex size-[48px] cursor-pointer items-center justify-center rounded-full transition-transform duration-300 active:scale-95 focus:outline-none sm:size-[58px] lg:size-[66px]"
           >
             <svg
               viewBox="0 0 100 100"
@@ -117,11 +117,11 @@ export function HeroSection({
         </div>
 
         {/* 3. Hero Frames:
-            - Small screens (< sm): ONLY the big portrait image (Card 1), flush against the extreme right edge and positioned down just above the "chiedozie." text block.
+            - Small screens (< sm): ONLY the big portrait image (Card 1), flush against the extreme right edge and positioned cleanly above the bottom text block.
             - Larger screens (sm+): Dual Hero Frames — Left image is larger; Right image is vertically centered in the middle of the left image and flush with the right edge. */}
-        <div className="absolute right-0 bottom-[21.5%] z-20 flex items-center gap-3 sm:top-[5%] sm:bottom-auto sm:gap-5 lg:gap-6">
+        <div className="absolute right-0 bottom-[27%] z-20 flex items-center gap-3 sm:top-[5%] sm:bottom-auto sm:gap-5 lg:gap-6">
           {/* Card 1 (Left on desktop / Only image on small screens, flush with extreme right edge on mobile) */}
-          <div className="flex w-[54vw] max-w-[235px] shrink-0 flex-col sm:w-[25.5vw] sm:max-w-[350px] lg:w-[26.5vw] lg:max-w-[380px]">
+          <div className="flex w-[48vw] max-w-[205px] shrink-0 flex-col sm:w-[25.5vw] sm:max-w-[350px] lg:w-[26.5vw] lg:max-w-[380px]">
             <div
               role="button"
               tabIndex={0}
@@ -133,7 +133,7 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="group relative aspect-[1/1.48] max-h-[54dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:max-h-[70dvh] sm:rounded-[3px]"
+              className="group relative aspect-[1/1.48] max-h-[46dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:max-h-[70dvh] sm:rounded-[3px]"
             >
               {dpCard.imageUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -188,31 +188,35 @@ export function HeroSection({
           </div>
         </div>
 
-        {/* 4. Bottom-Left Personal Intro (matching exact width of "chiedozie.") + Giant "chiedozie." */}
-        <div className="pointer-events-none absolute bottom-[5.5%] left-[4.8%] z-20 inline-flex flex-col">
-          {/* Small heading starting right above where "software" starts */}
+        {/* 4. Bottom-Left Personal Intro + Giant "chiedozie." */}
+        <div className="pointer-events-none absolute right-[4.8%] bottom-[4.5%] left-[4.8%] z-20 flex flex-col sm:right-auto sm:bottom-[5.5%] sm:inline-flex">
+          {/* Small heading */}
           <div
             style={{ color: activeTheme.heading }}
-            className="mb-2 flex items-center gap-2.5 pl-[2.5rem] opacity-85 transition-colors duration-500 sm:mb-3 sm:gap-3.5 sm:pl-[3.35rem] lg:pl-[3.8rem] xl:pl-[4.25rem]"
+            className="mb-1.5 flex items-center gap-2 opacity-85 transition-colors duration-500 sm:mb-3 sm:gap-3.5 sm:pl-[3.35rem] lg:pl-[3.8rem] xl:pl-[4.25rem]"
           >
-            <OverviewLineIcon className="size-7 shrink-0 stroke-[1.1] sm:size-9 lg:size-11" />
-            <span className="font-sans text-2xl leading-none font-extralight tracking-[-0.03em] whitespace-nowrap sm:text-4xl lg:text-[2.65rem] xl:text-[3rem]">
-              Hi, I&apos;m Dozie.
+            <OverviewLineIcon className="size-5 shrink-0 stroke-[1.1] sm:size-9 lg:size-11" />
+            <span className="font-sans text-lg leading-none font-extralight tracking-[-0.03em] whitespace-nowrap sm:text-3xl lg:text-[2.35rem] xl:text-[2.65rem]">
+              Welcome to my corner.
             </span>
           </div>
 
           <p
             style={{ color: activeTheme.body }}
-            className="mb-3 w-0 min-w-full font-sans text-xs leading-snug font-normal transition-colors duration-500 sm:mb-4 sm:text-base lg:text-lg xl:text-xl"
+            className="mb-2.5 max-w-[88vw] font-sans text-xs leading-relaxed font-normal transition-colors duration-500 sm:mb-4 sm:w-0 sm:min-w-full sm:max-w-none sm:text-base sm:leading-snug lg:text-lg xl:text-xl"
           >
-            I’m a software developer who enjoys building simple, useful digital
-            products that solve real problems.
+            I build digital experiences that turn ideas into useful products
+            <span className="hidden sm:inline">
+              , combining creativity, technology, and a focus on solving real
+              problems
+            </span>
+            .
           </p>
 
           <h1
             aria-label={displayWord}
             style={{ color: activeTheme.heading }}
-            className="font-sans text-[clamp(2.35rem,8.4vw,8.2rem)] leading-[0.82] font-black tracking-[-0.045em] whitespace-nowrap transition-colors duration-500"
+            className="font-sans text-[clamp(2.75rem,13vw,8.2rem)] leading-[0.82] font-black tracking-[-0.045em] whitespace-nowrap transition-colors duration-500 sm:text-[clamp(2.35rem,8.4vw,8.2rem)]"
           >
             {displayWord}
           </h1>
