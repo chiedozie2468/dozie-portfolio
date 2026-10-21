@@ -61,7 +61,7 @@ export function HeroSection({
         backgroundColor: activeTheme.bg,
         color: activeTheme.heading,
       }}
-      className="relative h-[calc(100dvh-3.5rem)] min-h-[440px] w-full snap-start snap-always overflow-hidden transition-colors duration-500 ease-out select-none sm:h-[calc(100dvh-5rem)]"
+      className="relative h-[calc(100dvh-3.5rem)] min-h-[500px] w-full overflow-hidden transition-colors duration-500 ease-out select-none sm:h-[calc(100dvh-5rem)] md:snap-start md:snap-always"
     >
       <div className="relative h-full w-full">
         {/* 1. Left Vertical "Colors +" — click to cycle Hero & Projects background & text colors */}
@@ -115,10 +115,12 @@ export function HeroSection({
           </button>
         </div>
 
-        {/* 3. Dual Hero Frames — Left image is larger; Right image is vertically centered in the middle of the left image and flush with the right edge */}
-        <div className="absolute top-[4%] right-0 z-20 flex items-center gap-3 sm:top-[5%] sm:gap-5 lg:gap-6">
-          {/* Card 1 (Left): Primary Portrait (DP) — Increased by ~5% */}
-          <div className="flex w-[40vw] max-w-[198px] shrink-0 flex-col sm:w-[25.5vw] sm:max-w-[350px] lg:w-[26.5vw] lg:max-w-[380px]">
+        {/* 3. Hero Frames:
+            - Small screens (< sm): ONLY the big portrait image (Card 1), flush against the extreme right edge and positioned down just above the "chiedozie." text block.
+            - Larger screens (sm+): Dual Hero Frames — Left image is larger; Right image is vertically centered in the middle of the left image and flush with the right edge. */}
+        <div className="absolute right-0 bottom-[21.5%] z-20 flex items-center gap-3 sm:top-[5%] sm:bottom-auto sm:gap-5 lg:gap-6">
+          {/* Card 1 (Left on desktop / Only image on small screens, flush with extreme right edge on mobile) */}
+          <div className="flex w-[54vw] max-w-[235px] shrink-0 flex-col sm:w-[25.5vw] sm:max-w-[350px] lg:w-[26.5vw] lg:max-w-[380px]">
             <div
               role="button"
               tabIndex={0}
@@ -130,7 +132,7 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="group relative aspect-[1/1.48] max-h-[70dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
+              className="group relative aspect-[1/1.48] max-h-[54dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:max-h-[70dvh] sm:rounded-[3px]"
             >
               {dpCard.imageUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -138,7 +140,7 @@ export function HeroSection({
                   src={dpCard.imageUrl}
                   alt={dpCard.title}
                   className={cn(
-                    "size-full rounded-[3px] object-cover object-top transition-all duration-500",
+                    "size-full rounded-l-[3px] rounded-r-none object-cover object-top transition-all duration-500 sm:rounded-[3px]",
                     dpShowColor
                       ? "grayscale-0 contrast-100"
                       : "grayscale contrast-110"
@@ -155,8 +157,8 @@ export function HeroSection({
             </div>
           </div>
 
-          {/* Card 2 (Right): Secondary Editorial Image — Smaller and touching the extreme right edge */}
-          <div className="flex w-[23vw] max-w-[115px] shrink-0 flex-col sm:w-[14vw] sm:max-w-[195px] lg:w-[14.5vw] lg:max-w-[215px]">
+          {/* Card 2 (Right): Secondary Editorial Image — Hidden on small screens; visible on sm+ touching the extreme right edge */}
+          <div className="hidden w-[23vw] max-w-[115px] shrink-0 flex-col sm:flex sm:w-[14vw] sm:max-w-[195px] lg:w-[14.5vw] lg:max-w-[215px]">
             <div
               role="button"
               tabIndex={0}

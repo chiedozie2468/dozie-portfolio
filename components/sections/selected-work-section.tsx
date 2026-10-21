@@ -160,7 +160,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
         backgroundColor: sectionBg,
         color: headingColor,
       }}
-      className="relative flex h-[calc(100dvh-3.5rem)] min-h-[560px] w-full snap-start snap-always flex-col justify-between overflow-hidden border-t border-border/60 py-6 transition-colors duration-500 ease-out select-none sm:h-[calc(100dvh-5rem)] sm:py-10"
+      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-6 transition-colors duration-500 ease-out select-none sm:py-10 md:h-[calc(100dvh-5rem)] md:min-h-[560px] md:snap-start md:snap-always md:overflow-hidden"
     >
       {/* Top active accent bar */}
       <div

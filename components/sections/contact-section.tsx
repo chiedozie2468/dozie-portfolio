@@ -116,7 +116,7 @@ export function ContactSection() {
         backgroundImage:
           "radial-gradient(900px circle at 15% 25%, rgba(14, 165, 233, 0.10), transparent 65%), radial-gradient(850px circle at 85% 80%, rgba(16, 185, 129, 0.10), transparent 65%)",
       }}
-      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full snap-start snap-always flex-col justify-between border-t border-border/60 pt-3 transition-colors duration-700 sm:min-h-[calc(100dvh-5rem)] lg:pt-5"
+      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 pt-3 transition-colors duration-700 sm:min-h-[calc(100dvh-5rem)] md:snap-start md:snap-always lg:pt-5"
     >
       {/* Top active accent bar */}
       <div

@@ -168,7 +168,7 @@
     -ms-overflow-style: none;
   }
   html {
-    @apply font-sans scroll-smooth snap-y snap-mandatory scroll-pt-14 sm:scroll-pt-20;
+    @apply font-sans scroll-smooth md:snap-y md:snap-mandatory scroll-pt-14 sm:scroll-pt-20;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
