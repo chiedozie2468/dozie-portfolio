@@ -196,8 +196,9 @@ export function Navbar() {
                     activeTheme.id === "editorial-ivory"
                       ? activeTheme.heading
                       : activeTheme.ringArc,
+                  fontWeight: 800,
                 }}
-                className="text-2xl font-normal tracking-[-0.01em] transition-colors duration-300"
+                className="text-2xl font-extrabold tracking-[-0.01em] transition-colors duration-300"
               >
                 Dozie
               </Link>

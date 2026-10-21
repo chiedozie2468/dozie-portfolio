@@ -35,8 +35,9 @@ export function Logo() {
       style={{
         fontFamily: '"Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive',
         color: logoColor,
+        fontWeight: 800,
       }}
-      className="inline-flex cursor-pointer items-baseline text-xl leading-none font-normal tracking-[-0.01em] transition-colors duration-300 hover:opacity-75 sm:text-2xl"
+      className="inline-flex cursor-pointer items-baseline text-xl leading-none font-extrabold tracking-[-0.01em] transition-colors duration-300 hover:opacity-75 sm:text-2xl"
     >
       <span>Dozie</span>
     </Link>

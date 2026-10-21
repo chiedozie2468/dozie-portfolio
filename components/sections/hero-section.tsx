@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, User } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { OverviewLineIcon } from "@/components/icons/section-line-icons";
 import { useHeroTheme } from "@/components/providers/hero-theme-provider";
@@ -12,6 +12,14 @@ import {
   type PortfolioSiteSettings,
 } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
+
+const HERO_CORNER_WORDS = [
+  "corner.",
+  "world.",
+  "studio.",
+  "space.",
+  "craft.",
+] as const;
 
 interface HeroSectionProps {
   connectionState?: ConvexConnectionState;
@@ -27,6 +35,24 @@ export function HeroSection({
   // Images are black-and-white by default; clicking an image toggles its original color
   const [dpShowColor, setDpShowColor] = useState(false);
   const [editorialShowColor, setEditorialShowColor] = useState(false);
+  const [wordIndex, setWordIndex] = useState(0);
+  const [wordVisible, setWordVisible] = useState(true);
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const intervalId = setInterval(() => {
+      setWordVisible(false);
+      timeoutId = setTimeout(() => {
+        setWordIndex((prev) => (prev + 1) % HERO_CORNER_WORDS.length);
+        setWordVisible(true);
+      }, 280);
+    }, 2600);
+
+    return () => {
+      clearInterval(intervalId);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
 
   const displayWord =
     !siteSettings.heroDisplayWord || siteSettings.heroDisplayWord === "dozie."
@@ -117,11 +143,11 @@ export function HeroSection({
         </div>
 
         {/* 3. Hero Frames:
-            - Small screens (< sm): ONLY the big portrait image (Card 1), flush against the extreme right edge and positioned cleanly above the bottom text block.
+            - Small screens (< sm): ONLY the big portrait image (Card 1), taller & larger, flush against the extreme right edge.
             - Larger screens (sm+): Dual Hero Frames — Left image is larger; Right image is vertically centered in the middle of the left image and flush with the right edge. */}
-        <div className="absolute right-0 bottom-[27%] z-20 flex items-center gap-3 sm:top-[5%] sm:bottom-auto sm:gap-5 lg:gap-6">
-          {/* Card 1 (Left on desktop / Only image on small screens, flush with extreme right edge on mobile) */}
-          <div className="flex w-[48vw] max-w-[205px] shrink-0 flex-col sm:w-[25.5vw] sm:max-w-[350px] lg:w-[26.5vw] lg:max-w-[380px]">
+        <div className="absolute right-0 bottom-[25.5%] z-20 flex items-center gap-3 sm:top-[5%] sm:bottom-auto sm:gap-5 lg:gap-6">
+          {/* Card 1 (Left on desktop / Only image on small screens, flush with extreme right edge on mobile with increased height) */}
+          <div className="flex w-[56vw] max-w-[245px] shrink-0 flex-col sm:w-[25.5vw] sm:max-w-[350px] lg:w-[26.5vw] lg:max-w-[380px]">
             <div
               role="button"
               tabIndex={0}
@@ -133,7 +159,7 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="group relative aspect-[1/1.48] max-h-[46dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:max-h-[70dvh] sm:rounded-[3px]"
+              className="group relative aspect-[1/1.72] max-h-[56dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:aspect-[1/1.48] sm:max-h-[70dvh] sm:rounded-[3px]"
             >
               {dpCard.imageUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -190,14 +216,30 @@ export function HeroSection({
 
         {/* 4. Bottom-Left Personal Intro + Giant "chiedozie." */}
         <div className="pointer-events-none absolute right-[4.8%] bottom-[4.5%] left-[4.8%] z-20 flex flex-col sm:right-auto sm:bottom-[5.5%] sm:inline-flex">
-          {/* Small heading */}
+          {/* Small heading — larger, thin (font-extralight), moved up ~10px (-translate-y-2.5), with animated changing word */}
           <div
             style={{ color: activeTheme.heading }}
-            className="mb-1.5 flex items-center gap-2 opacity-85 transition-colors duration-500 sm:mb-3 sm:gap-3.5 sm:pl-[3.35rem] lg:pl-[3.8rem] xl:pl-[4.25rem]"
+            className="mb-3.5 flex -translate-y-2.5 items-center gap-2.5 opacity-90 transition-colors duration-500 sm:mb-4 sm:gap-3.5 sm:pl-[3.35rem] lg:pl-[3.8rem] xl:pl-[4.25rem]"
           >
-            <OverviewLineIcon className="size-5 shrink-0 stroke-[1.1] sm:size-9 lg:size-11" />
-            <span className="font-sans text-lg leading-none font-extralight tracking-[-0.03em] whitespace-nowrap sm:text-3xl lg:text-[2.35rem] xl:text-[2.65rem]">
-              Welcome to my corner.
+            <OverviewLineIcon className="size-6 shrink-0 stroke-[1.1] sm:size-9 lg:size-11" />
+            <span className="inline-flex items-baseline font-sans text-2xl leading-none font-extralight tracking-[-0.03em] whitespace-nowrap sm:text-4xl lg:text-[2.75rem] xl:text-[3.15rem]">
+              <span>Welcome to my&nbsp;</span>
+              <span
+                style={{
+                  color:
+                    activeTheme.id === "editorial-ivory"
+                      ? activeTheme.heading
+                      : activeTheme.ringArc,
+                }}
+                className={cn(
+                  "inline-block font-extralight transition-all duration-300 ease-out",
+                  wordVisible
+                    ? "translate-y-0 opacity-100"
+                    : "-translate-y-2 opacity-0"
+                )}
+              >
+                {HERO_CORNER_WORDS[wordIndex]}
+              </span>
             </span>
           </div>
 

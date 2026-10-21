@@ -35,7 +35,7 @@ export function FooterContent() {
   const { setActiveSection } = useSectionFocus();
 
   return (
-    <footer className="relative z-20 mt-[18px] flex min-h-[calc(100dvh-3.5rem)] w-full shrink-0 flex-col justify-center overflow-hidden border-t border-slate-800 bg-[#070B12] text-slate-100 sm:min-h-[calc(100dvh-5rem)] md:snap-start md:snap-always">
+    <footer className="relative z-20 flex min-h-[calc(100dvh-3.5rem)] w-full shrink-0 flex-col justify-center overflow-hidden border-t border-slate-800 bg-[#070B12] py-12 text-slate-100 sm:min-h-[calc(100dvh-5rem)] md:snap-start md:snap-always">
       {/* Subtle dark radial glow */}
       <div
         aria-hidden="true"
