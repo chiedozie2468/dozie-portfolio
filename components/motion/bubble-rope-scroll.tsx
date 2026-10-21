@@ -176,7 +176,7 @@ export function BubbleRopeScroll() {
         >
           <SectionLineIcon
             sectionId={activeMeta.id}
-            className="size-3.5 text-slate-700"
+            className="size-4 text-slate-700 lg:size-5"
           />
           <span>{activeMeta.shortLabel}</span>
         </div>
@@ -232,15 +232,15 @@ export function BubbleRopeScroll() {
               onMouseLeave={() => setHoveredIdx(null)}
               aria-label={`Switch to ${sec.shortLabel}`}
               style={{
-                top: ny - 10,
-                left: 26 - 10,
+                top: ny - 12,
+                left: 26 - 12,
               }}
               className={cn(
-                "absolute z-10 flex size-5 cursor-pointer items-center justify-center rounded-full bg-transparent text-slate-700 transition-all duration-300 hover:scale-125",
-                isCurrent ? "opacity-100" : "opacity-55 hover:opacity-95"
+                "absolute z-10 flex size-6 cursor-pointer items-center justify-center rounded-full bg-transparent text-slate-700 transition-all duration-300 hover:scale-125",
+                isCurrent ? "opacity-100" : "opacity-60 hover:opacity-95"
               )}
             >
-              <SectionLineIcon sectionId={sec.id} className="size-3.5" />
+              <SectionLineIcon sectionId={sec.id} className="size-4.5 lg:size-5" />
             </button>
           );
         })}
@@ -257,15 +257,15 @@ export function BubbleRopeScroll() {
           onMouseEnter={() => setHoveredIdx(activeIdx)}
           onMouseLeave={() => setHoveredIdx(null)}
           style={{
-            left: bx - 15,
-            top: by - 15,
+            left: bx - 17,
+            top: by - 17,
             transition: dragging
               ? "none"
               : "top 460ms cubic-bezier(0.34, 1.56, 0.64, 1), left 460ms cubic-bezier(0.34, 1.56, 0.64, 1)",
           }}
-          className="absolute z-20 flex size-[30px] cursor-grab items-center justify-center rounded-full border border-slate-500/45 bg-white/45 text-slate-800 shadow-[inset_0_0_10px_rgba(255,255,255,0.8)] backdrop-blur-md active:cursor-grabbing"
+          className="absolute z-20 flex size-[34px] cursor-grab items-center justify-center rounded-full border border-slate-500/45 bg-white/45 text-slate-800 shadow-[inset_0_0_10px_rgba(255,255,255,0.8)] backdrop-blur-md active:cursor-grabbing"
         >
-          <SectionLineIcon sectionId={activeMeta.id} className="size-4" />
+          <SectionLineIcon sectionId={activeMeta.id} className="size-5 lg:size-5.5" />
         </div>
 
         {/* Bottom Pull-Cord Droplet (transparent & uncolored) */}

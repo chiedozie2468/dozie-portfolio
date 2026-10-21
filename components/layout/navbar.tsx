@@ -99,7 +99,7 @@ export function Navbar() {
                         : undefined
                     }
                     className={cn(
-                      "inline-flex items-center gap-2 py-1.5 text-sm tracking-[-0.01em] transition-colors duration-200 focus:outline-none sm:text-[15px]",
+                      "inline-flex items-center gap-2.5 py-1.5 text-sm tracking-[-0.01em] transition-colors duration-200 focus:outline-none sm:text-[15px]",
                       isActive
                         ? "font-semibold text-heading"
                         : "font-normal text-heading/75 hover:text-heading"
@@ -107,7 +107,7 @@ export function Navbar() {
                   >
                     <SectionLineIcon
                       sectionId={link.sectionId}
-                      className="size-4 opacity-85"
+                      className="size-5 shrink-0 opacity-90 sm:size-6 lg:size-7"
                     />
                     <span>{link.label}</span>
                   </Link>
@@ -243,7 +243,7 @@ export function Navbar() {
                   >
                     <SectionLineIcon
                       sectionId={link.sectionId}
-                      className="size-4 opacity-85"
+                      className="size-5.5 shrink-0 opacity-90"
                     />
                     <span>{link.label}</span>
                   </Link>

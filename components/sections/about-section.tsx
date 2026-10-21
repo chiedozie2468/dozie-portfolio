@@ -227,7 +227,7 @@ export function AboutSection() {
           style={{ color: chapter.accentText }}
           className="inline-flex items-center gap-2.5"
         >
-          <TalkingFaceIcon className="size-5 opacity-80" />
+          <TalkingFaceIcon className="size-5 shrink-0 opacity-85 sm:size-6 lg:size-7" />
           <span className="font-sans text-sm font-normal tracking-[-0.015em] transition-colors duration-300 sm:text-base lg:text-lg">
             About journal
           </span>

@@ -143,7 +143,7 @@ export function ContactSection() {
       {/* Top Editorial Header Row */}
       <div className="relative z-20 mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-[5.2%]">
         <div className="inline-flex items-center gap-2.5 text-slate-900">
-          <ContactLineIcon className="size-4.5 opacity-80" />
+          <ContactLineIcon className="size-5 shrink-0 opacity-85 sm:size-6 lg:size-7" />
           <span className="font-sans text-sm font-normal tracking-[-0.015em] sm:text-base lg:text-lg">
             Contact studio
           </span>

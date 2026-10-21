@@ -191,7 +191,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
           style={{ color: headingColor }}
           className="inline-flex items-center gap-2.5"
         >
-          <ProjectLineIcon className="size-4.5 opacity-80" />
+          <ProjectLineIcon className="size-5 shrink-0 opacity-85 sm:size-6 lg:size-7" />
           <span className="font-sans text-sm font-normal tracking-[-0.015em] transition-colors duration-300 sm:text-base lg:text-lg">
             Selected projects
           </span>
@@ -237,8 +237,8 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
         ref={stageRef}
         className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-8 px-[5.2%] py-3 lg:grid-cols-6 lg:gap-10 lg:py-6"
       >
-        {/* Columns 1-2 (Left Column): Compact Project Info with generous breathing room before the project screen */}
-        <div className="flex max-w-[390px] flex-col justify-between lg:col-span-2 lg:pr-8 xl:pr-12">
+        {/* Columns 1-2 (Left Column): Starts directly under "Selected projects" where the text started */}
+        <div className="flex max-w-[430px] flex-col justify-between sm:pl-[34px] lg:col-span-2 lg:pl-[38px] lg:pr-6 xl:pr-10">
           <div>
             {/* Clean 3-line Title */}
             <h2
@@ -505,8 +505,8 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
 
       {/* Bottom Row: Left "<  >" Navigation Arrows & Right Project Links */}
       <div className="relative z-20 mx-auto grid w-full grid-cols-2 items-center px-[5.2%] lg:grid-cols-6">
-        {/* Left "<  >" Arrows aligned with the Left Heading */}
-        <div className="flex items-center gap-4 lg:col-span-2">
+        {/* Left "<  >" Arrows aligned with the Left Heading under "Selected projects" */}
+        <div className="flex items-center gap-4 sm:pl-[34px] lg:col-span-2 lg:pl-[38px]">
           <button
             type="button"
             onClick={handlePrev}
