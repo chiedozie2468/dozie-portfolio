@@ -1,7 +1,6 @@
 "use client";
 
-import { Camera, Plus, User } from "lucide-react";
-import Link from "next/link";
+import { Plus, User } from "lucide-react";
 import { useState } from "react";
 
 import type { ConvexConnectionState } from "@/lib/hooks/use-portfolio-data";
@@ -11,12 +10,6 @@ import {
   type PortfolioSiteSettings,
 } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
-
-const EDITORIAL_SLIDE_IMAGES = [
-  "/images/hero-editorial.jpg",
-  "/touse/ui/556264991474646099.jpg",
-  "/touse/ui/601300987772936853.jpg",
-] as const;
 
 const HERO_COLOR_THEMES = [
   {
@@ -81,7 +74,6 @@ export function HeroSection({
   siteSettings = DEFAULT_SITE_SETTINGS,
   projects = [],
 }: HeroSectionProps) {
-  const [slideIndex, setSlideIndex] = useState(0);
   const [themeIndex, setThemeIndex] = useState(0);
   const [colorsOpen, setColorsOpen] = useState(false);
 
@@ -104,47 +96,17 @@ export function HeroSection({
     imageUrl: siteSettings.dpImageUrl,
   };
 
-  // Card 2: Secondary Editorial card (bleeds 5vw past the right edge of the viewport, matching image.png)
-  const editorialSlides = [
-    ...(siteSettings.secondaryImageUrl !== ""
-      ? [
-          {
-            id: "editorial-default",
-            category: siteSettings.secondaryCategory || "EDITORIAL",
-            title: siteSettings.secondaryTitle || "Untitled Res",
-            subtitle: siteSettings.secondarySubtitle || "— PORT. GQ",
-            imageUrl:
-              siteSettings.secondaryImageUrl || "/images/hero-editorial.jpg",
-          },
-        ]
-      : []),
-    ...projects.map((project, idx) => ({
-      id: project.slug,
-      category: project.category.toUpperCase(),
-      title: project.title.split("—")[0].trim(),
-      subtitle: `— SYS. /0${idx + 1}°`,
-      imageUrl:
-        project.imageUrl ||
-        EDITORIAL_SLIDE_IMAGES[idx % EDITORIAL_SLIDE_IMAGES.length],
-    })),
-  ];
-
-  const activeEditorial =
-    editorialSlides.length > 0
-      ? editorialSlides[slideIndex % editorialSlides.length]
-      : {
-          id: "editorial-fallback",
-          category: "EDITORIAL",
-          title: "Untitled Res",
-          subtitle: "— PORT. GQ",
-          imageUrl: "/images/hero-editorial.jpg",
-        };
+  // Card 2: Secondary Editorial card (exactly two images on hero, no scrolling)
+  const secondaryCard = {
+    category: siteSettings.secondaryCategory || "EDITORIAL",
+    title: siteSettings.secondaryTitle || "Untitled Res",
+    subtitle: siteSettings.secondarySubtitle || "— PORT. GQ",
+    imageUrl:
+      siteSettings.secondaryImageUrl || "/images/hero-editorial.jpg",
+  };
 
   const handleCycleHeroColor = () => {
     setThemeIndex((prev) => (prev + 1) % HERO_COLOR_THEMES.length);
-    if (editorialSlides.length > 0) {
-      setSlideIndex((prev) => (prev + 1) % editorialSlides.length);
-    }
   };
 
   return (
@@ -213,7 +175,7 @@ export function HeroSection({
         </div>
 
         {/* 2. Center Circular "Colors" Button — click to cycle Hero background & text colors */}
-        <div className="absolute top-[36%] left-[44%] z-20 -translate-x-1/2 -translate-y-1/2 sm:top-[38%] sm:left-[49.4%]">
+        <div className="absolute top-[36%] left-[22%] z-20 -translate-x-1/2 -translate-y-1/2 sm:top-[38%] sm:left-[48%] lg:left-[49.4%]">
           <button
             type="button"
             onClick={handleCycleHeroColor}
@@ -250,13 +212,10 @@ export function HeroSection({
           </button>
         </div>
 
-        {/* 3. Dual Editorial Frames:
-            - Starts at left: 57.4% (50% on small screens)
-            - Card 1 width = 21vw, Gap = 5.7vw, Card 2 width = 21vw
-            - Card 2 naturally extends to 105.1vw so the right 5.1vw bleeds off the right edge, matching image.png */}
-        <div className="absolute top-[4%] left-[50%] flex items-start gap-[4.5vw] sm:top-[5%] sm:left-[57.4%] sm:gap-[5.7vw]">
+        {/* 3. Dual Hero Frames — strictly two images, fully visible within the viewport, no scrolling or bleeding */}
+        <div className="absolute top-[4%] right-[4.8%] flex items-start gap-3 sm:top-[5%] sm:gap-5 lg:gap-6">
           {/* Card 1: Primary Portrait (DP) */}
-          <div className="flex w-[26vw] shrink-0 flex-col sm:w-[21vw]">
+          <div className="flex w-[32vw] max-w-[155px] shrink-0 flex-col sm:w-[19vw] sm:max-w-[260px] lg:w-[19vw] lg:max-w-[280px]">
             <div
               role="button"
               tabIndex={0}
@@ -268,7 +227,7 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="group relative aspect-[1/1.48] max-h-[60dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
+              className="group relative aspect-[1/1.48] max-h-[58dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
             >
               {dpCard.imageUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -293,8 +252,8 @@ export function HeroSection({
             </div>
           </div>
 
-          {/* Card 2: Secondary Editorial Card (identical 21vw × aspect-[1/1.48] box, bleeding off the right edge) */}
-          <div className="flex w-[26vw] shrink-0 flex-col sm:w-[21vw]">
+          {/* Card 2: Secondary Editorial Image */}
+          <div className="flex w-[32vw] max-w-[155px] shrink-0 flex-col sm:w-[19vw] sm:max-w-[260px] lg:w-[19vw] lg:max-w-[280px]">
             <div
               role="button"
               tabIndex={0}
@@ -306,12 +265,12 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="relative aspect-[1/1.48] max-h-[60dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
+              className="relative aspect-[1/1.48] max-h-[58dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={activeEditorial.imageUrl}
-                alt={activeEditorial.title}
+                src={secondaryCard.imageUrl}
+                alt={secondaryCard.title}
                 className={cn(
                   "size-full rounded-[3px] object-cover object-left transition-all duration-500",
                   editorialShowColor

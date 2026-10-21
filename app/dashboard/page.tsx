@@ -1033,9 +1033,12 @@ export default function DashboardPage() {
                           className="size-full object-cover object-left grayscale contrast-105 transition-all duration-300 hover:grayscale-0"
                         />
                       ) : (
-                        <div className="flex size-full items-center justify-center p-4 text-center font-serif text-xs text-body">
-                          Uses Works
-                        </div>
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src="/images/hero-editorial.jpg"
+                          alt={secondaryTitle || "Default Editorial"}
+                          className="size-full object-cover object-left grayscale contrast-105 transition-all duration-300 hover:grayscale-0"
+                        />
                       )}
                     </div>
                     <span className="mt-3 text-[9px] font-medium tracking-[0.2em] text-body uppercase">
