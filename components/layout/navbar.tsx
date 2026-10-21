@@ -189,7 +189,15 @@ export function Navbar() {
                     window.history.replaceState(null, "", "/");
                   }
                 }}
-                className="font-sans text-2xl font-bold tracking-[-0.03em] text-heading"
+                style={{
+                  fontFamily:
+                    '"Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive',
+                  color:
+                    activeTheme.id === "editorial-ivory"
+                      ? activeTheme.heading
+                      : activeTheme.ringArc,
+                }}
+                className="text-2xl font-normal tracking-[-0.01em] transition-colors duration-300"
               >
                 Dozie
               </Link>

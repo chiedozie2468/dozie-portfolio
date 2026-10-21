@@ -246,7 +246,7 @@ export function AboutSection() {
         backgroundColor: chapter.screenBg,
         backgroundImage: chapter.sectionWash,
       }}
-      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-6 transition-colors duration-700 select-none sm:py-10 md:h-[calc(100dvh-5rem)] md:min-h-[540px] md:snap-start md:snap-always md:overflow-hidden"
+      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-10 transition-colors duration-700 select-none sm:py-10 md:h-[calc(100dvh-5rem)] md:min-h-[540px] md:snap-start md:snap-always md:overflow-hidden"
     >
       {/* Top active accent bar */}
       <div
@@ -278,12 +278,12 @@ export function AboutSection() {
           className="inline-flex items-center gap-2.5"
         >
           <TalkingFaceIcon className="size-5 shrink-0 opacity-85 sm:size-6 lg:size-7" />
-          <span className="font-sans text-sm font-normal tracking-[-0.015em] transition-colors duration-300 sm:text-base lg:text-lg">
+          <span className="font-sans text-[16px] font-light tracking-[-0.015em] transition-colors duration-300 sm:text-[18px] lg:text-[20px]">
             About journal
           </span>
         </div>
 
-        {/* Rotating Chapter links: moved 10px left from line, left-end item bolder, right-end item fading */}
+        {/* Rotating Chapter links: moved 10px left from line, left-end item active, right-end item fading */}
         <div
           data-allow-inner-scroll
           onWheel={(e) => {
@@ -312,14 +312,14 @@ export function AboutSection() {
                   color: isLeftEnd ? item.accentHex : chapter.bodyText,
                 }}
                 className={cn(
-                  "cursor-pointer py-1 font-mono text-[13px] tracking-[-0.01em] transition-all duration-300 sm:text-[14px] lg:text-[15px]",
+                  "cursor-pointer py-1 font-mono text-[15px] font-light tracking-[-0.01em] transition-all duration-300 sm:text-[16px] lg:text-[17px]",
                   isLeftEnd
-                    ? "font-bold underline decoration-1 underline-offset-8 opacity-100"
+                    ? "underline decoration-1 underline-offset-8 opacity-100"
                     : isRightEnd
-                      ? "font-normal opacity-45 [mask-image:linear-gradient(to_right,black_15%,transparent_98%)] hover:opacity-90 hover:[mask-image:none]"
+                      ? "opacity-45 [mask-image:linear-gradient(to_right,black_15%,transparent_98%)] hover:opacity-90 hover:[mask-image:none]"
                       : offset === 1
-                        ? "font-medium opacity-80 hover:opacity-100"
-                        : "font-normal opacity-65 hover:opacity-100"
+                        ? "opacity-80 hover:opacity-100"
+                        : "opacity-65 hover:opacity-100"
                 )}
               >
                 <span>{item.label}</span>
@@ -333,14 +333,14 @@ export function AboutSection() {
       <div
         ref={stageRef}
         data-section-stage
-        className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 gap-6 px-[5.2%] py-4 lg:grid-cols-6 lg:gap-0 lg:py-8"
+        className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 gap-8 px-[5.2%] py-6 lg:grid-cols-6 lg:gap-0 lg:py-8"
       >
         {/* Left Main Display Column: Wider (Columns 1-3) and shifted 10px further left below "journal", keeping "Chiedozie Onyekwelu" on one line */}
         <div className="flex flex-col justify-between sm:pl-[66px] lg:col-span-3 lg:pl-[78px] lg:pr-6">
           <div>
             <h2
               style={{ color: chapter.accentText }}
-              className="font-sans text-[2rem] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[2.55rem] lg:text-[2.85rem] xl:text-[3.35rem]"
+              className="font-sans text-[34px] leading-[1.08] font-light tracking-[-0.03em] sm:text-[43px] lg:text-[48px] xl:text-[56px]"
             >
               {chapter.lines.map((line, i) => (
                 <span
@@ -349,7 +349,7 @@ export function AboutSection() {
                   style={{
                     color: i === 0 ? chapter.accentHex : chapter.accentText,
                   }}
-                  className="block font-normal sm:whitespace-nowrap transition-colors duration-500"
+                  className="block font-light sm:whitespace-nowrap transition-colors duration-500"
                 >
                   {line}
                 </span>
@@ -357,17 +357,17 @@ export function AboutSection() {
             </h2>
 
             {/* Two uppercase monospace labels */}
-            <div className="mt-5 flex flex-wrap items-center gap-5 font-mono text-[9.5px] font-normal tracking-[0.14em] uppercase sm:mt-7 sm:gap-8 sm:text-[10.5px]">
+            <div className="mt-5 flex flex-wrap items-center gap-5 font-mono text-[11.5px] font-light tracking-[0.14em] uppercase sm:mt-7 sm:gap-8 sm:text-[12.5px]">
               <span
                 style={{
                   backgroundColor: chapter.badgeBg,
                   color: chapter.accentText,
                 }}
-                className="rounded-md px-2.5 py-0.5 transition-colors duration-300"
+                className="rounded-md px-2.5 py-0.5 font-light transition-colors duration-300"
               >
                 {chapter.metaLeft}
               </span>
-              <span style={{ color: chapter.bodyText }}>
+              <span style={{ color: chapter.bodyText }} className="font-light">
                 {chapter.metaRight}
               </span>
             </div>
@@ -384,7 +384,7 @@ export function AboutSection() {
                     backgroundColor: chapter.buttonBg,
                     color: chapter.buttonText,
                   }}
-                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-6 font-mono text-[11px] font-normal shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
+                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-6 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
                 >
                   <Download className="size-3.5 transition-transform group-hover:scale-110" />
                   <span>{chapter.ctaLabel}</span>
@@ -402,7 +402,7 @@ export function AboutSection() {
                     backgroundColor: chapter.buttonBg,
                     color: chapter.buttonText,
                   }}
-                  className="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-6 font-mono text-[11px] font-normal shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
+                  className="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-6 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
                 >
                   <span>{chapter.ctaLabel}</span>
                   <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -437,7 +437,7 @@ export function AboutSection() {
           <p
             data-about-para
             style={{ color: chapter.accentText }}
-            className="font-sans text-[14px] leading-[1.65] font-normal sm:text-[15px]"
+            className="font-sans text-[16px] leading-[1.65] font-light sm:text-[17px]"
           >
             {chapter.leadParagraph}
           </p>
@@ -452,7 +452,7 @@ export function AboutSection() {
                     color: chapter.accentText,
                     borderColor: chapter.gridBorder,
                   }}
-                  className="rounded-md border px-3 py-1 font-mono text-xs font-normal"
+                  className="rounded-md border px-3 py-1 font-mono text-[14px] font-light"
                 >
                   {tool}
                 </span>
@@ -464,7 +464,7 @@ export function AboutSection() {
             <p
               data-about-para
               style={{ color: chapter.bodyText }}
-              className="font-mono text-[12px] leading-[1.7] font-normal sm:text-[13px]"
+              className="font-mono text-[14px] leading-[1.7] font-light sm:text-[15px]"
             >
               {chapter.monoParagraph1}
             </p>
@@ -474,7 +474,7 @@ export function AboutSection() {
             <p
               data-about-para
               style={{ color: chapter.bodyText }}
-              className="font-mono text-[12px] leading-[1.7] font-normal sm:text-[13px]"
+              className="font-mono text-[14px] leading-[1.7] font-light sm:text-[15px]"
             >
               {chapter.monoParagraph2}
             </p>
@@ -517,7 +517,7 @@ export function AboutSection() {
         {/* Right Social Links aligned with the Right Grid Columns */}
         <div
           style={{ color: chapter.accentText }}
-          className="flex items-center justify-end gap-8 font-mono text-[10.5px] font-normal sm:gap-14 sm:text-[11.5px] lg:col-span-3"
+          className="flex items-center justify-end gap-8 font-mono text-[12.5px] font-light sm:gap-14 sm:text-[13.5px] lg:col-span-3"
         >
           <a
             href={DEVELOPER_PROFILE.github}

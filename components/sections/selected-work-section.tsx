@@ -160,7 +160,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
         backgroundColor: sectionBg,
         color: headingColor,
       }}
-      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-6 transition-colors duration-500 ease-out select-none sm:py-10 md:h-[calc(100dvh-5rem)] md:min-h-[560px] md:snap-start md:snap-always md:overflow-hidden"
+      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-10 transition-colors duration-500 ease-out select-none sm:py-10 md:h-[calc(100dvh-5rem)] md:min-h-[560px] md:snap-start md:snap-always md:overflow-hidden"
     >
       {/* Top active accent bar */}
       <div
@@ -192,19 +192,19 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
           className="inline-flex items-center gap-2.5"
         >
           <ProjectLineIcon className="size-5 shrink-0 opacity-85 sm:size-6 lg:size-7" />
-          <span className="font-sans text-[19px] font-normal tracking-[-0.015em] transition-colors duration-300 sm:text-[21px] lg:text-[23px]">
+          <span className="font-sans text-[21px] font-light tracking-[-0.015em] transition-colors duration-300 sm:text-[23px] lg:text-[25px]">
             Selected projects
           </span>
           <span
             style={{ color: bodyColor }}
-            className="ml-1 font-mono text-[11px] opacity-70"
+            className="ml-1 font-mono text-[13px] font-light opacity-70"
           >
             {String(safeIdx + 1).padStart(2, "0")} /{" "}
             {String(total).padStart(2, "0")}
           </span>
         </div>
 
-        {/* Rotating project selector links: 10px from grid line, +2px font size, left-end item bolder, right-end item fading/disappearing */}
+        {/* Rotating project selector links: 10px from grid line, +2px font size, thin font-light, right-end item fading/disappearing */}
         <div
           data-allow-inner-scroll
           onWheel={(e) => {
@@ -236,14 +236,14 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                   color: isLeftEnd ? accentHex : bodyColor,
                 }}
                 className={cn(
-                  "cursor-pointer py-1 font-mono text-[13px] tracking-[-0.01em] transition-all duration-300 sm:text-[14px] lg:text-[15px]",
+                  "cursor-pointer py-1 font-mono text-[15px] font-light tracking-[-0.01em] transition-all duration-300 sm:text-[16px] lg:text-[17px]",
                   isLeftEnd
-                    ? "font-bold underline decoration-1 underline-offset-8 opacity-100"
+                    ? "underline decoration-1 underline-offset-8 opacity-100"
                     : isRightEnd
-                      ? "font-normal opacity-45 [mask-image:linear-gradient(to_right,black_15%,transparent_98%)] hover:opacity-90 hover:[mask-image:none]"
+                      ? "opacity-45 [mask-image:linear-gradient(to_right,black_15%,transparent_98%)] hover:opacity-90 hover:[mask-image:none]"
                       : offset === 1
-                        ? "font-medium opacity-80 hover:opacity-100"
-                        : "font-normal opacity-65 hover:opacity-100"
+                        ? "opacity-80 hover:opacity-100"
+                        : "opacity-65 hover:opacity-100"
                 )}
               >
                 <span>{shortLabel}</span>
@@ -256,15 +256,15 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
       {/* Main Two-Column Editorial Stage aligned to the 6 vertical grid lines (One Project on Screen) */}
       <div
         ref={stageRef}
-        className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-8 px-[5.2%] py-3 lg:grid-cols-6 lg:gap-10 lg:py-6"
+        className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-8 px-[5.2%] py-4 lg:grid-cols-6 lg:gap-10 lg:py-6"
       >
         {/* Columns 1-2 (Left Column): Starts directly under "Selected projects" where the text started */}
         <div className="flex max-w-[460px] flex-col justify-between sm:pl-[34px] lg:col-span-2 lg:pl-[38px] lg:pr-6 xl:pr-8">
           <div>
-            {/* Clean 3-line Title (+5px larger) */}
+            {/* Clean 3-line Title (+2px larger, thin font-light) */}
             <h2
               style={{ color: headingColor }}
-              className="font-sans text-[35px] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[43px] lg:text-[46px] xl:text-[52px]"
+              className="font-sans text-[37px] leading-[1.08] font-light tracking-[-0.03em] sm:text-[45px] lg:text-[48px] xl:text-[54px]"
             >
               {titleLines.map((line, i) => (
                 <span
@@ -273,7 +273,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                   style={{
                     color: i === 0 ? accentHex : headingColor,
                   }}
-                  className="block font-normal transition-colors duration-500"
+                  className="block font-light transition-colors duration-500"
                 >
                   {line}
                 </span>
@@ -283,27 +283,27 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
             {/* Category & Year/Status Meta Labels */}
             <div
               data-work-info
-              className="mt-3.5 flex flex-wrap items-center gap-3 font-mono text-[9.5px] font-normal tracking-[0.14em] uppercase sm:mt-4 sm:gap-4 sm:text-[10px]"
+              className="mt-3.5 flex flex-wrap items-center gap-3 font-mono text-[11.5px] font-light tracking-[0.14em] uppercase sm:mt-4 sm:gap-4 sm:text-[12px]"
             >
               <span
                 style={{
                   backgroundColor: badgeBg,
                   color: headingColor,
                 }}
-                className="rounded-md px-2.5 py-0.5 transition-colors duration-300"
+                className="rounded-md px-2.5 py-0.5 font-light transition-colors duration-300"
               >
                 {project.category}
               </span>
-              <span style={{ color: bodyColor }} className="opacity-85">
+              <span style={{ color: bodyColor }} className="font-light opacity-85">
                 {project.year} · {project.status}
               </span>
             </div>
 
-            {/* About the Project (Short, simple summary) */}
+            {/* About the Project (Short, simple summary, +2px larger, thin font-light) */}
             <div data-work-info className="mt-3.5 sm:mt-4">
               <p
                 style={{ color: headingColor }}
-                className="font-sans text-[14px] leading-[1.6] font-normal sm:text-[14.5px]"
+                className="font-sans text-[16px] leading-[1.6] font-light sm:text-[16.5px]"
               >
                 {project.summary}
               </p>
@@ -323,7 +323,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                       color: headingColor,
                       borderColor: gridBorder,
                     }}
-                    className="rounded-md border px-2 py-0.5 font-mono text-[9.5px] font-normal"
+                    className="rounded-md border px-2 py-0.5 font-mono text-[11.5px] font-light"
                   >
                     {tech}
                   </span>
@@ -345,7 +345,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                     backgroundColor: buttonBg,
                     color: buttonText,
                   }}
-                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-5 font-mono text-[11px] font-normal shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-10 sm:px-6"
+                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-5 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-10 sm:px-6"
                 >
                   <Globe className="size-3.5" />
                   <span>View live project</span>
@@ -358,7 +358,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                     color: headingColor,
                     borderColor: gridBorder,
                   }}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-5 font-mono text-[11px] font-normal opacity-80"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-5 font-mono text-[13px] font-light opacity-80"
                 >
                   <span>Add live URL in Admin to enable live web view</span>
                 </span>
@@ -373,7 +373,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                     borderColor: gridBorder,
                     color: headingColor,
                   }}
-                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-4 font-mono text-[11px] font-normal transition-opacity hover:opacity-75"
+                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-4 font-mono text-[13px] font-light transition-opacity hover:opacity-75"
                 >
                   <span>Source</span>
                   <ExternalLink className="size-3" />

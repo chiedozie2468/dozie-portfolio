@@ -115,7 +115,7 @@ export function ContactSection() {
         backgroundImage:
           "radial-gradient(900px circle at 15% 25%, rgba(14, 165, 233, 0.10), transparent 65%), radial-gradient(850px circle at 85% 80%, rgba(16, 185, 129, 0.10), transparent 65%)",
       }}
-      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-6 transition-colors duration-700 sm:py-8 md:h-[calc(100dvh-5rem)] md:min-h-[540px] md:snap-start md:snap-always md:overflow-hidden"
+      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full flex-col justify-between border-t border-border/60 py-10 transition-colors duration-700 sm:py-8 md:h-[calc(100dvh-5rem)] md:min-h-[540px] md:snap-start md:snap-always md:overflow-hidden"
     >
       {/* Top active accent bar */}
       <div
@@ -143,17 +143,17 @@ export function ContactSection() {
       <div className="relative z-20 mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-[5.2%]">
         <div className="inline-flex items-center gap-2.5 text-slate-900">
           <ContactLineIcon className="size-5 shrink-0 opacity-85 sm:size-6 lg:size-7" />
-          <span className="font-sans text-sm font-normal tracking-[-0.015em] sm:text-base lg:text-lg">
+          <span className="font-sans text-[16px] font-light tracking-[-0.015em] sm:text-[18px] lg:text-[20px]">
             Contact studio
           </span>
         </div>
 
-        <div className="hidden items-center gap-6 px-[10px] font-mono text-[12px] text-slate-700 sm:flex sm:gap-8 sm:text-[13px] lg:mr-[10px]">
+        <div className="hidden items-center gap-6 px-[10px] font-mono text-[14px] font-light text-slate-700 sm:flex sm:gap-8 sm:text-[15px] lg:mr-[10px]">
           <a
             href="https://wa.me/2349153251972"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 font-semibold text-emerald-700 transition-opacity hover:opacity-75"
+            className="inline-flex items-center gap-1 font-light text-emerald-700 transition-opacity hover:opacity-75"
           >
             <span>WhatsApp</span>
             <ArrowUpRight className="size-3.5" />
@@ -181,12 +181,12 @@ export function ContactSection() {
       <div className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-8 px-[5.2%] py-2 lg:grid-cols-6 lg:gap-12">
         {/* Left Column (Columns 1-3): Clean Heading + 3 Contact Cards */}
         <div className="flex flex-col justify-between sm:pl-[34px] lg:col-span-3 lg:pl-[38px] lg:pr-8">
-          <h2 className="font-sans text-[2.1rem] leading-[1.08] font-normal tracking-[-0.03em] text-slate-900 sm:text-[2.65rem] lg:text-[3.1rem]">
-            <span className="block font-normal text-sky-700">
+          <h2 className="font-sans text-[36px] leading-[1.08] font-light tracking-[-0.03em] text-slate-900 sm:text-[44px] lg:text-[52px]">
+            <span className="block font-light text-sky-700">
               Let&apos;s build
             </span>
-            <span className="block font-normal">your next</span>
-            <span className="block font-normal">digital product.</span>
+            <span className="block font-light">your next</span>
+            <span className="block font-light">digital product.</span>
           </h2>
 
           {/* 3 Clean Contact Cards */}
@@ -197,7 +197,7 @@ export function ContactSection() {
                 <Phone className="relative size-3.5 stroke-[1.6]" />
               </div>
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2.5 text-sm text-slate-900">
+                <div className="flex flex-wrap items-center gap-2.5 text-[16px] font-light text-slate-900">
                   <a
                     href="tel:+2349153251972"
                     className="transition-opacity hover:opacity-70"
@@ -209,7 +209,7 @@ export function ContactSection() {
                     href="https://wa.me/2349153251972"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-mono text-xs text-slate-800 hover:underline"
+                    className="inline-flex items-center gap-1 font-mono text-[14px] font-light text-slate-800 hover:underline"
                   >
                     <MessageCircle className="size-3.5" />
                     <span>WhatsApp</span>
@@ -226,7 +226,7 @@ export function ContactSection() {
               <div className="min-w-0">
                 <a
                   href={`mailto:${DEVELOPER_PROFILE.email}`}
-                  className="block truncate text-sm text-slate-900 transition-opacity hover:opacity-70"
+                  className="block truncate text-[16px] font-light text-slate-900 transition-opacity hover:opacity-70"
                 >
                   {DEVELOPER_PROFILE.email}
                 </a>
@@ -239,7 +239,7 @@ export function ContactSection() {
                 <MapPin className="relative size-3.5 stroke-[1.6]" />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm text-slate-900">
+                <p className="truncate text-[16px] font-light text-slate-900">
                   20 Abeokuta, Owode Onirin, Lagos State, Nigeria
                 </p>
               </div>
@@ -251,7 +251,7 @@ export function ContactSection() {
         <div className="lg:col-span-3">
           <div className="relative overflow-hidden rounded-2xl border border-slate-900/12 bg-white/85 p-5 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:p-6">
             <div className="flex items-center justify-between">
-              <h3 className="font-sans text-lg font-normal tracking-tight text-slate-900 sm:text-xl">
+              <h3 className="font-sans text-[20px] font-light tracking-tight text-slate-900 sm:text-[22px]">
                 Send a Message
               </h3>
               <span className="flex size-8 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800">
@@ -285,7 +285,7 @@ export function ContactSection() {
                   onBlur={() => setActiveField(null)}
                   onChange={(e) => setFirstName(e.target.value)}
                   className={cn(
-                    "h-11 rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
+                    "h-11 rounded-xl border px-4 text-[16px] font-light text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                     activeField === "firstName"
                       ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
                       : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
@@ -299,7 +299,7 @@ export function ContactSection() {
                   onBlur={() => setActiveField(null)}
                   onChange={(e) => setLastName(e.target.value)}
                   className={cn(
-                    "h-11 rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
+                    "h-11 rounded-xl border px-4 text-[16px] font-light text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                     activeField === "lastName"
                       ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
                       : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
@@ -316,7 +316,7 @@ export function ContactSection() {
                 onBlur={() => setActiveField(null)}
                 onChange={(e) => setEmail(e.target.value)}
                 className={cn(
-                  "h-11 w-full rounded-xl border px-4 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
+                  "h-11 w-full rounded-xl border px-4 text-[16px] font-light text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                   activeField === "email"
                     ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
                     : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
@@ -332,7 +332,7 @@ export function ContactSection() {
                 onBlur={() => setActiveField(null)}
                 onChange={(e) => setMessage(e.target.value)}
                 className={cn(
-                  "w-full rounded-xl border p-3.5 text-sm text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
+                  "w-full rounded-xl border p-3.5 text-[16px] font-light text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                   activeField === "message"
                     ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
                     : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
@@ -340,14 +340,14 @@ export function ContactSection() {
               />
 
               {submitState.status === "success" && (
-                <div className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs text-emerald-800">
+                <div className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm font-light text-emerald-800">
                   <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
                   <span>{submitState.message}</span>
                 </div>
               )}
 
               {submitState.status === "error" && (
-                <div className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-700">
+                <div className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm font-light text-rose-700">
                   <AlertCircle className="size-4 shrink-0" />
                   <span>{submitState.message}</span>
                 </div>
@@ -357,7 +357,7 @@ export function ContactSection() {
                 <button
                   type="submit"
                   disabled={submitState.status === "submitting"}
-                  className="group inline-flex h-11 cursor-pointer items-center gap-2.5 rounded-xl bg-[#0F172A] px-7 font-mono text-xs font-normal text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-50"
+                  className="group inline-flex h-11 cursor-pointer items-center gap-2.5 rounded-xl bg-[#0F172A] px-7 font-mono text-[14px] font-light text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-50"
                 >
                   {submitState.status === "submitting" ? (
                     <>

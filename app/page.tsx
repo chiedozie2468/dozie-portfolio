@@ -10,7 +10,7 @@ export default function Home() {
   const { projects, siteSettings, connectionState } = usePortfolioData();
 
   return (
-    <div className="flex flex-col gap-[18px]">
+    <div className="flex flex-col gap-[28px] sm:gap-[20px]">
       <HeroSection
         connectionState={connectionState}
         siteSettings={siteSettings}

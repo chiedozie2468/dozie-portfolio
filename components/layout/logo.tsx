@@ -3,11 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useHeroTheme } from "@/components/providers/hero-theme-provider";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
 
 export function Logo() {
   const pathname = usePathname();
   const { setActiveSection } = useSectionFocus();
+  const { activeTheme } = useHeroTheme();
+
+  const logoColor =
+    activeTheme.id === "editorial-ivory"
+      ? activeTheme.heading
+      : activeTheme.ringArc;
 
   return (
     <Link
@@ -25,7 +32,11 @@ export function Logo() {
           window.history.replaceState(null, "", "/");
         }
       }}
-      className="inline-flex cursor-pointer items-baseline font-sans text-xl leading-none font-semibold tracking-[-0.02em] text-current transition-opacity hover:opacity-75 sm:text-2xl"
+      style={{
+        fontFamily: '"Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive',
+        color: logoColor,
+      }}
+      className="inline-flex cursor-pointer items-baseline text-xl leading-none font-normal tracking-[-0.01em] transition-colors duration-300 hover:opacity-75 sm:text-2xl"
     >
       <span>Dozie</span>
     </Link>
