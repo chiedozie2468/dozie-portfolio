@@ -172,12 +172,12 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
         )}
       />
 
-      {/* 6-column vertical architectural hairline grid matching About section ("the line line") */}
+      {/* 6-column vertical architectural hairline grid (line behind the left text between Col 1 & Col 2 removed) */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 mx-auto grid w-full grid-cols-6 px-[5.2%]"
       >
-        <div style={{ borderColor: gridBorder }} className="border-x" />
+        <div style={{ borderColor: gridBorder }} className="border-l" />
         <div style={{ borderColor: gridBorder }} className="border-r" />
         <div style={{ borderColor: gridBorder }} className="border-r" />
         <div style={{ borderColor: gridBorder }} className="border-r" />
@@ -185,7 +185,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
         <div style={{ borderColor: gridBorder }} className="border-r" />
       </div>
 
-      {/* Top Section Header aligned to grid: "Selected projects" with transparent uncolored icon on left + Clean Project Tab Links on right */}
+      {/* Top Section Header aligned to grid: "Selected projects" with transparent uncolored icon on left + Rotating Project Names on right */}
       <div className="relative z-20 mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-[5.2%]">
         <div
           style={{ color: headingColor }}
@@ -204,25 +204,46 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
           </span>
         </div>
 
-        {/* Clean text project selector links (no button backgrounds, matching About section) */}
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
-          {projects.map((rawItem, idx) => {
-            const item = normalizePortfolioProject(rawItem);
-            const isTabActive = safeIdx === idx;
+        {/* Rotating project selector links: 10px from grid line, +2px font size, left-end item bolder, right-end item fading/disappearing */}
+        <div
+          data-allow-inner-scroll
+          onWheel={(e) => {
+            if (Math.abs(e.deltaY) > 8 || Math.abs(e.deltaX) > 8) {
+              e.stopPropagation();
+              if (e.deltaY > 0 || e.deltaX > 0) {
+                handleNext();
+              } else {
+                handlePrev();
+              }
+            }
+          }}
+          className="flex flex-wrap items-center gap-4 px-[10px] sm:gap-6 lg:mr-[10px] lg:gap-8"
+        >
+          {Array.from({ length: Math.min(total, 4) }, (_, offset) => {
+            const idx = (safeIdx + offset) % total;
+            const item = normalizePortfolioProject(projects[idx]);
+            const isLeftEnd = offset === 0;
+            const visibleCount = Math.min(total, 4);
+            const isRightEnd = offset === visibleCount - 1 && visibleCount > 1;
             const shortLabel = item.title.split(/[—–-]/)[0].trim();
+
             return (
               <button
-                key={item._id || item.slug}
+                key={`${item._id || item.slug}-${offset}`}
                 type="button"
                 onClick={() => setProjectIndex(idx)}
                 style={{
-                  color: isTabActive ? accentHex : bodyColor,
+                  color: isLeftEnd ? accentHex : bodyColor,
                 }}
                 className={cn(
-                  "cursor-pointer py-1 font-mono text-[11px] tracking-[-0.01em] transition-all duration-300 sm:text-xs lg:text-[13px]",
-                  isTabActive
-                    ? "underline decoration-1 underline-offset-8 opacity-100"
-                    : "opacity-65 hover:opacity-100"
+                  "cursor-pointer py-1 font-mono text-[13px] tracking-[-0.01em] transition-all duration-300 sm:text-[14px] lg:text-[15px]",
+                  isLeftEnd
+                    ? "font-bold underline decoration-1 underline-offset-8 opacity-100"
+                    : isRightEnd
+                      ? "font-normal opacity-45 [mask-image:linear-gradient(to_right,black_15%,transparent_98%)] hover:opacity-90 hover:[mask-image:none]"
+                      : offset === 1
+                        ? "font-medium opacity-80 hover:opacity-100"
+                        : "font-normal opacity-65 hover:opacity-100"
                 )}
               >
                 <span>{shortLabel}</span>
