@@ -158,6 +158,10 @@ export interface PortfolioSiteSettings {
   secondarySubtitle: string;
   cvUrl?: string;
   cvFileName?: string;
+  contactPhone?: string;
+  contactWhatsapp?: string;
+  contactAddress?: string;
+  contactEmail?: string;
   updatedAt?: number;
 }
 
@@ -173,18 +177,22 @@ export const DEFAULT_SITE_SETTINGS: PortfolioSiteSettings = {
   secondarySubtitle: "— PORT. GQ",
   cvUrl: "/chiedozie-onyekwelu-cv.pdf",
   cvFileName: "Chiedozie-Onyekwelu-CV.pdf",
+  contactPhone: "09153251972",
+  contactWhatsapp: "+234 915 325 1972",
+  contactAddress: "20 Abeokuta, Owode Onirin, Lagos State, Nigeria",
+  contactEmail: "chiedozieonyekwelu989@gmail.com",
 };
 
 export const INITIAL_PROJECTS: PortfolioProject[] = [
   {
     slug: "kollatunez-tours",
-    title: "KollaTunez Tours & Ticketing Platform",
+    title: "KollaTunez Tours",
     subtitle: "Real-time event booking, QR ticket verification & automated itinerary generation",
     category: "Commerce & Booking",
     year: "2026",
     status: "Production",
     summary:
-      "End-to-end tour booking and event ticketing platform with real-time seat inventory, BetterAuth session management, QR check-in scanning, and automated PDF receipt generation.",
+      "End-to-end tour booking and experience platform with real-time seat inventory, BetterAuth session management, QR check-in scanning, and automated PDF receipt generation.",
     problem:
       "Manual tour reservations and spreadsheet guest lists caused double-bookings, slow venue check-ins, and delayed payment confirmations.",
     architecture:
@@ -205,14 +213,14 @@ export const INITIAL_PROJECTS: PortfolioProject[] = [
       "React-PDF",
       "Resend",
     ],
-    liveUrl: "https://kollatunez.com",
+    liveUrl: "https://kollatunez.com/",
     themeColor: "amber",
     featured: true,
     order: 1,
   },
   {
     slug: "followpoint",
-    title: "Followpoint — Client Follow-Up & Pipeline Workspace",
+    title: "Followpoint",
     subtitle: "Reactive CRM workflow engine with automated follow-up scheduling and PDF reporting",
     category: "Full-Stack",
     year: "2026",
@@ -239,13 +247,14 @@ export const INITIAL_PROJECTS: PortfolioProject[] = [
       "Vitest",
       "jsPDF",
     ],
+    liveUrl: "https://followpoint.site/",
     themeColor: "green",
     featured: true,
     order: 2,
   },
   {
     slug: "nogadata-jsap-portal",
-    title: "NogaData JSAP Central Administration Portal",
+    title: "NogaData JSAP",
     subtitle: "Multi-school candidate registration, roster validation & examination hall orchestration",
     category: "Enterprise Portal",
     year: "2026",
@@ -271,13 +280,14 @@ export const INITIAL_PROJECTS: PortfolioProject[] = [
       "jsPDF AutoTable",
       "Nodemailer",
     ],
+    liveUrl: "https://nogadata.vercel.app/",
     themeColor: "purple",
     featured: true,
     order: 3,
   },
   {
     slug: "techfasta",
-    title: "TechFasta — High-Velocity Digital Product & Content Platform",
+    title: "TechFasta",
     subtitle: "Real-time publishing, media optimization & transactional notification pipeline",
     category: "Platform",
     year: "2026",
@@ -303,11 +313,60 @@ export const INITIAL_PROJECTS: PortfolioProject[] = [
       "Resend",
       "Tailwind CSS",
     ],
+    liveUrl: "https://techfasta.com/",
     themeColor: "blue",
     featured: true,
     order: 4,
   },
 ];
+
+export function normalizePortfolioProject(
+  project: PortfolioProject
+): PortfolioProject {
+  let cleanTitle = project.title.trim();
+
+  if (/^kollatunez/i.test(cleanTitle)) {
+    cleanTitle = cleanTitle
+      .replace(/\s*&\s*ticketing\s*platform/i, "")
+      .replace(/\s*ticketing\s*platform/i, "")
+      .trim();
+  } else if (/^nogadata\s+jsap/i.test(cleanTitle)) {
+    cleanTitle = "NogaData JSAP";
+  } else if (
+    cleanTitle === "Followpoint — Client Follow-Up & Pipeline Workspace"
+  ) {
+    cleanTitle = "Followpoint";
+  } else if (
+    cleanTitle === "TechFasta — High-Velocity Digital Product & Content Platform"
+  ) {
+    cleanTitle = "TechFasta";
+  }
+
+  let resolvedLiveUrl = project.liveUrl?.trim();
+  if (resolvedLiveUrl) {
+    // Fix common typos like echfasta.com -> techfasta.com
+    if (/^(https?:\/\/)?echfasta\.com/i.test(resolvedLiveUrl)) {
+      resolvedLiveUrl = "https://techfasta.com/";
+    } else if (!/^https?:\/\//i.test(resolvedLiveUrl)) {
+      resolvedLiveUrl = `https://${resolvedLiveUrl}`;
+    }
+  } else {
+    const key = `${project.slug} ${cleanTitle}`.toLowerCase();
+    if (key.includes("kollatunez")) resolvedLiveUrl = "https://kollatunez.com/";
+    else if (key.includes("followpoint"))
+      resolvedLiveUrl = "https://followpoint.site/";
+    else if (key.includes("nogadata"))
+      resolvedLiveUrl = "https://nogadata.vercel.app/";
+    else if (key.includes("techfasta") || key.includes("echfasta"))
+      resolvedLiveUrl = "https://techfasta.com/";
+  }
+
+  return {
+    ...project,
+    title: cleanTitle,
+    liveUrl: resolvedLiveUrl,
+  };
+}
 
 export const INITIAL_CAPABILITIES: CapabilityGroup[] = [
   {
@@ -364,8 +423,14 @@ export const DEVELOPER_PROFILE = {
   location: "Lagos, Nigeria · Working Globally (UTC+1)",
   availability: "Available for select full-stack roles & product engagements",
   email: "chiedozieonyekwelu989@gmail.com",
+  phone: "+234 915 325 1972",
+  phoneRaw: "09153251972",
+  whatsapp: "+234 915 325 1972",
+  whatsappUrl: "https://wa.me/2349153251972",
+  address: "20 Abeokuta, Owode Onirin, Lagos State, Nigeria",
   github: "https://github.com/chiedozie2468",
-  linkedin: "https://linkedin.com/in/chiedozie-onyekwelu",
+  linkedin: "https://www.linkedin.com/in/chiedozie-onyekwelu-618991303/",
+  instagram: "https://www.instagram.com/chiedozie_onyekwelu/",
   headline: "Building calm, reliable software systems from database schema to interface.",
   subheadline:
     "I design and ship production web applications with Next.js, TypeScript, and Convex — turning complex operational workflows into fast, clear digital products.",

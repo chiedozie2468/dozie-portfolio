@@ -1,11 +1,22 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, ArrowUpRight, Play, X } from "lucide-react";
+import { animate, stagger } from "animejs";
+import {
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Globe,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { ProjectLineIcon } from "@/components/icons/section-line-icons";
+import { useHeroTheme } from "@/components/providers/hero-theme-provider";
+import { useSectionFocus } from "@/components/providers/section-focus-provider";
 import {
   DEVELOPER_PROFILE,
   getProjectColorTheme,
+  normalizePortfolioProject,
   type PortfolioProject,
 } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
@@ -21,557 +32,541 @@ const DEFAULT_PROJECT_IMAGES = [
   "/images/hero-editorial.jpg",
 ] as const;
 
+function normalizeLiveUrl(
+  url?: string,
+  slug?: string,
+  title?: string
+): string | undefined {
+  if (url && url.trim()) {
+    const trimmed = url.trim();
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  }
+  const key = `${slug || ""} ${title || ""}`.toLowerCase();
+  if (key.includes("kollatunez")) return "https://kollatunez.com/";
+  if (key.includes("followpoint")) return "https://followpoint.site/";
+  if (key.includes("nogadata")) return "https://nogadata.vercel.app/";
+  if (key.includes("techfasta")) return "https://techfasta.com/";
+  return undefined;
+}
+
+function splitProjectTitleIntoLines(title: string): string[] {
+  const mainTitle = title.split(/[—–]/)[0].trim();
+  const words = mainTitle.split(/\s+/).filter(Boolean);
+  if (words.length <= 1) return [mainTitle];
+  if (words.length === 2) return [words[0], words[1]];
+  if (words.length === 3) return [words[0], words.slice(1).join(" ")];
+  const third = Math.ceil(words.length / 3);
+  const line1 = words.slice(0, third).join(" ");
+  const line2 = words.slice(third, third * 2).join(" ");
+  const line3 = words.slice(third * 2).join(" ");
+  return [line1, line2, line3].filter(Boolean);
+}
+
 export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const rowRef = useRef<HTMLDivElement | null>(null);
+  const { activeTheme } = useHeroTheme();
+  const { activeSection, reducedMotion } = useSectionFocus();
+  const [projectIndex, setProjectIndex] = useState(0);
+  const [previewMode, setPreviewMode] = useState<"live" | "details">("live");
+  const [iframeKey, setIframeKey] = useState(0);
+  const stageRef = useRef<HTMLDivElement | null>(null);
 
   const total = projects.length;
+  const isSectionActive = activeSection === "work";
 
-  // Close detail view on Escape key & cycle with Left/Right arrows
   useEffect(() => {
-    if (selectedIdx === null) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setSelectedIdx(null);
-      } else if (e.key === "ArrowRight" && total > 0) {
-        setSelectedIdx((prev) =>
-          prev === null ? 0 : (prev + 1) % total
-        );
-      } else if (e.key === "ArrowLeft" && total > 0) {
-        setSelectedIdx((prev) =>
-          prev === null ? 0 : (prev - 1 + total) % total
-        );
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIdx, total]);
+    if (reducedMotion || !stageRef.current || total === 0) return;
+    const lines = stageRef.current.querySelectorAll("[data-work-line]");
+    const infoBlocks = stageRef.current.querySelectorAll("[data-work-info]");
+    const previewBox = stageRef.current.querySelector("[data-work-preview]");
+
+    if (lines.length > 0) {
+      animate(lines, {
+        translateY: [20, 0],
+        opacity: [0, 1],
+        delay: stagger(65),
+        duration: 500,
+        ease: "outCubic",
+      });
+    }
+    if (infoBlocks.length > 0) {
+      animate(infoBlocks, {
+        translateY: [16, 0],
+        opacity: [0, 1],
+        delay: stagger(75, { start: 80 }),
+        duration: 520,
+        ease: "outCubic",
+      });
+    }
+    if (previewBox) {
+      animate(previewBox, {
+        translateY: [18, 0],
+        opacity: [0, 1],
+        duration: 540,
+        ease: "outCubic",
+      });
+    }
+  }, [projectIndex, reducedMotion, total]);
 
   if (total === 0) {
     return null;
   }
 
-  const scrollRowBy = (direction: "prev" | "next") => {
-    const el = rowRef.current;
-    if (!el) return;
-    const cardWidth = el.clientWidth / 3;
-    el.scrollBy({
-      left: direction === "next" ? cardWidth : -cardWidth,
-      behavior: "smooth",
-    });
+  const safeIdx = projectIndex % total;
+  const project = normalizePortfolioProject(projects[safeIdx]);
+  const fallbackImage =
+    DEFAULT_PROJECT_IMAGES[safeIdx % DEFAULT_PROJECT_IMAGES.length];
+  const imageUrl = project.imageUrl || fallbackImage;
+  const liveUrl = normalizeLiveUrl(project.liveUrl, project.slug, project.title);
+  const repoUrl = normalizeLiveUrl(project.repoUrl);
+  const titleLines = splitProjectTitleIntoLines(project.title);
+
+  // Use the Hero color theme if the user cycled Hero colors; otherwise use the project's own color theme
+  const projColor = getProjectColorTheme(
+    project.themeColor,
+    project.slug,
+    safeIdx
+  );
+  const isDefaultIvory = activeTheme.id === "editorial-ivory";
+
+  const sectionBg = isDefaultIvory ? projColor.lightBg : activeTheme.bg;
+  const accentHex = isDefaultIvory ? projColor.accentHex : activeTheme.ringArc;
+  const headingColor = isDefaultIvory ? projColor.textHex : activeTheme.heading;
+  const bodyColor = isDefaultIvory ? projColor.textHex : activeTheme.body;
+  const gridBorder = isDefaultIvory
+    ? projColor.borderHex
+    : activeTheme.cardBorder;
+  const badgeBg = isDefaultIvory
+    ? projColor.badgeBg
+    : activeTheme.subtleBadgeBg;
+  const buttonBg = isDefaultIvory
+    ? projColor.accentHex
+    : activeTheme.accentBtnBg;
+  const buttonText = isDefaultIvory ? "#FFFFFF" : activeTheme.accentBtnText;
+
+  const handlePrev = () => {
+    setProjectIndex((prev) => (prev - 1 + total) % total);
   };
 
-  const handleRowWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    const el = rowRef.current;
-    if (!el) return;
-
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      const maxScrollLeft = el.scrollWidth - el.clientWidth;
-      if (maxScrollLeft <= 4) return;
-
-      const isScrollingRight = e.deltaY > 0;
-      const canScrollRight = el.scrollLeft < maxScrollLeft - 4;
-      const canScrollLeft = el.scrollLeft > 4;
-
-      if (
-        (isScrollingRight && canScrollRight) ||
-        (!isScrollingRight && canScrollLeft)
-      ) {
-        e.preventDefault();
-        el.scrollBy({ left: e.deltaY * 1.35, behavior: "auto" });
-      }
-    }
+  const handleNext = () => {
+    setProjectIndex((prev) => (prev + 1) % total);
   };
-
-  const hoveredProject =
-    hoveredIdx !== null ? projects[hoveredIdx % total] : null;
-  const hoveredTheme =
-    hoveredProject && hoveredIdx !== null
-      ? getProjectColorTheme(
-          hoveredProject.themeColor,
-          hoveredProject.slug,
-          hoveredIdx
-        )
-      : null;
-
-  const activeProject =
-    selectedIdx !== null ? projects[selectedIdx % total] : null;
-  const activeTheme =
-    activeProject && selectedIdx !== null
-      ? getProjectColorTheme(
-          activeProject.themeColor,
-          activeProject.slug,
-          selectedIdx
-        )
-      : null;
-  const activeFallbackImg =
-    selectedIdx !== null
-      ? DEFAULT_PROJECT_IMAGES[selectedIdx % DEFAULT_PROJECT_IMAGES.length]
-      : DEFAULT_PROJECT_IMAGES[0];
 
   return (
     <section
       id="work"
       data-section-id="work"
       style={{
-        backgroundColor: hoveredTheme ? hoveredTheme.lightBg : undefined,
+        backgroundColor: sectionBg,
+        color: headingColor,
       }}
-      className="relative flex min-h-dvh w-full flex-col justify-between overflow-hidden border-t border-border/60 bg-background px-[4.8%] py-14 transition-colors duration-500 ease-out select-none sm:py-20"
+      className="relative flex h-[calc(100dvh-3.5rem)] min-h-[560px] w-full snap-start snap-always flex-col justify-between overflow-hidden border-t border-border/60 py-6 transition-colors duration-500 ease-out select-none sm:h-[calc(100dvh-5rem)] sm:py-10"
     >
-      {/* Top Section Heading: "View some of the projects I’ve built" */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <span
-            style={{
-              color: hoveredTheme ? hoveredTheme.textHex : undefined,
-            }}
-            className="font-sans text-xs font-medium tracking-[0.08em] text-body uppercase transition-colors duration-300"
-          >
-            Selected Projects
-          </span>
-          <h2
-            style={{
-              color: hoveredTheme ? hoveredTheme.textHex : undefined,
-            }}
-            className="mt-1.5 font-sans text-2xl font-bold tracking-[-0.025em] text-heading transition-colors duration-300 sm:text-3xl lg:text-4xl"
-          >
-            View some of the products I’ve built
-          </h2>
-        </div>
+      {/* Top active accent bar */}
+      <div
+        data-section-accent-bar
+        style={{ backgroundColor: accentHex }}
+        className={cn(
+          "pointer-events-none absolute top-0 left-0 h-[3px] w-full origin-left transition-all duration-500",
+          isSectionActive ? "opacity-100" : "opacity-25"
+        )}
+      />
 
-        <div className="flex items-center gap-3">
-          <span className="hidden font-sans text-xs text-body sm:inline">
-            Click any project to view specification
-          </span>
-          {total > 1 && (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => scrollRowBy("prev")}
-                aria-label="Scroll projects left"
-                className="flex size-8 cursor-pointer items-center justify-center rounded-[3px] border border-border bg-background/80 text-heading transition-colors hover:border-heading"
-              >
-                <ArrowLeft className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollRowBy("next")}
-                aria-label="Scroll projects right"
-                className="flex size-8 cursor-pointer items-center justify-center rounded-[3px] border border-border bg-background/80 text-heading transition-colors hover:border-heading"
-              >
-                <ArrowRight className="size-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
+      {/* 6-column vertical architectural hairline grid matching About section ("the line line") */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 mx-auto grid w-full grid-cols-6 px-[5.2%]"
+      >
+        <div style={{ borderColor: gridBorder }} className="border-x" />
+        <div style={{ borderColor: gridBorder }} className="border-r" />
+        <div style={{ borderColor: gridBorder }} className="border-r" />
+        <div style={{ borderColor: gridBorder }} className="border-r" />
+        <div style={{ borderColor: gridBorder }} className="border-r" />
+        <div style={{ borderColor: gridBorder }} className="border-r" />
       </div>
 
-      {/* 1. Single-Row Horizontal Projects Track
-          Compact cards in 1 row; each project has its own light bg & text color */}
-      <div className="my-auto w-full py-8 sm:py-10">
+      {/* Top Section Header aligned to grid: "Selected projects" with transparent uncolored icon on left + Clean Project Tab Links on right */}
+      <div className="relative z-20 mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-[5.2%]">
         <div
-          ref={rowRef}
-          onWheel={handleRowWheel}
-          className="flex w-full snap-x snap-mandatory flex-nowrap items-start gap-5 overflow-x-auto pb-4 [scrollbar-width:none] lg:gap-6 [&::-webkit-scrollbar]:hidden"
+          style={{ color: headingColor }}
+          className="inline-flex items-center gap-2.5"
         >
-          {projects.map((project, idx) => {
-            const fallbackImage =
-              DEFAULT_PROJECT_IMAGES[idx % DEFAULT_PROJECT_IMAGES.length];
-            const imageUrl = project.imageUrl || fallbackImage;
-            const isHovered = hoveredIdx === idx;
-            const shortName = project.title.split(/[—–-]/)[0].trim();
-            const theme = getProjectColorTheme(
-              project.themeColor,
-              project.slug,
-              idx
-            );
+          <ProjectLineIcon className="size-4.5 opacity-80" />
+          <span className="font-sans text-sm font-normal tracking-[-0.015em] transition-colors duration-300 sm:text-base lg:text-lg">
+            Selected projects
+          </span>
+          <span
+            style={{ color: bodyColor }}
+            className="ml-1 font-mono text-[11px] opacity-70"
+          >
+            {String(safeIdx + 1).padStart(2, "0")} /{" "}
+            {String(total).padStart(2, "0")}
+          </span>
+        </div>
 
+        {/* Clean text project selector links (no button backgrounds, matching About section) */}
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
+          {projects.map((rawItem, idx) => {
+            const item = normalizePortfolioProject(rawItem);
+            const isTabActive = safeIdx === idx;
+            const shortLabel = item.title.split(/[—–-]/)[0].trim();
             return (
-              <article
-                key={project._id || project.slug}
-                onMouseEnter={() => setHoveredIdx(idx)}
-                onMouseLeave={() => setHoveredIdx(null)}
-                onClick={() => setSelectedIdx(idx)}
+              <button
+                key={item._id || item.slug}
+                type="button"
+                onClick={() => setProjectIndex(idx)}
                 style={{
-                  backgroundColor: theme.lightBg,
-                  borderColor: isHovered ? theme.accentHex : theme.borderHex,
+                  color: isTabActive ? accentHex : bodyColor,
                 }}
-                className="group flex w-[62vw] shrink-0 snap-start cursor-pointer flex-col rounded-[3px] border p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:w-[35vw] sm:p-3.5 lg:w-[25.5vw]"
+                className={cn(
+                  "cursor-pointer py-1 font-mono text-[11px] tracking-[-0.01em] transition-all duration-300 sm:text-xs lg:text-[13px]",
+                  isTabActive
+                    ? "underline decoration-1 underline-offset-8 opacity-100"
+                    : "opacity-65 hover:opacity-100"
+                )}
               >
-                {/* Compact Landscape Frame with 3px border-radius */}
-                <div className="relative h-[145px] w-full overflow-hidden rounded-[3px] bg-surface-secondary sm:h-[170px] lg:h-[190px]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imageUrl}
-                    alt={project.title}
-                    className={cn(
-                      "size-full rounded-[3px] object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]",
-                      isHovered
-                        ? "grayscale-0 contrast-100"
-                        : "grayscale contrast-115"
-                    )}
-                  />
-                </div>
-
-                {/* Colored Project Label & Action Underneath Image */}
-                <div className="mt-3 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 truncate">
-                    <span
-                      style={{ backgroundColor: theme.accentHex }}
-                      className="size-2 shrink-0 rounded-full"
-                    />
-                    <span
-                      style={{ color: theme.textHex }}
-                      className="truncate font-sans text-xs font-semibold tracking-[0.02em] sm:text-[13px]"
-                    >
-                      {shortName}
-                    </span>
-                  </div>
-
-                  <span
-                    style={{
-                      backgroundColor: theme.badgeBg,
-                      color: theme.textHex,
-                    }}
-                    className="shrink-0 rounded-[3px] px-2 py-0.5 font-sans text-[10px] font-medium"
-                  >
-                    View →
-                  </span>
-                </div>
-              </article>
+                <span>{shortLabel}</span>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* Bottom Editorial Row */}
-      <div className="flex w-full items-center justify-between pt-2">
-        <span
-          style={{
-            color: hoveredTheme ? hoveredTheme.textHex : undefined,
-          }}
-          className="font-sans text-[11px] font-medium tracking-[0.06em] text-heading/80 transition-colors sm:text-xs"
-        >
-          Projects · {String(total).padStart(2, "0")}
-        </span>
+      {/* Main Two-Column Editorial Stage aligned to the 6 vertical grid lines (One Project on Screen) */}
+      <div
+        ref={stageRef}
+        className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-6 px-[5.2%] py-3 lg:grid-cols-6 lg:gap-0 lg:py-6"
+      >
+        {/* Column 1 spacer (rope switcher moved to right side only) */}
+        <div className="hidden lg:col-span-1 lg:block" />
 
-        <span className="font-sans text-[11px] text-body">
-          Scroll horizontally to view more projects
-        </span>
-      </div>
-
-      {/* 2. Scrollable Project Specification View (matching "download.jpg")
-          Positioned cleanly below the sticky navbar (top-14 sm:top-20) so it never collides with the navbar,
-          and themed with the project's light background + matching text/accent colors */}
-      {activeProject && activeTheme && selectedIdx !== null && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={activeProject.title}
-          onClick={() => setSelectedIdx(null)}
-          className="fixed inset-x-0 top-14 bottom-0 z-40 flex items-start justify-center overflow-y-auto bg-heading/35 px-3 pt-4 pb-6 backdrop-blur-xs sm:top-20 sm:px-6 sm:pt-6 sm:pb-8 lg:px-10"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: activeTheme.lightBg,
-              borderColor: activeTheme.borderHex,
-            }}
-            className="relative my-auto flex max-h-[calc(100dvh-5.5rem)] w-full max-w-5xl flex-col justify-between overflow-y-auto rounded-[3px] border px-5 py-6 shadow-2xl [scrollbar-width:thin] sm:max-h-[calc(100dvh-7.5rem)] sm:px-10 sm:py-8 lg:px-14 lg:py-9"
-          >
-            {/* Subtle Vertical Architectural Grid Lines tinted with project color */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 grid grid-cols-6 px-5 sm:px-10 lg:px-14"
+        {/* Columns 2-3 (Left Column): Project Title, About the Project, Stack & Live Link */}
+        <div className="flex flex-col justify-between lg:col-span-2 lg:pr-6">
+          <div>
+            {/* Large font-normal 3-line Title matching About section */}
+            <h2
+              style={{ color: headingColor }}
+              className="font-sans text-[2rem] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[2.6rem] lg:text-[3rem] xl:text-[3.4rem]"
             >
-              <div
-                style={{ borderColor: activeTheme.borderHex }}
-                className="border-x opacity-45"
-              />
-              <div
-                style={{ borderColor: activeTheme.borderHex }}
-                className="border-r opacity-45"
-              />
-              <div
-                style={{ borderColor: activeTheme.borderHex }}
-                className="border-r opacity-45"
-              />
-              <div
-                style={{ borderColor: activeTheme.borderHex }}
-                className="border-r opacity-45"
-              />
-              <div
-                style={{ borderColor: activeTheme.borderHex }}
-                className="border-r opacity-45"
-              />
-              <div
-                style={{ borderColor: activeTheme.borderHex }}
-                className="border-r opacity-45"
-              />
-            </div>
-
-            {/* Top Header Bar: Left Back to Projects, Center Project Brand Name, Right Close button */}
-            <div className="relative z-10 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => setSelectedIdx(null)}
-                style={{ color: activeTheme.textHex }}
-                className="group inline-flex cursor-pointer items-center gap-2.5 text-xs font-medium transition-opacity hover:opacity-70"
-              >
-                <span className="flex flex-col items-start gap-[4px]">
-                  <span
-                    style={{ backgroundColor: activeTheme.textHex }}
-                    className="h-[1.5px] w-5"
-                  />
-                  <span
-                    style={{ backgroundColor: activeTheme.textHex }}
-                    className="h-[1.5px] w-3.5"
-                  />
-                </span>
-                <span>Back to Projects</span>
-              </button>
-
-              {/* Center Brand Title */}
-              <div
-                style={{ color: activeTheme.textHex }}
-                className="font-sans text-sm tracking-[-0.02em] sm:text-base"
-              >
-                <span className="font-normal opacity-80">
-                  {activeProject.category}
-                </span>
-                <span className="font-bold">
-                  {" "}
-                  · {activeProject.title.split(/[—–-]/)[0].trim()}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedIdx(null)}
-                aria-label="Close project view"
-                style={{ color: activeTheme.textHex }}
-                className="flex size-8 cursor-pointer items-center justify-center rounded-full transition-opacity hover:opacity-70"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            {/* Middle Stage: Left Colored Headline + "View Live [▶]" + Description | Right Project Image + Far-Right "01 | 04" */}
-            <div className="relative z-10 my-auto grid grid-cols-1 items-center gap-8 py-6 lg:grid-cols-12 lg:gap-8 lg:py-9">
-              {/* Left 7 Columns: Headline + Bottom-Left Live Button + Scrollable Full Details */}
-              <div className="flex flex-col lg:col-span-7 lg:pr-6">
-                <h2
-                  style={{ color: activeTheme.textHex }}
-                  className="font-sans text-2xl leading-[1.12] font-bold tracking-[-0.03em] sm:text-3xl lg:text-4xl"
+              {titleLines.map((line, i) => (
+                <span
+                  key={`${project.slug}-line-${i}`}
+                  data-work-line
+                  style={{
+                    color: i === 0 ? accentHex : headingColor,
+                  }}
+                  className="block font-normal transition-colors duration-500"
                 >
-                  {activeProject.title.toLowerCase()}.
-                </h2>
+                  {line}
+                </span>
+              ))}
+            </h2>
 
+            {/* Category & Year/Status Meta Labels */}
+            <div
+              data-work-info
+              className="mt-4 flex flex-wrap items-center gap-4 font-mono text-[9.5px] font-normal tracking-[0.14em] uppercase sm:mt-5 sm:gap-6 sm:text-[10.5px]"
+            >
+              <span
+                style={{
+                  backgroundColor: badgeBg,
+                  color: headingColor,
+                }}
+                className="rounded-md px-2.5 py-0.5 transition-colors duration-300"
+              >
+                {project.category}
+              </span>
+              <span style={{ color: bodyColor }} className="opacity-85">
+                {project.year} · {project.status}
+              </span>
+            </div>
+
+            {/* About the Project (Summary & Architecture) */}
+            <div data-work-info className="mt-4 space-y-2.5 sm:mt-5">
+              <p
+                style={{ color: headingColor }}
+                className="font-sans text-[12px] leading-[1.6] font-normal sm:text-[13px]"
+              >
+                {project.summary}
+              </p>
+              {project.architecture && (
                 <p
-                  style={{ color: activeTheme.textHex }}
-                  className="mt-2.5 font-sans text-xs font-medium opacity-80 sm:text-sm"
+                  style={{ color: bodyColor }}
+                  className="line-clamp-3 font-mono text-[11px] leading-[1.65] font-normal opacity-85 sm:text-[11.5px]"
                 >
-                  {activeProject.subtitle}
+                  {project.architecture}
                 </p>
-
-                {/* Split Row below headline matching "See How [▶]" + Right Paragraph in download.jpg */}
-                <div className="mt-6 grid grid-cols-1 items-start gap-6 sm:mt-8 sm:grid-cols-12">
-                  {/* Left: "View Live" + Colored Square Button */}
-                  <div className="flex items-center gap-4 sm:col-span-4">
-                    {activeProject.liveUrl ? (
-                      <a
-                        href={activeProject.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group inline-flex items-center gap-3.5"
-                      >
-                        <span
-                          style={{ color: activeTheme.textHex }}
-                          className="font-sans text-xs font-semibold"
-                        >
-                          View Live
-                        </span>
-                        <span
-                          style={{ backgroundColor: activeTheme.accentHex }}
-                          className="flex size-10 items-center justify-center rounded-[3px] text-white shadow-md transition-transform duration-300 group-hover:scale-105"
-                        >
-                          <Play className="size-3.5 fill-current" />
-                        </span>
-                      </a>
-                    ) : (
-                      <div className="inline-flex items-center gap-3.5">
-                        <span
-                          style={{ color: activeTheme.textHex }}
-                          className="font-sans text-xs font-semibold"
-                        >
-                          Case Study
-                        </span>
-                        <span
-                          style={{ backgroundColor: activeTheme.accentHex }}
-                          className="flex size-10 items-center justify-center rounded-[3px] text-white"
-                        >
-                          <Play className="size-3.5 fill-current" />
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right: Multi-line product description + architecture + outcome + colored stack tags */}
-                  <div className="flex flex-col gap-3 sm:col-span-8">
-                    <p
-                      style={{ color: activeTheme.textHex }}
-                      className="font-sans text-xs leading-[1.7] font-normal opacity-90 sm:text-[13px]"
-                    >
-                      {activeProject.summary}
-                    </p>
-                    {activeProject.architecture && (
-                      <p
-                        style={{ color: activeTheme.textHex }}
-                        className="font-sans text-xs leading-[1.7] font-normal opacity-85"
-                      >
-                        <strong className="font-semibold">
-                          Architecture:{" "}
-                        </strong>
-                        {activeProject.architecture}
-                      </p>
-                    )}
-                    {activeProject.outcome && (
-                      <p
-                        style={{ color: activeTheme.textHex }}
-                        className="font-sans text-xs leading-[1.7] font-normal opacity-85"
-                      >
-                        <strong className="font-semibold">Outcome: </strong>
-                        {activeProject.outcome}
-                      </p>
-                    )}
-
-                    <div className="mt-1 flex flex-wrap gap-1.5">
-                      {activeProject.stack.map((tech) => (
-                        <span
-                          key={tech}
-                          style={{
-                            backgroundColor: activeTheme.badgeBg,
-                            color: activeTheme.textHex,
-                          }}
-                          className="rounded-[3px] px-2.5 py-0.5 font-sans text-[10px] font-medium"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right 5 Columns: Project Image (with 3px radius) + Far-Right Vertical Counter "01 | 04" */}
-              <div className="relative flex items-center justify-between gap-4 lg:col-span-5">
-                <div
-                  style={{ borderColor: activeTheme.borderHex }}
-                  className="w-full overflow-hidden rounded-[3px] border bg-surface-secondary shadow-lg"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={activeProject.imageUrl || activeFallbackImg}
-                    alt={activeProject.title}
-                    className="aspect-[4/3] w-full rounded-[3px] object-cover"
-                  />
-                </div>
-
-                {/* Far-Right Vertical Index Indicator ("01 | 04") */}
-                <div
-                  style={{ color: activeTheme.textHex }}
-                  className="hidden flex-col items-center gap-3 pl-2 lg:flex"
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSelectedIdx((selectedIdx - 1 + total) % total)
-                    }
-                    title="Previous project"
-                    className="cursor-pointer font-sans text-[11px] font-bold transition-opacity hover:opacity-60"
-                  >
-                    {String((selectedIdx % total) + 1).padStart(2, "0")}
-                  </button>
-                  <div
-                    style={{ backgroundColor: activeTheme.textHex }}
-                    className="h-24 w-[1px] opacity-35"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setSelectedIdx((selectedIdx + 1) % total)}
-                    title="Next project"
-                    className="cursor-pointer font-sans text-[11px] font-bold opacity-65 transition-opacity hover:opacity-100"
-                  >
-                    {String(total).padStart(2, "0")}
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Bottom Row: Prev/Next Controls on Left & Links on Right */}
-            <div
-              style={{ color: activeTheme.textHex }}
-              className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-2"
-            >
-              <div className="flex items-center gap-4 text-xs font-medium">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSelectedIdx((selectedIdx - 1 + total) % total)
-                  }
-                  className="inline-flex cursor-pointer items-center gap-1.5 transition-opacity hover:opacity-65"
-                >
-                  <ArrowLeft className="size-3.5" />
-                  <span>Previous</span>
-                </button>
-                <span className="opacity-30">|</span>
-                <button
-                  type="button"
-                  onClick={() => setSelectedIdx((selectedIdx + 1) % total)}
-                  className="inline-flex cursor-pointer items-center gap-1.5 transition-opacity hover:opacity-65"
-                >
-                  <span>Next Project</span>
-                  <ArrowLeft className="size-3.5 rotate-180" />
-                </button>
+            {/* Tech Stack Pills */}
+            {project.stack && project.stack.length > 0 && (
+              <div
+                data-work-info
+                className="mt-3.5 flex flex-wrap gap-1.5 sm:mt-4"
+              >
+                {project.stack.slice(0, 6).map((tech) => (
+                  <span
+                    key={tech}
+                    style={{
+                      backgroundColor: badgeBg,
+                      color: headingColor,
+                      borderColor: gridBorder,
+                    }}
+                    className="rounded-md border px-2 py-0.5 font-mono text-[10px] font-normal"
+                  >
+                    {tech}
+                  </span>
+                ))}
               </div>
+            )}
 
-              <div className="flex items-center gap-6 font-sans text-[11px] font-medium opacity-85">
-                {activeProject.liveUrl && (
-                  <a
-                    href={activeProject.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 transition-opacity hover:opacity-100"
-                  >
-                    <span>Live Product</span>
-                    <ArrowUpRight className="size-3" />
-                  </a>
-                )}
-                {activeProject.repoUrl && (
-                  <a
-                    href={activeProject.repoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 transition-opacity hover:opacity-100"
-                  >
-                    <span>GitHub</span>
-                    <ArrowUpRight className="size-3" />
-                  </a>
-                )}
+            {/* Live Link Button & Repo Link */}
+            <div
+              data-work-info
+              className="mt-5 flex flex-wrap items-center gap-3 sm:mt-6"
+            >
+              {liveUrl ? (
                 <a
-                  href={DEVELOPER_PROFILE.linkedin}
+                  href={liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-opacity hover:opacity-100"
+                  style={{
+                    backgroundColor: buttonBg,
+                    color: buttonText,
+                  }}
+                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-6 font-mono text-[11px] font-normal shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
                 >
-                  LinkedIn
+                  <Globe className="size-3.5" />
+                  <span>View live project</span>
+                  <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
-              </div>
+              ) : (
+                <span
+                  style={{
+                    backgroundColor: badgeBg,
+                    color: headingColor,
+                    borderColor: gridBorder,
+                  }}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-5 font-mono text-[11px] font-normal opacity-80"
+                >
+                  <span>Add live URL in Admin to enable live web view</span>
+                </span>
+              )}
+
+              {repoUrl && (
+                <a
+                  href={repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    borderColor: gridBorder,
+                    color: headingColor,
+                  }}
+                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-4 font-mono text-[11px] font-normal transition-opacity hover:opacity-75 sm:h-11"
+                >
+                  <span>Source</span>
+                  <ExternalLink className="size-3" />
+                </a>
+              )}
             </div>
           </div>
         </div>
-      )}
+
+        {/* Columns 4-6 (Right Column): Scrollable Live Website Viewport / Project Scroll Window */}
+        <div
+          data-work-preview
+          data-allow-inner-scroll
+          className="flex flex-col lg:col-span-3 lg:pl-8"
+        >
+          <div
+            style={{
+              borderColor: gridBorder,
+              backgroundColor: activeTheme.isDark
+                ? "rgba(15, 18, 24, 0.9)"
+                : "#FFFFFF",
+            }}
+            className="flex h-[44dvh] min-h-[310px] max-h-[540px] w-full flex-col overflow-hidden rounded-[3px] border shadow-md sm:h-[56dvh]"
+          >
+            {/* Scrollable Body: Live Website Iframe (when liveUrl exists) OR Scrollable Project Showcase */}
+            {liveUrl && previewMode === "live" ? (
+              <div
+                data-allow-inner-scroll
+                className="relative flex-1 w-full overflow-auto bg-white"
+              >
+                <iframe
+                  key={`${project.slug}-${liveUrl}-${iframeKey}`}
+                  src={`/api/preview?url=${encodeURIComponent(liveUrl)}`}
+                  title={`${project.title} Live Website`}
+                  className="size-full border-0 bg-white"
+                  loading="eager"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            ) : (
+              <div
+                data-allow-inner-scroll
+                style={{
+                  backgroundColor: activeTheme.isDark ? "#14171F" : "#FFFFFF",
+                  color: activeTheme.isDark ? "#F8F8F6" : "#111827",
+                }}
+                className="flex-1 overflow-y-auto p-4 sm:p-5"
+              >
+                {/* Project Cover Image */}
+                <div className="overflow-hidden rounded-lg border border-black/10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageUrl}
+                    alt={project.title}
+                    className="aspect-[16/9] w-full object-cover"
+                  />
+                </div>
+
+                {/* Scrollable Case Study Content Inside the Project Window */}
+                <div className="mt-4 space-y-3 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] uppercase opacity-60">
+                      Scroll inside window to inspect project
+                    </span>
+                    {liveUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setPreviewMode("live")}
+                        style={{ color: accentHex }}
+                        className="cursor-pointer font-mono text-[10.5px] underline"
+                      >
+                        Switch to Live Website
+                      </button>
+                    )}
+                  </div>
+
+                  <h3 className="font-sans text-sm font-semibold sm:text-base">
+                    {project.title}
+                  </h3>
+                  <p className="font-sans text-xs leading-relaxed opacity-85">
+                    {project.subtitle}
+                  </p>
+
+                  {project.problem && (
+                    <div className="rounded-lg bg-black/[0.03] p-3 dark:bg-white/[0.04]">
+                      <p className="font-mono text-[10px] uppercase opacity-60">
+                        Problem
+                      </p>
+                      <p className="mt-1 font-sans text-xs leading-relaxed">
+                        {project.problem}
+                      </p>
+                    </div>
+                  )}
+
+                  {project.architecture && (
+                    <div className="rounded-lg bg-black/[0.03] p-3 dark:bg-white/[0.04]">
+                      <p className="font-mono text-[10px] uppercase opacity-60">
+                        Architecture
+                      </p>
+                      <p className="mt-1 font-sans text-xs leading-relaxed">
+                        {project.architecture}
+                      </p>
+                    </div>
+                  )}
+
+                  {project.outcome && (
+                    <div className="rounded-lg bg-black/[0.03] p-3 dark:bg-white/[0.04]">
+                      <p className="font-mono text-[10px] uppercase opacity-60">
+                        Outcome
+                      </p>
+                      <p className="mt-1 font-sans text-xs leading-relaxed">
+                        {project.outcome}
+                      </p>
+                    </div>
+                  )}
+
+                  {project.metrics && project.metrics.length > 0 && (
+                    <div className="rounded-lg bg-black/[0.03] p-3 dark:bg-white/[0.04]">
+                      <p className="font-mono text-[10px] uppercase opacity-60">
+                        Key Metrics
+                      </p>
+                      <ul className="mt-1.5 space-y-1 font-mono text-[11px]">
+                        {project.metrics.map((m) => (
+                          <li key={m} className="flex items-start gap-2">
+                            <span
+                              style={{ backgroundColor: accentHex }}
+                              className="mt-1.5 size-1.5 shrink-0 rounded-full"
+                            />
+                            <span>{m}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Row: Left "<  >" Navigation Arrows & Right Project Links */}
+      <div className="relative z-20 mx-auto grid w-full grid-cols-2 items-center px-[5.2%] lg:grid-cols-6">
+        <div className="hidden lg:col-span-1 lg:block" />
+
+        {/* Left "<  >" Arrows aligned with the Left Heading */}
+        <div className="flex items-center gap-4 lg:col-span-2">
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous project"
+            style={{
+              backgroundColor: badgeBg,
+              borderColor: gridBorder,
+              color: headingColor,
+            }}
+            className="group flex size-8 cursor-pointer items-center justify-center rounded-full border transition-all duration-300 hover:-translate-x-0.5 hover:scale-105 sm:size-9"
+          >
+            <ChevronLeft className="size-4 stroke-[1.5] transition-transform group-hover:-translate-x-0.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next project"
+            style={{
+              backgroundColor: badgeBg,
+              borderColor: gridBorder,
+              color: headingColor,
+            }}
+            className="group flex size-8 cursor-pointer items-center justify-center rounded-full border transition-all duration-300 hover:translate-x-0.5 hover:scale-105 sm:size-9"
+          >
+            <ChevronRight className="size-4 stroke-[1.5] transition-transform group-hover:translate-x-0.5" />
+          </button>
+        </div>
+
+        {/* Right Links aligned with the Right Grid Columns */}
+        <div
+          style={{ color: headingColor }}
+          className="flex items-center justify-end gap-8 font-mono text-[10.5px] font-normal sm:gap-14 sm:text-[11.5px] lg:col-span-3"
+        >
+          {liveUrl && (
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 transition-opacity hover:opacity-65"
+            >
+              <span>Open Live</span>
+              <ArrowUpRight className="size-3.5" />
+            </a>
+          )}
+          <a
+            href={DEVELOPER_PROFILE.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 transition-opacity hover:opacity-65"
+          >
+            <span>GitHub</span>
+            <ArrowUpRight className="size-3.5" />
+          </a>
+        </div>
+      </div>
     </section>
   );
 }

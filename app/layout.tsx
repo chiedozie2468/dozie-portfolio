@@ -5,7 +5,9 @@ import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AntigravityTiles } from "@/components/motion/antigravity-tiles";
+import { BubbleRopeScroll } from "@/components/motion/bubble-rope-scroll";
 import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
+import { HeroThemeProvider } from "@/components/providers/hero-theme-provider";
 import { SectionFocusProvider } from "@/components/providers/section-focus-provider";
 
 import "./globals.css";
@@ -79,10 +81,13 @@ export default function RootLayout({
         >
           <ConvexClientProvider>
             <SectionFocusProvider>
-              <AntigravityTiles />
-              <Navbar />
-              <main className="relative z-10 flex-1">{children}</main>
-              <Footer />
+              <HeroThemeProvider>
+                <AntigravityTiles />
+                <BubbleRopeScroll />
+                <Navbar />
+                <main className="relative flex-1">{children}</main>
+                <Footer />
+              </HeroThemeProvider>
             </SectionFocusProvider>
           </ConvexClientProvider>
         </ThemeProvider>

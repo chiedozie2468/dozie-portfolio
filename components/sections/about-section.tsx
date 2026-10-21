@@ -1,8 +1,15 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { animate, stagger } from "animejs";
+import {
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
+import { TalkingFaceIcon } from "@/components/icons/section-line-icons";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
 import { usePortfolioData } from "@/lib/hooks/use-portfolio-data";
 import { DEFAULT_SITE_SETTINGS, DEVELOPER_PROFILE } from "@/lib/portfolio-data";
@@ -11,19 +18,26 @@ import { cn } from "@/lib/utils";
 const ABOUT_CHAPTERS = [
   {
     id: "profile",
-    accentHex: "#623D28",
-    accentText: "#623D28",
-    accentBg: "rgba(98, 61, 40, 0.12)",
-    accentBorder: "rgba(98, 61, 40, 0.38)",
+    label: "Profile",
+    screenBg: "#EDF6FD",
+    accentHex: "#0284C7",
+    accentText: "#0C4A6E",
+    bodyText: "#0369A1",
+    gridBorder: "rgba(2, 132, 199, 0.16)",
+    tabIdleBg: "#E0F2FE",
+    tabIdleBorder: "rgba(2, 132, 199, 0.28)",
+    buttonBg: "#0C4A6E",
+    buttonText: "#F0F9FF",
+    badgeBg: "rgba(2, 132, 199, 0.14)",
     sectionWash:
-      "radial-gradient(900px circle at 18% 28%, rgba(98, 61, 40, 0.08), transparent 70%)",
-    lines: ["Chiedozie", "from Lagos", "Software Studio"],
-    metaLeft: "CHIEDOZIE STUDIO",
+      "radial-gradient(950px circle at 18% 28%, rgba(56, 189, 248, 0.18), transparent 70%)",
+    lines: ["Chiedozie", "Onyekwelu", "Full-Stack Engineer"],
+    metaLeft: "CHIEDOZIE ONYEKWELU",
     metaRight: "4 SYSTEMS IN TOTAL",
     ctaLabel: "Download this CV",
     ctaType: "cv" as const,
     leadParagraph:
-      "Formed across frontend product engineering and reactive backend architecture, Chiedozie builds calm, dependable web applications that teams can understand in under thirty seconds.",
+      "Chiedozie Onyekwelu is a Full-Stack Software Engineer formed across frontend product engineering and reactive backend architecture, building calm, dependable web applications that teams can understand in under thirty seconds.",
     monoParagraph1:
       "Initially focused on high-velocity React interfaces and operational portals; designing end-to-end systems for event ticketing (KollaTunez), pipeline CRM workflows (Followpoint), and multi-school examination registries (NogaData).",
     monoParagraph2:
@@ -31,12 +45,19 @@ const ABOUT_CHAPTERS = [
   },
   {
     id: "experience",
-    accentHex: "#32271F",
-    accentText: "#32271F",
-    accentBg: "rgba(50, 39, 31, 0.12)",
-    accentBorder: "rgba(50, 39, 31, 0.38)",
+    label: "Experience",
+    screenBg: "#FDF6E4",
+    accentHex: "#D97706",
+    accentText: "#78350F",
+    bodyText: "#92400E",
+    gridBorder: "rgba(217, 119, 6, 0.16)",
+    tabIdleBg: "#FEF3C7",
+    tabIdleBorder: "rgba(217, 119, 6, 0.3)",
+    buttonBg: "#78350F",
+    buttonText: "#FFFBEB",
+    badgeBg: "rgba(217, 119, 6, 0.15)",
     sectionWash:
-      "radial-gradient(900px circle at 24% 35%, rgba(50, 39, 31, 0.08), transparent 70%)",
+      "radial-gradient(950px circle at 24% 35%, rgba(251, 191, 36, 0.2), transparent 70%)",
     lines: ["Independent", "Full-Stack", "Systems Engineer"],
     metaLeft: "2022 — PRESENT",
     metaRight: "UTC+1 GLOBAL DELIVERY",
@@ -51,12 +72,19 @@ const ABOUT_CHAPTERS = [
   },
   {
     id: "capabilities",
-    accentHex: "#1F4E3D",
-    accentText: "#1F4E3D",
-    accentBg: "rgba(31, 78, 61, 0.12)",
-    accentBorder: "rgba(31, 78, 61, 0.38)",
+    label: "Capabilities",
+    screenBg: "#ECFBF2",
+    accentHex: "#059669",
+    accentText: "#064E3B",
+    bodyText: "#047857",
+    gridBorder: "rgba(5, 150, 105, 0.16)",
+    tabIdleBg: "#DCFCE7",
+    tabIdleBorder: "rgba(5, 150, 105, 0.3)",
+    buttonBg: "#064E3B",
+    buttonText: "#ECFDF5",
+    badgeBg: "rgba(5, 150, 105, 0.14)",
     sectionWash:
-      "radial-gradient(900px circle at 28% 32%, rgba(31, 78, 61, 0.08), transparent 70%)",
+      "radial-gradient(950px circle at 28% 32%, rgba(52, 211, 153, 0.18), transparent 70%)",
     lines: ["Next.js, Convex", "& TypeScript", "Architecture"],
     metaLeft: "CORE STACK",
     metaRight: "END-TO-END TYPE SAFETY",
@@ -69,13 +97,41 @@ const ABOUT_CHAPTERS = [
     monoParagraph2:
       "Backend & Delivery: Convex reactive queries/mutations, BetterAuth, Firebase Admin, Sharp media pipelines, automated PDF/XLSX generation, and Vercel CI/CD.",
   },
+  {
+    id: "achievements",
+    label: "Achievements",
+    screenBg: "#F3EEFF",
+    accentHex: "#7C3AED",
+    accentText: "#3B0764",
+    bodyText: "#5B21B6",
+    gridBorder: "rgba(124, 58, 237, 0.16)",
+    tabIdleBg: "#EDE9FE",
+    tabIdleBorder: "rgba(124, 58, 237, 0.3)",
+    buttonBg: "#4C1D95",
+    buttonText: "#F5F3FF",
+    badgeBg: "rgba(124, 58, 237, 0.14)",
+    sectionWash:
+      "radial-gradient(950px circle at 26% 30%, rgba(167, 139, 250, 0.2), transparent 70%)",
+    lines: ["Certificates", "& Production", "Milestones"],
+    metaLeft: "VERIFIED MILESTONES",
+    metaRight: "95+ LIGHTHOUSE & ZERO DOWNTIME",
+    ctaLabel: "Download this CV",
+    ctaType: "cv" as const,
+    leadParagraph:
+      "Delivered 4+ mission-critical full-stack systems in production with zero-downtime deployments, sub-3-second QR check-in verification, and certified full-stack engineering credentials.",
+    monoParagraph1:
+      "Engineering Milestones: Processed thousands of multi-school student examination records (NogaData JSAP), eliminated booking race conditions with transactional Convex state (KollaTunez), and achieved 95+ Core Web Vitals (TechFasta).",
+    monoParagraph2:
+      "Certifications & Standards: Full-Stack Web Architecture (Next.js, React 19 & TypeScript), Automated Unit & Schema Verification (Vitest + convex-test), and WCAG AA Accessible Interface Engineering.",
+  },
 ] as const;
 
 export function AboutSection() {
   const [chapterIndex, setChapterIndex] = useState(0);
-  const { activeSection } = useSectionFocus();
+  const { activeSection, reducedMotion } = useSectionFocus();
   const { siteSettings } = usePortfolioData();
   const isSectionActive = activeSection === "about";
+  const stageRef = useRef<HTMLDivElement | null>(null);
 
   const chapter = ABOUT_CHAPTERS[chapterIndex];
   const cvUrl =
@@ -86,6 +142,41 @@ export function AboutSection() {
     siteSettings.cvFileName ||
     DEFAULT_SITE_SETTINGS.cvFileName ||
     "Chiedozie-Onyekwelu-CV.pdf";
+
+  // Motion-graphic staggered entrance whenever the active chapter changes
+  useEffect(() => {
+    if (reducedMotion || !stageRef.current) return;
+    const lines = stageRef.current.querySelectorAll("[data-about-line]");
+    const paragraphs = stageRef.current.querySelectorAll("[data-about-para]");
+    const cta = stageRef.current.querySelector("[data-about-cta]");
+
+    if (lines.length > 0) {
+      animate(lines, {
+        translateY: [22, 0],
+        opacity: [0, 1],
+        delay: stagger(70),
+        duration: 520,
+        ease: "outCubic",
+      });
+    }
+    if (paragraphs.length > 0) {
+      animate(paragraphs, {
+        translateY: [18, 0],
+        opacity: [0, 1],
+        delay: stagger(85, { start: 90 }),
+        duration: 540,
+        ease: "outCubic",
+      });
+    }
+    if (cta) {
+      animate(cta, {
+        scale: [0.92, 1],
+        opacity: [0, 1],
+        duration: 460,
+        ease: "outBack(1.5)",
+      });
+    }
+  }, [chapterIndex, reducedMotion]);
 
   const handlePrev = () => {
     setChapterIndex(
@@ -102,46 +193,48 @@ export function AboutSection() {
       id="about"
       data-section-id="about"
       style={{
-        backgroundImage: isSectionActive ? chapter.sectionWash : undefined,
+        backgroundColor: chapter.screenBg,
+        backgroundImage: chapter.sectionWash,
       }}
-      className="relative flex min-h-dvh w-full flex-col justify-between overflow-hidden border-t border-border/60 bg-background py-10 transition-colors duration-700 select-none sm:py-14"
+      className="relative flex h-[calc(100dvh-3.5rem)] min-h-[540px] w-full snap-start snap-always flex-col justify-between overflow-hidden border-t border-border/60 py-6 transition-colors duration-700 select-none sm:h-[calc(100dvh-5rem)] sm:py-10"
     >
       {/* Top active accent bar */}
       <div
         data-section-accent-bar
         style={{ backgroundColor: chapter.accentHex }}
         className={cn(
-          "pointer-events-none absolute top-0 left-0 h-[3px] w-full origin-left transition-all duration-500",
-          isSectionActive ? "opacity-100" : "opacity-25"
+          "pointer-events-none absolute top-0 left-0 h-[4px] w-full origin-left transition-all duration-500",
+          isSectionActive ? "opacity-100" : "opacity-35"
         )}
       />
 
-      {/* Subtle 6-column vertical architectural hairline grid matching the reference */}
+      {/* Subtle 6-column vertical architectural hairline grid tinted to chapter color */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 mx-auto grid w-full grid-cols-6 px-[5.2%]"
       >
-        <div className="border-x border-border/55" />
-        <div className="border-r border-border/55" />
-        <div className="border-r border-border/55" />
-        <div className="border-r border-border/55" />
-        <div className="border-r border-border/55" />
-        <div className="border-r border-border/55" />
+        <div style={{ borderColor: chapter.gridBorder }} className="border-x" />
+        <div style={{ borderColor: chapter.gridBorder }} className="border-r" />
+        <div style={{ borderColor: chapter.gridBorder }} className="border-r" />
+        <div style={{ borderColor: chapter.gridBorder }} className="border-r" />
+        <div style={{ borderColor: chapter.gridBorder }} className="border-r" />
+        <div style={{ borderColor: chapter.gridBorder }} className="border-r" />
       </div>
 
-      {/* Top Subtle Section Header aligned to grid with Active Colored Chapter Pills */}
-      <div className="relative z-10 mx-auto flex w-full items-center justify-between px-[5.2%]">
-        <div className="inline-flex items-center gap-2.5">
-          <span
-            className="size-2 rounded-full transition-colors duration-300"
-            style={{ backgroundColor: chapter.accentHex }}
-          />
-          <span className="font-sans text-[12px] font-semibold tracking-[-0.01em] text-heading sm:text-[14px]">
+      {/* Top Section Header: "About journal" with transparent uncolored talking face icon + Clean Text Chapter Buttons */}
+      <div className="relative z-20 mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-[5.2%]">
+        <div
+          style={{ color: chapter.accentText }}
+          className="inline-flex items-center gap-2.5"
+        >
+          <TalkingFaceIcon className="size-5 opacity-80" />
+          <span className="font-sans text-sm font-normal tracking-[-0.015em] transition-colors duration-300 sm:text-base lg:text-lg">
             About journal
           </span>
         </div>
 
-        <div className="flex items-center gap-2 font-mono text-[10px] sm:gap-3 sm:text-[11px]">
+        {/* Chapter links without button backgrounds: Profile, Experience, Capabilities, Achievements */}
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
           {ABOUT_CHAPTERS.map((item, idx) => {
             const isTabActive = chapterIndex === idx;
             return (
@@ -149,23 +242,17 @@ export function AboutSection() {
                 key={item.id}
                 type="button"
                 onClick={() => setChapterIndex(idx)}
-                style={
-                  isTabActive
-                    ? {
-                        backgroundColor: item.accentBg,
-                        borderColor: item.accentBorder,
-                        color: item.accentText,
-                      }
-                    : undefined
-                }
+                style={{
+                  color: isTabActive ? item.accentHex : chapter.bodyText,
+                }}
                 className={cn(
-                  "cursor-pointer rounded-full border px-3 py-1 capitalize transition-all duration-300",
+                  "cursor-pointer py-1 font-mono text-[11px] tracking-[-0.01em] transition-all duration-300 sm:text-xs lg:text-[13px]",
                   isTabActive
-                    ? "font-semibold shadow-2xs"
-                    : "border-transparent text-heading/60 hover:text-heading"
+                    ? "underline decoration-1 underline-offset-8 opacity-100"
+                    : "opacity-65 hover:opacity-100"
                 )}
               >
-                {item.id}
+                <span>{item.label}</span>
               </button>
             );
           })}
@@ -173,63 +260,53 @@ export function AboutSection() {
       </div>
 
       {/* Main Two-Column Editorial Stage aligned to the vertical grid lines */}
-      <div className="relative z-10 my-auto mx-auto grid w-full grid-cols-1 gap-10 px-[5.2%] py-10 lg:grid-cols-6 lg:gap-0 lg:py-16">
-        {/* Far-left vertical progress indicator bar (Column 1) — active segment lights up in color */}
-        <div className="hidden items-start pt-2 lg:col-span-1 lg:flex">
-          <div className="flex h-44 flex-col gap-2">
-            {ABOUT_CHAPTERS.map((item, idx) => {
-              const isSegActive = chapterIndex === idx;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setChapterIndex(idx)}
-                  aria-label={`View ${item.id}`}
-                  style={{
-                    backgroundColor: isSegActive ? item.accentHex : undefined,
-                  }}
-                  className={cn(
-                    "w-[3px] flex-1 cursor-pointer rounded-full transition-all duration-300",
-                    isSegActive ? "scale-x-110" : "bg-border"
-                  )}
-                />
-              );
-            })}
-          </div>
-        </div>
+      <div
+        ref={stageRef}
+        data-section-stage
+        className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 gap-6 px-[5.2%] py-4 lg:grid-cols-6 lg:gap-0 lg:py-8"
+      >
+        {/* Column 1 spacer (rope switcher moved to right side only) */}
+        <div className="hidden lg:col-span-1 lg:block" />
 
-        {/* Left Main Display Column: 3-line Title + Meta + Colored Action Button (Columns 2-3) */}
+        {/* Left Main Display Column: Larger 3-line Title (font-normal, no extra weight) + Meta + Action Button (Columns 2-3) */}
         <div className="flex flex-col justify-between lg:col-span-2 lg:pr-6">
           <div>
-            <h2 className="font-sans text-[2rem] leading-[1.15] font-normal tracking-[-0.025em] text-heading sm:text-[2.5rem] xl:text-[2.85rem]">
+            <h2
+              style={{ color: chapter.accentText }}
+              className="font-sans text-[2.25rem] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[2.85rem] lg:text-[3.35rem] xl:text-[3.85rem]"
+            >
               {chapter.lines.map((line, i) => (
                 <span
-                  key={line}
-                  style={
-                    i === 0 && isSectionActive
-                      ? { color: chapter.accentText }
-                      : undefined
-                  }
-                  className="block transition-colors duration-500"
+                  key={`${chapter.id}-${line}`}
+                  data-about-line
+                  style={{
+                    color: i === 0 ? chapter.accentHex : chapter.accentText,
+                  }}
+                  className="block font-normal transition-colors duration-500"
                 >
                   {line}
                 </span>
               ))}
             </h2>
 
-            {/* Two uppercase monospace labels matching "COLOPHON   10 STYLES IN TOTAL" */}
-            <div className="mt-7 flex flex-wrap items-center gap-6 font-mono text-[9.5px] font-medium tracking-[0.14em] uppercase sm:mt-9 sm:gap-10">
+            {/* Two uppercase monospace labels */}
+            <div className="mt-5 flex flex-wrap items-center gap-5 font-mono text-[9.5px] font-normal tracking-[0.14em] uppercase sm:mt-7 sm:gap-8 sm:text-[10.5px]">
               <span
-                style={{ color: chapter.accentText }}
-                className="rounded-md px-2 py-0.5 transition-colors duration-300"
+                style={{
+                  backgroundColor: chapter.badgeBg,
+                  color: chapter.accentText,
+                }}
+                className="rounded-md px-2.5 py-0.5 transition-colors duration-300"
               >
                 {chapter.metaLeft}
               </span>
-              <span className="text-heading/85">{chapter.metaRight}</span>
+              <span style={{ color: chapter.bodyText }}>
+                {chapter.metaRight}
+              </span>
             </div>
 
-            {/* Outlined rectangular action button tinted with active chapter accent */}
-            <div className="mt-8 sm:mt-10">
+            {/* Distinctly colored CTA action button */}
+            <div data-about-cta className="mt-6 sm:mt-8">
               {chapter.ctaType === "cv" ? (
                 <a
                   href={cvUrl}
@@ -237,92 +314,130 @@ export function AboutSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    borderColor: chapter.accentHex,
-                    backgroundColor: isSectionActive
-                      ? chapter.accentBg
-                      : "transparent",
-                    color: chapter.accentText,
+                    backgroundColor: chapter.buttonBg,
+                    color: chapter.buttonText,
                   }}
-                  className="inline-flex h-11 items-center justify-center border px-7 font-mono text-[11px] font-medium transition-all duration-300 hover:opacity-85"
+                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-6 font-mono text-[11px] font-normal shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
                 >
-                  {chapter.ctaLabel}
+                  <Download className="size-3.5 transition-transform group-hover:scale-110" />
+                  <span>{chapter.ctaLabel}</span>
                 </a>
               ) : (
-                <a
-                  href={chapter.ctaType === "work" ? "/#work" : "/#contact"}
-                  style={{
-                    borderColor: chapter.accentHex,
-                    backgroundColor: isSectionActive
-                      ? chapter.accentBg
-                      : "transparent",
-                    color: chapter.accentText,
+                <button
+                  type="button"
+                  onClick={() => {
+                    const targetId =
+                      chapter.ctaType === "work" ? "work" : "contact";
+                    const el = document.getElementById(targetId);
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="inline-flex h-11 items-center justify-center border px-7 font-mono text-[11px] font-medium transition-all duration-300 hover:opacity-85"
+                  style={{
+                    backgroundColor: chapter.buttonBg,
+                    color: chapter.buttonText,
+                  }}
+                  className="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-6 font-mono text-[11px] font-normal shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
                 >
-                  {chapter.ctaLabel}
-                </a>
+                  <span>{chapter.ctaLabel}</span>
+                  <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </button>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right Editorial Paragraphs Column: 1 Sans Paragraph + 2 Monospace Paragraphs (Columns 4-6) */}
-        <div className="flex flex-col justify-center space-y-6 lg:col-span-3 lg:pl-8 xl:pr-12">
-          <p className="font-sans text-[12px] leading-[1.65] font-medium text-heading sm:text-[13px]">
+        {/* Right Editorial Paragraphs Column: Matching size of other sections (Columns 4-6) */}
+        <div className="flex flex-col justify-center space-y-4 sm:space-y-5 lg:col-span-3 lg:pl-8 xl:pr-12">
+          <p
+            data-about-para
+            style={{ color: chapter.accentText }}
+            className="font-sans text-[12px] leading-[1.65] font-normal sm:text-[13px]"
+          >
             {chapter.leadParagraph}
           </p>
 
-          <p className="font-mono text-[11px] leading-[1.75] text-heading/80 sm:text-[12px]">
+          <p
+            data-about-para
+            style={{ color: chapter.bodyText }}
+            className="font-mono text-[11px] leading-[1.75] font-normal sm:text-[12px]"
+          >
             {chapter.monoParagraph1}
           </p>
 
-          <p className="font-mono text-[11px] leading-[1.75] text-heading/80 sm:text-[12px]">
+          <p
+            data-about-para
+            style={{ color: chapter.bodyText }}
+            className="font-mono text-[11px] leading-[1.75] font-normal sm:text-[12px]"
+          >
             {chapter.monoParagraph2}
           </p>
         </div>
       </div>
 
       {/* Bottom Row: Left "<  >" Navigation Arrows & Right Social Links */}
-      <div className="relative z-10 mx-auto grid w-full grid-cols-2 items-center px-[5.2%] lg:grid-cols-6">
+      <div className="relative z-20 mx-auto grid w-full grid-cols-2 items-center px-[5.2%] lg:grid-cols-6">
         <div className="hidden lg:col-span-1 lg:block" />
 
         {/* Left "<  >" Arrows aligned with the Left Heading */}
-        <div className="flex items-center gap-5 lg:col-span-2">
+        <div className="flex items-center gap-4 lg:col-span-2">
           <button
             type="button"
             onClick={handlePrev}
             aria-label="Previous about slide"
-            className="cursor-pointer rounded-full p-1.5 text-heading/80 transition-colors hover:bg-surface-secondary hover:text-heading"
+            style={{
+              backgroundColor: chapter.tabIdleBg,
+              borderColor: chapter.tabIdleBorder,
+              color: chapter.accentText,
+            }}
+            className="group flex size-8 cursor-pointer items-center justify-center rounded-full border transition-all duration-300 hover:-translate-x-0.5 hover:scale-105 sm:size-9"
           >
-            <ChevronLeft className="size-4 stroke-[1.5]" />
+            <ChevronLeft className="size-4 stroke-[1.5] transition-transform group-hover:-translate-x-0.5" />
           </button>
           <button
             type="button"
             onClick={handleNext}
             aria-label="Next about slide"
-            className="cursor-pointer rounded-full p-1.5 text-heading/80 transition-colors hover:bg-surface-secondary hover:text-heading"
+            style={{
+              backgroundColor: chapter.tabIdleBg,
+              borderColor: chapter.tabIdleBorder,
+              color: chapter.accentText,
+            }}
+            className="group flex size-8 cursor-pointer items-center justify-center rounded-full border transition-all duration-300 hover:translate-x-0.5 hover:scale-105 sm:size-9"
           >
-            <ChevronRight className="size-4 stroke-[1.5]" />
+            <ChevronRight className="size-4 stroke-[1.5] transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
 
         {/* Right Social Links aligned with the Right Grid Columns */}
-        <div className="flex items-center justify-end gap-8 font-mono text-[10.5px] text-heading/85 sm:gap-14 sm:text-[11.5px] lg:col-span-3">
+        <div
+          style={{ color: chapter.accentText }}
+          className="flex items-center justify-end gap-8 font-mono text-[10.5px] font-normal sm:gap-14 sm:text-[11.5px] lg:col-span-3"
+        >
           <a
             href={DEVELOPER_PROFILE.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-opacity hover:opacity-65"
+            className="inline-flex items-center gap-1 transition-transform duration-300 hover:-translate-y-0.5 hover:opacity-75"
           >
-            GitHub
+            <span>GitHub</span>
+            <ArrowUpRight className="size-3.5" />
           </a>
           <a
             href={DEVELOPER_PROFILE.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-opacity hover:opacity-65"
+            className="inline-flex items-center gap-1 transition-transform duration-300 hover:-translate-y-0.5 hover:opacity-75"
           >
-            LinkedIn
+            <span>LinkedIn</span>
+            <ArrowUpRight className="size-3.5" />
+          </a>
+          <a
+            href={DEVELOPER_PROFILE.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 transition-transform duration-300 hover:-translate-y-0.5 hover:opacity-75"
+          >
+            <span>Instagram</span>
+            <ArrowUpRight className="size-3.5" />
           </a>
         </div>
       </div>

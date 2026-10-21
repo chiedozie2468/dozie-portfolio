@@ -80,6 +80,10 @@ export default defineSchema({
     cvUrl: v.optional(v.string()),
     cvStorageId: v.optional(v.id("_storage")),
     cvFileName: v.optional(v.string()),
+    contactPhone: v.optional(v.string()),
+    contactWhatsapp: v.optional(v.string()),
+    contactAddress: v.optional(v.string()),
+    contactEmail: v.optional(v.string()),
     updatedAt: v.number(),
   }).index("by_key", ["key"]),
 

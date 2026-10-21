@@ -3,6 +3,7 @@
 import { Plus, User } from "lucide-react";
 import { useState } from "react";
 
+import { useHeroTheme } from "@/components/providers/hero-theme-provider";
 import type { ConvexConnectionState } from "@/lib/hooks/use-portfolio-data";
 import {
   DEFAULT_SITE_SETTINGS,
@@ -10,59 +11,6 @@ import {
   type PortfolioSiteSettings,
 } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
-
-const HERO_COLOR_THEMES = [
-  {
-    id: "editorial-ivory",
-    label: "Warm Ivory",
-    bg: "#F8F8F6",
-    heading: "#0D0D0D",
-    body: "#6E6E6A",
-    ringTrack: "#DFDFDC",
-    ringArc: "#0D0D0D",
-    swatchBorder: "#DFDFDC",
-  },
-  {
-    id: "espresso",
-    label: "Espresso",
-    bg: "#32271F",
-    heading: "#F8F8F6",
-    body: "rgba(248, 248, 246, 0.8)",
-    ringTrack: "rgba(248, 248, 246, 0.22)",
-    ringArc: "#F8F8F6",
-    swatchBorder: "rgba(248, 248, 246, 0.45)",
-  },
-  {
-    id: "charcoal",
-    label: "Charcoal",
-    bg: "#2B2D2F",
-    heading: "#F8F8F6",
-    body: "rgba(248, 248, 246, 0.8)",
-    ringTrack: "rgba(248, 248, 246, 0.22)",
-    ringArc: "#F8F8F6",
-    swatchBorder: "rgba(248, 248, 246, 0.45)",
-  },
-  {
-    id: "cognac",
-    label: "Cognac",
-    bg: "#623D28",
-    heading: "#F8F8F6",
-    body: "rgba(248, 248, 246, 0.82)",
-    ringTrack: "rgba(248, 248, 246, 0.22)",
-    ringArc: "#F8F8F6",
-    swatchBorder: "rgba(248, 248, 246, 0.45)",
-  },
-  {
-    id: "sandstone",
-    label: "Sandstone",
-    bg: "#EAE6DF",
-    heading: "#141413",
-    body: "#57534E",
-    ringTrack: "rgba(20, 20, 19, 0.18)",
-    ringArc: "#32271F",
-    swatchBorder: "#32271F",
-  },
-] as const;
 
 interface HeroSectionProps {
   connectionState?: ConvexConnectionState;
@@ -72,16 +20,12 @@ interface HeroSectionProps {
 
 export function HeroSection({
   siteSettings = DEFAULT_SITE_SETTINGS,
-  projects = [],
 }: HeroSectionProps) {
-  const [themeIndex, setThemeIndex] = useState(0);
-  const [colorsOpen, setColorsOpen] = useState(false);
+  const { activeTheme, cycleTheme } = useHeroTheme();
 
   // Images are black-and-white by default; clicking an image toggles its original color
   const [dpShowColor, setDpShowColor] = useState(false);
   const [editorialShowColor, setEditorialShowColor] = useState(false);
-
-  const activeTheme = HERO_COLOR_THEMES[themeIndex % HERO_COLOR_THEMES.length];
 
   const displayWord =
     !siteSettings.heroDisplayWord || siteSettings.heroDisplayWord === "dozie."
@@ -106,7 +50,7 @@ export function HeroSection({
   };
 
   const handleCycleHeroColor = () => {
-    setThemeIndex((prev) => (prev + 1) % HERO_COLOR_THEMES.length);
+    cycleTheme();
   };
 
   return (
@@ -117,61 +61,20 @@ export function HeroSection({
         backgroundColor: activeTheme.bg,
         color: activeTheme.heading,
       }}
-      className="relative h-[calc(100dvh-3.5rem)] min-h-[440px] w-full overflow-hidden transition-colors duration-500 ease-out select-none sm:h-[calc(100dvh-5rem)]"
+      className="relative h-[calc(100dvh-3.5rem)] min-h-[440px] w-full snap-start snap-always overflow-hidden transition-colors duration-500 ease-out select-none sm:h-[calc(100dvh-5rem)]"
     >
       <div className="relative h-full w-full">
-        {/* 1. Left Vertical "Colors +" — click to cycle or choose Hero background & text colors */}
+        {/* 1. Left Vertical "Colors +" — click to cycle Hero & Projects background & text colors */}
         <div className="absolute top-[33%] left-[5.2%] z-20 flex -translate-y-1/2 items-center sm:top-[35%]">
           <button
             type="button"
-            onClick={() => {
-              handleCycleHeroColor();
-              setColorsOpen((prev) => !prev);
-            }}
-            aria-expanded={colorsOpen}
+            onClick={handleCycleHeroColor}
             style={{ color: activeTheme.heading }}
             className="inline-flex cursor-pointer items-center gap-3 rounded-full px-1.5 py-2 font-sans text-[11px] font-medium tracking-[0.03em] transition-all duration-300 [writing-mode:vertical-rl] rotate-180 hover:opacity-80 focus:outline-none sm:gap-4 sm:text-[13px]"
           >
             <span>Colors</span>
-            <Plus
-              className={cn(
-                "size-3 transition-transform duration-300 sm:size-3.5",
-                colorsOpen && "rotate-45"
-              )}
-            />
+            <Plus className="size-3 transition-transform duration-300 sm:size-3.5" />
           </button>
-
-          {colorsOpen && (
-            <div className="ml-3 flex flex-col gap-1.5 sm:ml-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
-              {HERO_COLOR_THEMES.map((theme, idx) => {
-                const isSelected = idx === themeIndex % HERO_COLOR_THEMES.length;
-                return (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    onClick={() => setThemeIndex(idx)}
-                    style={{
-                      backgroundColor: theme.bg,
-                      color: theme.heading,
-                      borderColor: isSelected
-                        ? activeTheme.heading
-                        : theme.swatchBorder,
-                    }}
-                    className={cn(
-                      "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 font-sans text-[11px] font-medium shadow-xs transition-transform hover:-translate-y-0.5",
-                      isSelected && "ring-1 ring-current"
-                    )}
-                  >
-                    <span
-                      className="size-2 rounded-full border border-black/20"
-                      style={{ backgroundColor: theme.ringArc }}
-                    />
-                    <span>{theme.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
 
         {/* 2. Center Circular "Colors" Button — click to cycle Hero background & text colors */}
@@ -212,10 +115,10 @@ export function HeroSection({
           </button>
         </div>
 
-        {/* 3. Dual Hero Frames — strictly two images, fully visible within the viewport, no scrolling or bleeding */}
-        <div className="absolute top-[4%] right-[4.8%] flex items-start gap-3 sm:top-[5%] sm:gap-5 lg:gap-6">
-          {/* Card 1: Primary Portrait (DP) */}
-          <div className="flex w-[32vw] max-w-[155px] shrink-0 flex-col sm:w-[19vw] sm:max-w-[260px] lg:w-[19vw] lg:max-w-[280px]">
+        {/* 3. Dual Hero Frames — Left image is larger; Right image is vertically centered in the middle of the left image and flush with the right edge */}
+        <div className="absolute top-[4%] right-0 z-20 flex items-center gap-3 sm:top-[5%] sm:gap-5 lg:gap-6">
+          {/* Card 1 (Left): Primary Portrait (DP) — Increased by ~5% */}
+          <div className="flex w-[40vw] max-w-[198px] shrink-0 flex-col sm:w-[25.5vw] sm:max-w-[350px] lg:w-[26.5vw] lg:max-w-[380px]">
             <div
               role="button"
               tabIndex={0}
@@ -227,7 +130,7 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="group relative aspect-[1/1.48] max-h-[58dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
+              className="group relative aspect-[1/1.48] max-h-[70dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
             >
               {dpCard.imageUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -252,8 +155,8 @@ export function HeroSection({
             </div>
           </div>
 
-          {/* Card 2: Secondary Editorial Image */}
-          <div className="flex w-[32vw] max-w-[155px] shrink-0 flex-col sm:w-[19vw] sm:max-w-[260px] lg:w-[19vw] lg:max-w-[280px]">
+          {/* Card 2 (Right): Secondary Editorial Image — Smaller and touching the extreme right edge */}
+          <div className="flex w-[23vw] max-w-[115px] shrink-0 flex-col sm:w-[14vw] sm:max-w-[195px] lg:w-[14.5vw] lg:max-w-[215px]">
             <div
               role="button"
               tabIndex={0}
@@ -265,14 +168,14 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="relative aspect-[1/1.48] max-h-[58dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
+              className="relative aspect-[1/1.48] max-h-[54dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={secondaryCard.imageUrl}
                 alt={secondaryCard.title}
                 className={cn(
-                  "size-full rounded-[3px] object-cover object-left transition-all duration-500",
+                  "size-full rounded-l-[3px] rounded-r-none object-cover object-left transition-all duration-500",
                   editorialShowColor
                     ? "grayscale-0 contrast-100"
                     : "grayscale contrast-105"
@@ -283,7 +186,7 @@ export function HeroSection({
         </div>
 
         {/* 4. Bottom-Left Personal Intro (matching exact width of "chiedozie.") + Giant "chiedozie." */}
-        <div className="pointer-events-none absolute bottom-[5.5%] left-[4.8%] inline-flex flex-col">
+        <div className="pointer-events-none absolute bottom-[5.5%] left-[4.8%] z-20 inline-flex flex-col">
           <p
             style={{ color: activeTheme.body }}
             className="mb-3 w-0 min-w-full font-sans text-xs leading-snug font-normal transition-colors duration-500 sm:mb-4 sm:text-base lg:text-lg xl:text-xl"

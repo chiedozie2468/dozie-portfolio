@@ -403,6 +403,10 @@ export const updateSiteSettings = mutation({
     cvStorageId: v.optional(v.id("_storage")),
     cvFileName: v.optional(v.string()),
     removeCv: v.optional(v.boolean()),
+    contactPhone: v.optional(v.string()),
+    contactWhatsapp: v.optional(v.string()),
+    contactAddress: v.optional(v.string()),
+    contactEmail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await assertValidAdminToken(ctx, args.adminToken);
@@ -512,6 +516,22 @@ export const updateSiteSettings = mutation({
       cvUrl: resolvedCvUrl,
       cvStorageId: nextCvStorageId,
       cvFileName: resolvedCvFileName,
+      contactPhone:
+        args.contactPhone?.trim() ||
+        existing?.contactPhone ||
+        DEFAULT_SITE_SETTINGS.contactPhone,
+      contactWhatsapp:
+        args.contactWhatsapp?.trim() ||
+        existing?.contactWhatsapp ||
+        DEFAULT_SITE_SETTINGS.contactWhatsapp,
+      contactAddress:
+        args.contactAddress?.trim() ||
+        existing?.contactAddress ||
+        DEFAULT_SITE_SETTINGS.contactAddress,
+      contactEmail:
+        args.contactEmail?.trim() ||
+        existing?.contactEmail ||
+        DEFAULT_SITE_SETTINGS.contactEmail,
       updatedAt: now,
     };
 
@@ -652,6 +672,22 @@ export const seedIfEmpty = mutation({
           updatedAt: now,
         });
         insertedProjects += 1;
+      } else {
+        const legacyTitles = [
+          "KollaTunez Tours & Ticketing Platform",
+          "Followpoint — Client Follow-Up & Pipeline Workspace",
+          "NogaData JSAP Central Administration Portal",
+          "TechFasta — High-Velocity Digital Product & Content Platform",
+        ];
+        const needsTitleClean = legacyTitles.includes(existing.title);
+        const needsLiveUrl = !existing.liveUrl && Boolean(project.liveUrl);
+        if (needsTitleClean || needsLiveUrl) {
+          await ctx.db.patch(existing._id, {
+            ...(needsTitleClean ? { title: project.title } : {}),
+            ...(needsLiveUrl ? { liveUrl: project.liveUrl } : {}),
+            updatedAt: now,
+          });
+        }
       }
     }
 

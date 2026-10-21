@@ -124,6 +124,20 @@ export function SectionFocusProvider({ children }: { children: ReactNode }) {
             ease: "outQuad",
           });
         }
+
+        if (!isReduced && prevSection !== nextSection) {
+          const stageBlocks = nextEl.querySelectorAll<HTMLElement>(
+            ":scope > div:not([data-section-accent-bar]):not([aria-hidden='true'])"
+          );
+          if (stageBlocks.length > 0) {
+            animate(stageBlocks, {
+              translateY: [26, 0],
+              opacity: [0.35, 1],
+              duration: 620,
+              ease: "outCubic",
+            });
+          }
+        }
       }
 
       const headerAccentDot = document.querySelector<HTMLElement>(
@@ -226,6 +240,201 @@ export function SectionFocusProvider({ children }: { children: ReactNode }) {
 
     return () => observer.disconnect();
   }, [activeSection, applySectionTransition, reducedMotion, setActiveSection]);
+
+  // Strict section-by-section wheel & keyboard stepping on desktop so scrolling
+  // never stops halfway between two sections ("no half-half")
+  useEffect(() => {
+    let isAnimatingScroll = false;
+    let unlockTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const getOrderedTargets = (): HTMLElement[] => {
+      const secEls = SECTION_ORDER.map((id) =>
+        document.querySelector<HTMLElement>(`[data-section-id="${id}"]`)
+      ).filter((el): el is HTMLElement => Boolean(el));
+      const footerEl = document.querySelector<HTMLElement>("footer");
+      if (secEls.length > 1 && footerEl) {
+        return [...secEls, footerEl];
+      }
+      return secEls;
+    };
+
+    const getHeaderHeight = () => {
+      const header = document.querySelector<HTMLElement>("header");
+      return header ? header.offsetHeight : 80;
+    };
+
+    const scrollToTarget = (targetEl: HTMLElement) => {
+      isAnimatingScroll = true;
+      const headerHeight = getHeaderHeight();
+      const rect = targetEl.getBoundingClientRect();
+      const maxScroll = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight
+      );
+      const rawTop =
+        targetEl.tagName === "FOOTER"
+          ? maxScroll
+          : Math.max(0, window.scrollY + rect.top - headerHeight);
+      const targetTop = Math.min(rawTop, maxScroll);
+
+      const sectionId = targetEl.getAttribute(
+        "data-section-id"
+      ) as SectionId | null;
+      if (sectionId) {
+        setActiveSection(sectionId);
+      }
+
+      if (reducedMotion) {
+        window.scrollTo({ top: targetTop, behavior: "auto" });
+        isAnimatingScroll = false;
+        return;
+      }
+
+      const rootEl = document.documentElement;
+      const prevSnap = rootEl.style.scrollSnapType;
+      const prevBehavior = rootEl.style.scrollBehavior;
+      rootEl.style.scrollSnapType = "none";
+      rootEl.style.scrollBehavior = "auto";
+
+      const scrollState = { y: window.scrollY };
+      animate(scrollState, {
+        y: targetTop,
+        duration: 740,
+        ease: "inOutQuart",
+        onUpdate: () => {
+          window.scrollTo(0, scrollState.y);
+        },
+        onComplete: () => {
+          rootEl.style.scrollSnapType = prevSnap;
+          rootEl.style.scrollBehavior = prevBehavior;
+        },
+      });
+
+      if (unlockTimeout) clearTimeout(unlockTimeout);
+      unlockTimeout = setTimeout(() => {
+        rootEl.style.scrollSnapType = prevSnap;
+        rootEl.style.scrollBehavior = prevBehavior;
+        isAnimatingScroll = false;
+      }, 780);
+    };
+
+    const findCurrentIndex = (targets: HTMLElement[]) => {
+      const maxScroll = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight
+      );
+      if (
+        targets.length > 1 &&
+        targets[targets.length - 1].tagName === "FOOTER" &&
+        maxScroll > 20 &&
+        window.scrollY >= maxScroll - 24
+      ) {
+        return targets.length - 1;
+      }
+      const headerHeight = getHeaderHeight();
+      let closestIdx = 0;
+      let minDistance = Infinity;
+      targets.forEach((el, idx) => {
+        if (el.tagName === "FOOTER") return;
+        const dist = Math.abs(el.getBoundingClientRect().top - headerHeight);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestIdx = idx;
+        }
+      });
+      return closestIdx;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (window.location.pathname !== "/") return;
+      if (window.innerWidth < 768) return;
+
+      // Ignore horizontal trackpad swipes
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      // Ignore tiny trackpad jitter
+      if (Math.abs(e.deltaY) < 12) return;
+
+      // Allow normal scrolling inside scrollable textareas or open overlays
+      const targetNode = e.target as HTMLElement | null;
+      if (targetNode) {
+        if (
+          targetNode.tagName === "TEXTAREA" ||
+          targetNode.closest("[data-allow-inner-scroll]")
+        ) {
+          return;
+        }
+      }
+
+      const targets = getOrderedTargets();
+      if (targets.length < 2) return;
+
+      e.preventDefault();
+
+      if (isAnimatingScroll) return;
+
+      const currentIdx = findCurrentIndex(targets);
+      const direction = e.deltaY > 0 ? 1 : -1;
+      const nextIdx = Math.max(
+        0,
+        Math.min(targets.length - 1, currentIdx + direction)
+      );
+
+      if (nextIdx !== currentIdx) {
+        scrollToTarget(targets[nextIdx]);
+      } else {
+        // Re-align current section if slightly off-snap
+        scrollToTarget(targets[currentIdx]);
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      if (unlockTimeout) clearTimeout(unlockTimeout);
+    };
+  }, [reducedMotion, setActiveSection]);
+
+  // Keep the home URL clean (no leftover #work or #work#contact hashes)
+  // and redirect to /admin if the user typed /admin after a hash in the URL bar
+  useEffect(() => {
+    const handleHashNavigation = () => {
+      const hash = window.location.hash;
+      if (!hash) return;
+
+      if (
+        hash.toLowerCase().includes("/admin") ||
+        hash.toLowerCase().includes("admin") ||
+        hash.toLowerCase().includes("dashboard")
+      ) {
+        window.location.href = "/admin";
+        return;
+      }
+
+      // Extract the last valid section id if multiple hashes exist (e.g. #work#contact)
+      const parts = hash
+        .split("#")
+        .map((p) => p.replace(/^\/+/, "").trim())
+        .filter(Boolean);
+      const targetId = parts[parts.length - 1] as SectionId | undefined;
+
+      if (targetId) {
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+          setActiveSection(targetId);
+        }
+      }
+
+      // Clean the hash from the address bar so typing /admin or another path works cleanly
+      if (window.location.pathname === "/") {
+        window.history.replaceState(null, "", "/");
+      }
+    };
+
+    handleHashNavigation();
+    window.addEventListener("hashchange", handleHashNavigation);
+    return () => window.removeEventListener("hashchange", handleHashNavigation);
+  }, [setActiveSection]);
 
   const value = useMemo<SectionFocusContextValue>(
     () => ({

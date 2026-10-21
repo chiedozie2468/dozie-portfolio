@@ -2,14 +2,19 @@
 
 import {
   AlertCircle,
+  ArrowUpRight,
   CheckCircle2,
   Loader2,
   Mail,
   MapPin,
+  MessageCircle,
   Phone,
+  Send,
 } from "lucide-react";
 import { useState } from "react";
 
+import { ContactLineIcon } from "@/components/icons/section-line-icons";
+import { FooterContent } from "@/components/layout/footer";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
 import { DEVELOPER_PROFILE } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
@@ -106,104 +111,188 @@ export function ContactSection() {
     <section
       id="contact"
       data-section-id="contact"
-      className="relative w-full border-t border-border/60 bg-card"
+      style={{
+        backgroundColor: "#F5F2EB",
+        backgroundImage:
+          "radial-gradient(900px circle at 15% 25%, rgba(14, 165, 233, 0.10), transparent 65%), radial-gradient(850px circle at 85% 80%, rgba(16, 185, 129, 0.10), transparent 65%)",
+      }}
+      className="relative flex min-h-[calc(100dvh-3.5rem)] w-full snap-start snap-always flex-col justify-between border-t border-border/60 pt-3 transition-colors duration-700 sm:min-h-[calc(100dvh-5rem)] lg:pt-5"
     >
       {/* Top active accent bar */}
       <div
         data-section-accent-bar
         className={cn(
-          "pointer-events-none absolute top-0 left-0 h-[3px] w-full origin-left bg-[#32271F] transition-all duration-500",
+          "pointer-events-none absolute top-0 left-0 h-[3px] w-full origin-left bg-[#0F172A] transition-all duration-500",
           isSectionActive ? "opacity-100" : "opacity-25"
         )}
       />
 
-      {/* Top Banner Band matching contact.png */}
-      <div className="w-full bg-background px-[7%] py-14 transition-colors duration-700 sm:py-20">
-        <div className="mx-auto max-w-6xl">
-          <p className="inline-flex items-center gap-2 font-sans text-[11px] text-body">
-            <span>Home/Contact_Us</span>
-          </p>
-          <h2 className="mt-2.5 font-sans text-4xl font-bold tracking-tight text-heading sm:text-5xl">
-            Contact Us
-          </h2>
+      {/* 6-column vertical architectural hairline grid matching About & Projects */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 mx-auto grid w-full grid-cols-6 px-[5.2%]"
+      >
+        <div className="border-x border-slate-900/[0.08]" />
+        <div className="border-r border-slate-900/[0.08]" />
+        <div className="border-r border-slate-900/[0.08]" />
+        <div className="border-r border-slate-900/[0.08]" />
+        <div className="border-r border-slate-900/[0.08]" />
+        <div className="border-r border-slate-900/[0.08]" />
+      </div>
+
+      {/* Top Editorial Header Row */}
+      <div className="relative z-20 mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-[5.2%]">
+        <div className="inline-flex items-center gap-2.5 text-slate-900">
+          <ContactLineIcon className="size-4.5 opacity-80" />
+          <span className="font-sans text-sm font-normal tracking-[-0.015em] sm:text-base lg:text-lg">
+            Contact studio
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-5 font-mono text-[11px] text-slate-700 sm:gap-7 sm:text-xs">
+          <a
+            href="https://wa.me/2349153251972"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-emerald-700 transition-opacity hover:opacity-75"
+          >
+            <span>WhatsApp</span>
+            <ArrowUpRight className="size-3.5" />
+          </a>
+          <a
+            href={`mailto:${DEVELOPER_PROFILE.email}`}
+            className="inline-flex items-center gap-1 transition-opacity hover:opacity-70"
+          >
+            <span>Email</span>
+            <ArrowUpRight className="size-3.5" />
+          </a>
+          <a
+            href={DEVELOPER_PROFILE.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 transition-opacity hover:opacity-70"
+          >
+            <span>LinkedIn</span>
+            <ArrowUpRight className="size-3.5" />
+          </a>
         </div>
       </div>
 
-      {/* Main White Content Area matching contact.png */}
-      <div className="w-full bg-card px-[7%] py-14 sm:py-20">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
-          {/* Left Column: "Need more information? Get in touch with us" + 3 circular icon rows */}
-          <div className="flex flex-col lg:col-span-5">
-            <h3 className="font-sans text-xl leading-[1.28] font-bold text-heading sm:text-2xl">
-              Need more information?
-              <br />
-              <span>Get in touch with us</span>
-            </h3>
+      {/* Main Two-Column Stage aligned to the 6-column architectural grid */}
+      <div className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-6 px-[5.2%] py-3 lg:grid-cols-6 lg:gap-0">
+        {/* Left Column (Columns 1-3): Editorial Heading + Interactive Contact Cards */}
+        <div className="flex flex-col justify-between lg:col-span-3 lg:pr-10">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-600/25 bg-emerald-500/10 px-3 py-0.5 font-mono text-[10px] tracking-[0.12em] uppercase text-emerald-800">
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-600" />
+              </span>
+              <span>Available for new projects</span>
+            </div>
 
-            <p className="mt-3 max-w-sm text-xs leading-relaxed text-body">
-              A connected set of services designed to turn strategy into scale
+            <h2 className="mt-2.5 font-sans text-[1.95rem] leading-[1.06] font-normal tracking-[-0.03em] text-slate-900 sm:text-[2.4rem] lg:text-[2.75rem]">
+              <span className="block font-normal text-sky-700">
+                Let&apos;s build
+              </span>
+              <span className="block font-normal">your next</span>
+              <span className="block font-normal">digital product.</span>
+            </h2>
+
+            <p className="mt-2 max-w-md font-sans text-xs leading-relaxed text-slate-600">
+              Reach out directly for full-stack product engineering, Convex
+              backend architecture, or custom web platform collaborations.
             </p>
+          </div>
 
-            <div className="mt-9 flex flex-col gap-6">
-              {/* 1. Phone Number */}
-              <div className="group flex items-center gap-4">
-                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-secondary/65 text-heading transition-all duration-300">
-                  <Phone className="size-4 stroke-[1.75]" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-heading">Phone Number</p>
-                  <p className="mt-0.5 text-xs text-body">+234 810 000 0000</p>
-                </div>
+          {/* 3 Sleek Glassmorphic Contact Cards (transparent uncolored icons) */}
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-1 lg:gap-2">
+            {/* 1. Phone & WhatsApp */}
+            <div className="group flex items-center gap-3 rounded-xl border border-slate-900/10 bg-white/75 px-3 py-2 shadow-2xs backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-900/25 hover:bg-white">
+              <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800 transition-transform duration-300 group-hover:scale-105">
+                <Phone className="relative size-3.5 stroke-[1.6]" />
               </div>
-
-              {/* 2. Email */}
-              <div className="group flex items-center gap-4">
-                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-secondary/65 text-heading transition-all duration-300">
-                  <Mail className="size-4 stroke-[1.75]" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-heading">Email</p>
+              <div className="min-w-0">
+                <p className="font-mono text-[9.5px] tracking-wider uppercase text-slate-500">
+                  Phone & WhatsApp
+                </p>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-900">
                   <a
-                    href={`mailto:${DEVELOPER_PROFILE.email}`}
-                    className="mt-0.5 block text-xs text-body transition-colors hover:text-heading"
+                    href="tel:+2349153251972"
+                    className="transition-opacity hover:opacity-70"
                   >
-                    {DEVELOPER_PROFILE.email}
+                    09153251972
+                  </a>
+                  <span className="text-slate-300">•</span>
+                  <a
+                    href="https://wa.me/2349153251972"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-800 hover:underline"
+                  >
+                    <MessageCircle className="size-3" />
+                    <span>WhatsApp</span>
                   </a>
                 </div>
               </div>
+            </div>
 
-              {/* 3. Address */}
-              <div className="group flex items-center gap-4">
-                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-secondary/65 text-heading transition-all duration-300">
-                  <MapPin className="size-4 stroke-[1.75]" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-heading">Address</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-body">
-                    Lagos, Nigeria
-                    <br />
-                    Working Globally (UTC+1)
-                  </p>
-                </div>
+            {/* 2. Email */}
+            <div className="group flex items-center gap-3 rounded-xl border border-slate-900/10 bg-white/75 px-3 py-2 shadow-2xs backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-900/25 hover:bg-white">
+              <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800 transition-transform duration-300 group-hover:scale-105">
+                <Mail className="relative size-3.5 stroke-[1.6]" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-mono text-[9.5px] tracking-wider uppercase text-slate-500">
+                  Direct Email
+                </p>
+                <a
+                  href={`mailto:${DEVELOPER_PROFILE.email}`}
+                  className="block truncate text-xs text-slate-900 transition-opacity hover:opacity-70"
+                >
+                  {DEVELOPER_PROFILE.email}
+                </a>
+              </div>
+            </div>
+
+            {/* 3. Studio Location */}
+            <div className="group flex items-center gap-3 rounded-xl border border-slate-900/10 bg-white/75 px-3 py-2 shadow-2xs backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-900/25 hover:bg-white">
+              <div className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800 transition-transform duration-300 group-hover:scale-105">
+                <MapPin className="relative size-3.5 stroke-[1.6]" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-mono text-[9.5px] tracking-wider uppercase text-slate-500">
+                  Studio Address
+                </p>
+                <p className="truncate text-xs text-slate-900">
+                  20 Abeokuta, Owode Onirin, Lagos State, Nigeria
+                </p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Right Column: "Send Message" + Form matching contact.png */}
-          <div className="flex flex-col lg:col-span-7">
-            <h3 className="font-sans text-xl font-bold text-heading sm:text-2xl">
-              Send Message
-            </h3>
-            <p className="mt-2 max-w-md text-xs leading-relaxed text-body">
-              Please fill out the form below with
-              <br />
-              your details and message to contact with us
-            </p>
+        {/* Right Column (Columns 4-6): Elevated Glassmorphic Message Card */}
+        <div className="lg:col-span-3">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-900/12 bg-white/85 p-4 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-sans text-base font-normal tracking-tight text-slate-900 sm:text-lg">
+                  Send a Message
+                </h3>
+                <p className="font-mono text-[10.5px] text-slate-500">
+                  Direct to Chiedozie Onyekwelu · Replies within 24h
+                </p>
+              </div>
+              <span className="flex size-8 items-center justify-center rounded-full border border-slate-900/20 bg-transparent text-slate-800">
+                <Send className="size-3.5 stroke-[1.6]" />
+              </span>
+            </div>
 
             <form
               onSubmit={handleSubmit}
               noValidate
-              className="mt-7 flex flex-col gap-3.5"
+              className="mt-3.5 flex flex-col gap-2.5"
             >
               {/* Hidden honeypot */}
               <input
@@ -217,7 +306,7 @@ export function ContactSection() {
               />
 
               {/* Row 1: First Name & Last Name */}
-              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <input
                   type="text"
                   placeholder="First Name"
@@ -226,10 +315,10 @@ export function ContactSection() {
                   onBlur={() => setActiveField(null)}
                   onChange={(e) => setFirstName(e.target.value)}
                   className={cn(
-                    "h-11 rounded-[10px] border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                    "h-10 rounded-xl border px-3.5 text-xs text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none sm:h-11",
                     activeField === "firstName"
-                      ? "border-heading bg-background"
-                      : "border-border bg-card"
+                      ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
+                      : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
                   )}
                 />
                 <input
@@ -240,10 +329,10 @@ export function ContactSection() {
                   onBlur={() => setActiveField(null)}
                   onChange={(e) => setLastName(e.target.value)}
                   className={cn(
-                    "h-11 rounded-[10px] border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                    "h-10 rounded-xl border px-3.5 text-xs text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none sm:h-11",
                     activeField === "lastName"
-                      ? "border-heading bg-background"
-                      : "border-border bg-card"
+                      ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
+                      : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
                   )}
                 />
               </div>
@@ -251,54 +340,54 @@ export function ContactSection() {
               {/* Row 2: Email or Phone Number */}
               <input
                 type="email"
-                placeholder="Email or Phone Number"
+                placeholder="Email Address"
                 value={email}
                 onFocus={() => setActiveField("email")}
                 onBlur={() => setActiveField(null)}
                 onChange={(e) => setEmail(e.target.value)}
                 className={cn(
-                  "h-11 w-full rounded-[10px] border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                  "h-10 w-full rounded-xl border px-3.5 text-xs text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none sm:h-11",
                   activeField === "email"
-                    ? "border-heading bg-background"
-                    : "border-border bg-card"
+                    ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
+                    : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
                 )}
               />
 
-              {/* Row 3: Write Message Here... */}
+              {/* Row 3: Message */}
               <textarea
-                rows={5}
-                placeholder="Write Message Here..."
+                rows={3}
+                placeholder="Tell me about your project, timeline, or question..."
                 value={message}
                 onFocus={() => setActiveField("message")}
                 onBlur={() => setActiveField(null)}
                 onChange={(e) => setMessage(e.target.value)}
                 className={cn(
-                  "w-full rounded-[10px] border p-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                  "w-full rounded-xl border p-3 text-xs text-slate-900 placeholder:text-slate-400 transition-all focus:outline-none",
                   activeField === "message"
-                    ? "border-heading bg-background"
-                    : "border-border bg-card"
+                    ? "border-sky-600 bg-white ring-2 ring-sky-500/15"
+                    : "border-slate-200 bg-slate-50/70 hover:border-slate-300"
                 )}
               />
 
               {submitState.status === "success" && (
-                <div className="flex items-center gap-2 rounded-[10px] border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs font-medium text-emerald-700">
+                <div className="flex items-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs text-emerald-800">
                   <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
                   <span>{submitState.message}</span>
                 </div>
               )}
 
               {submitState.status === "error" && (
-                <div className="flex items-center gap-2 rounded-[10px] border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                <div className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-700">
                   <AlertCircle className="size-4 shrink-0" />
                   <span>{submitState.message}</span>
                 </div>
               )}
 
-              <div className="pt-1">
+              <div className="flex items-center justify-between gap-4 pt-1">
                 <button
                   type="submit"
                   disabled={submitState.status === "submitting"}
-                  className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[10px] bg-heading px-6 text-xs font-medium text-white transition-all duration-300 hover:opacity-90 disabled:opacity-50"
+                  className="group inline-flex h-10 cursor-pointer items-center gap-2.5 rounded-xl bg-[#0F172A] px-6 font-mono text-xs font-normal text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-50 sm:h-11 sm:px-7"
                 >
                   {submitState.status === "submitting" ? (
                     <>
@@ -306,14 +395,24 @@ export function ContactSection() {
                       <span>Sending...</span>
                     </>
                   ) : (
-                    <span>Send Message</span>
+                    <>
+                      <span>Send Message</span>
+                      <Send className="size-3.5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5" />
+                    </>
                   )}
                 </button>
+
+                <span className="hidden font-mono text-[10px] text-slate-400 sm:inline">
+                  Lagos · UTC+1
+                </span>
               </div>
             </form>
           </div>
         </div>
       </div>
+
+      {/* Dark Animated Footer anchored directly at the bottom of the Contact viewport */}
+      <FooterContent />
     </section>
   );
 }

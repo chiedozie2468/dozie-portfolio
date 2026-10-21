@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { SectionLineIcon } from "@/components/icons/section-line-icons";
 import { Logo } from "@/components/layout/logo";
 import { navLinks } from "@/components/layout/nav-links";
+import { useHeroTheme } from "@/components/providers/hero-theme-provider";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
 import { usePortfolioData } from "@/lib/hooks/use-portfolio-data";
 import { DEFAULT_SITE_SETTINGS } from "@/lib/portfolio-data";
@@ -15,9 +17,19 @@ import { cn } from "@/lib/utils";
 export function Navbar() {
   const pathname = usePathname();
   const { activeSection, activeAccent, setActiveSection } = useSectionFocus();
+  const { activeTheme } = useHeroTheme();
   const { siteSettings } = usePortfolioData();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isHome = pathname === "/";
+
+  // Only apply a softly darkened neutral shade when the active section itself is a white/ivory screen,
+  // so the navbar and the section below always have distinct, differentiated tones (not pitch black).
+  const isWhiteOrIvorySection =
+    !isHome ||
+    activeSection === "contact" ||
+    (activeSection === "hero" &&
+      (activeTheme.id === "editorial-ivory" ||
+        activeTheme.id === "warm-ivory"));
 
   const cvUrl =
     siteSettings.cvUrl ||
@@ -42,7 +54,14 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xs">
+      <header
+        className={cn(
+          "sticky top-0 z-50 border-b text-heading backdrop-blur-md transition-colors duration-300",
+          isWhiteOrIvorySection
+            ? "border-black/12 bg-[#E8E6DF]/95 shadow-2xs"
+            : "border-black/[0.07] bg-[#F8F8F6]/95"
+        )}
+      >
         <div className="mx-auto flex h-14 w-full items-center justify-between px-[5.2%] sm:h-20">
           {/* Left group: "dozie" (Home) + desktop nav links (About, Work, Contact) with no border or radius */}
           <div className="flex items-center gap-8 md:gap-16 lg:gap-24">
@@ -62,7 +81,17 @@ export function Navbar() {
                   <Link
                     key={link.sectionId}
                     href={link.href}
-                    onClick={() => setActiveSection(link.sectionId)}
+                    onClick={(e) => {
+                      setActiveSection(link.sectionId);
+                      if (isHome) {
+                        e.preventDefault();
+                        const el = document.getElementById(link.sectionId);
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth" });
+                        }
+                        window.history.replaceState(null, "", "/");
+                      }
+                    }}
                     aria-current={isActive ? "true" : undefined}
                     style={
                       isActive
@@ -70,13 +99,17 @@ export function Navbar() {
                         : undefined
                     }
                     className={cn(
-                      "py-1.5 text-sm tracking-[-0.01em] transition-colors duration-200 focus:outline-none sm:text-[15px]",
+                      "inline-flex items-center gap-2 py-1.5 text-sm tracking-[-0.01em] transition-colors duration-200 focus:outline-none sm:text-[15px]",
                       isActive
                         ? "font-semibold text-heading"
-                        : "font-normal text-heading/80 hover:text-heading"
+                        : "font-normal text-heading/75 hover:text-heading"
                     )}
                   >
-                    {link.label}
+                    <SectionLineIcon
+                      sectionId={link.sectionId}
+                      className="size-4 opacity-85"
+                    />
+                    <span>{link.label}</span>
                   </Link>
                 );
               })}
@@ -184,9 +217,17 @@ export function Navbar() {
                   <Link
                     key={link.sectionId}
                     href={link.href}
-                    onClick={() => {
+                    onClick={(e) => {
                       setActiveSection(link.sectionId);
                       setSidebarOpen(false);
+                      if (isHome) {
+                        e.preventDefault();
+                        const el = document.getElementById(link.sectionId);
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth" });
+                        }
+                        window.history.replaceState(null, "", "/");
+                      }
                     }}
                     style={
                       isActive
@@ -194,13 +235,17 @@ export function Navbar() {
                         : undefined
                     }
                     className={cn(
-                      "text-base tracking-[-0.01em] transition-colors",
+                      "inline-flex items-center gap-2.5 text-base tracking-[-0.01em] transition-colors",
                       isActive
                         ? "font-semibold text-heading"
                         : "font-normal text-heading/75 hover:text-heading"
                     )}
                   >
-                    {link.label}
+                    <SectionLineIcon
+                      sectionId={link.sectionId}
+                      className="size-4 opacity-85"
+                    />
+                    <span>{link.label}</span>
                   </Link>
                 );
               })}

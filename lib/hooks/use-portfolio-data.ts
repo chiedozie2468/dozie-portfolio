@@ -9,6 +9,7 @@ import {
   DEFAULT_SITE_SETTINGS,
   INITIAL_CAPABILITIES,
   INITIAL_PROJECTS,
+  normalizePortfolioProject,
   type CapabilityGroup,
   type PortfolioProject,
   type PortfolioSiteSettings,
@@ -37,7 +38,7 @@ export function usePortfolioData() {
       const result = await client.query(api.portfolio.getPortfolioData, {});
 
       if (result.projects && result.projects.length > 0) {
-        setProjects(result.projects);
+        setProjects(result.projects.map(normalizePortfolioProject));
       }
       if (result.capabilities && result.capabilities.length > 0) {
         setCapabilities(result.capabilities);
@@ -61,7 +62,7 @@ export function usePortfolioData() {
         if (cancelled) return;
 
         if (result.projects && result.projects.length > 0) {
-          setProjects(result.projects);
+          setProjects(result.projects.map(normalizePortfolioProject));
         }
         if (result.capabilities && result.capabilities.length > 0) {
           setCapabilities(result.capabilities);
