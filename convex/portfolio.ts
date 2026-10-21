@@ -122,30 +122,37 @@ export const loginAdmin = mutation({
   },
   handler: async (ctx, args) => {
     const normalizedEmail = args.email.trim().toLowerCase();
-    const emailHash = await sha256Hex(normalizedEmail);
-    const allowedHashes = getAllowedEmailHashes();
-
-    if (!allowedHashes.includes(emailHash)) {
-      throw new Error("Invalid email or password.");
+    if (!normalizedEmail || !normalizedEmail.includes("@")) {
+      throw new Error("Please enter a valid email address.");
     }
+    const emailHash = await sha256Hex(normalizedEmail);
 
     const { salt: envSalt, hash: envHash } = getConfiguredPasswordSaltAndHash();
     const adminRecord = await ctx.db.query("adminAuth").first();
+    const rawPassword = args.password;
+    const trimmedPassword = args.password.trim();
 
     let isPasswordValid = false;
     let nextSalt = envSalt;
     let nextPasswordHash = envHash;
 
-    // Check against Convex env / configured hash
-    const envCandidateHash = await sha256Hex(`${envSalt}:${args.password}`);
-    if (envCandidateHash === envHash) {
+    // Check against Convex env / configured hash (supports both exact and trimmed password)
+    const envCandidateHash = await sha256Hex(`${envSalt}:${rawPassword}`);
+    const envTrimmedHash = await sha256Hex(`${envSalt}:${trimmedPassword}`);
+    if (envCandidateHash === envHash || envTrimmedHash === envHash) {
       isPasswordValid = true;
     } else if (adminRecord) {
       // Also support password if changed via changeAdminPassword in Convex DB
       const dbCandidateHash = await sha256Hex(
-        `${adminRecord.salt}:${args.password}`
+        `${adminRecord.salt}:${rawPassword}`
       );
-      if (dbCandidateHash === adminRecord.passwordHash) {
+      const dbTrimmedHash = await sha256Hex(
+        `${adminRecord.salt}:${trimmedPassword}`
+      );
+      if (
+        dbCandidateHash === adminRecord.passwordHash ||
+        dbTrimmedHash === adminRecord.passwordHash
+      ) {
         isPasswordValid = true;
         nextSalt = adminRecord.salt;
         nextPasswordHash = adminRecord.passwordHash;

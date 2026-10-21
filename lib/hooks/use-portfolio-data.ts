@@ -1,6 +1,7 @@
 "use client";
 
 import { ConvexHttpClient } from "convex/browser";
+import { useQuery } from "convex/react";
 import { useCallback, useEffect, useState } from "react";
 
 import { getConvexUrl } from "@/components/providers/convex-client-provider";
@@ -21,6 +22,9 @@ export type ConvexConnectionState =
   | "awaiting-initial-deploy";
 
 export function usePortfolioData() {
+  // Real-time subscription via Convex WebSocket
+  const liveData = useQuery(api.portfolio.getPortfolioData, {});
+
   const [projects, setProjects] =
     useState<PortfolioProject[]>(INITIAL_PROJECTS);
   const [capabilities, setCapabilities] = useState<CapabilityGroup[]>(
@@ -31,6 +35,22 @@ export function usePortfolioData() {
   );
   const [connectionState, setConnectionState] =
     useState<ConvexConnectionState>("connecting");
+
+  // Sync real-time query results immediately whenever Convex updates
+  useEffect(() => {
+    if (!liveData) return;
+
+    if (liveData.projects && liveData.projects.length > 0) {
+      setProjects(liveData.projects.map(normalizePortfolioProject));
+    }
+    if (liveData.capabilities && liveData.capabilities.length > 0) {
+      setCapabilities(liveData.capabilities);
+    }
+    if (liveData.siteSettings) {
+      setSiteSettings(liveData.siteSettings);
+    }
+    setConnectionState("live");
+  }, [liveData]);
 
   const loadFromConvex = useCallback(async () => {
     const client = new ConvexHttpClient(getConvexUrl());
@@ -98,7 +118,7 @@ export function usePortfolioData() {
     projects,
     capabilities,
     siteSettings,
-    connectionState,
+    connectionState: liveData ? ("live" as const) : connectionState,
     refresh: loadFromConvex,
   };
 }
