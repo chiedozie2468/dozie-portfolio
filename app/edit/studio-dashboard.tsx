@@ -1302,15 +1302,17 @@ export default function DashboardPage() {
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className="text-base font-semibold text-heading">
-                      2. CV / Resume Download File (Navbar Top-Right Button)
+                      2. CV / Resume Download (Upload PDF or Auto-Generate from Website)
                     </h2>
                     <p className="text-xs text-body">
-                      Upload your PDF CV so visitors clicking &ldquo;Download
-                      CV&rdquo; in the navbar get your latest resume.
+                      Upload your own PDF CV here to serve that file when
+                      visitors click &ldquo;Download CV&rdquo;, or leave it on
+                      Auto-Generate to download your live website info in the
+                      current Hero color.
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <input
                       ref={cvFileInputRef}
                       type="file"
@@ -1335,22 +1337,39 @@ export default function DashboardPage() {
                       ) : (
                         <>
                           <FileText className="size-3.5" />
-                          <span>Upload CV PDF</span>
+                          <span>Upload Custom CV PDF</span>
                         </>
                       )}
                     </button>
 
-                    {cvUrl && (
-                      <a
-                        href={cvUrl}
-                        download={cvFileName || "Chiedozie-Onyekwelu-CV.pdf"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-secondary/70 px-3 py-2 text-xs font-medium text-heading"
+                    {cvUrl && cvUrl !== "/chiedozie-onyekwelu-cv.pdf" && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          setIsSaving(true);
+                          try {
+                            const client = new ConvexHttpClient(getConvexUrl());
+                            await client.mutation(
+                              api.portfolio.updateSiteSettings,
+                              {
+                                adminToken: adminToken || "",
+                                removeCv: true,
+                              }
+                            );
+                            setCvUrl("/chiedozie-onyekwelu-cv.pdf");
+                            await refresh();
+                            setStatusMessage(
+                              "Switched back to Auto-Generated Live Website CV (Hero Theme Colored)!"
+                            );
+                          } finally {
+                            setIsSaving(false);
+                          }
+                        }}
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-border bg-surface-secondary/70 px-3 py-2 text-xs font-medium text-heading hover:border-destructive hover:text-destructive"
                       >
-                        <Download className="size-3.5" />
-                        <span>Test Download</span>
-                      </a>
+                        <RotateCcw className="size-3.5" />
+                        <span>Use Auto-Generated Website CV</span>
+                      </button>
                     )}
                   </div>
                 </div>

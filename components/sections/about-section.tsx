@@ -224,6 +224,22 @@ export function AboutSection() {
     "Miva Open University — B.Sc. Computer Science";
 
   const handleDownloadCv = () => {
+    const customCvUrl = siteSettings.cvUrl?.trim();
+    const isCustomUploadedCv =
+      customCvUrl && customCvUrl !== "/chiedozie-onyekwelu-cv.pdf";
+
+    if (isCustomUploadedCv) {
+      const link = document.createElement("a");
+      link.href = customCvUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.download = siteSettings.cvFileName || "Chiedozie-Onyekwelu-CV.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
     downloadPortfolioCv({
       activeTheme,
       projects,
