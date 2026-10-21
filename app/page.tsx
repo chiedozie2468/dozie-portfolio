@@ -10,7 +10,7 @@ export default function Home() {
   const { projects, siteSettings, connectionState } = usePortfolioData();
 
   return (
-    <>
+    <div className="flex flex-col gap-[18px]">
       <HeroSection
         connectionState={connectionState}
         siteSettings={siteSettings}
@@ -19,6 +19,6 @@ export default function Home() {
       <AboutSection />
       <SelectedWorkSection projects={projects} />
       <ContactSection />
-    </>
+    </div>
   );
 }

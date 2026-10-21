@@ -270,23 +270,43 @@ export function AboutSection() {
           </span>
         </div>
 
-        {/* Chapter links without button backgrounds: Profile, Experience, Capabilities, Achievements */}
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
-          {ABOUT_CHAPTERS.map((item, idx) => {
-            const isTabActive = chapterIndex === idx;
+        {/* Rotating Chapter links: moved 10px left from line, left-end item bolder, right-end item fading */}
+        <div
+          data-allow-inner-scroll
+          onWheel={(e) => {
+            if (Math.abs(e.deltaY) > 8 || Math.abs(e.deltaX) > 8) {
+              e.stopPropagation();
+              if (e.deltaY > 0 || e.deltaX > 0) {
+                handleNext();
+              } else {
+                handlePrev();
+              }
+            }
+          }}
+          className="flex flex-wrap items-center gap-4 px-[10px] sm:gap-6 lg:mr-[10px] lg:gap-8"
+        >
+          {Array.from({ length: ABOUT_CHAPTERS.length }, (_, offset) => {
+            const idx = (chapterIndex + offset) % ABOUT_CHAPTERS.length;
+            const item = ABOUT_CHAPTERS[idx];
+            const isLeftEnd = offset === 0;
+            const isRightEnd = offset === ABOUT_CHAPTERS.length - 1;
             return (
               <button
-                key={item.id}
+                key={`${item.id}-${offset}`}
                 type="button"
                 onClick={() => setChapterIndex(idx)}
                 style={{
-                  color: isTabActive ? item.accentHex : chapter.bodyText,
+                  color: isLeftEnd ? item.accentHex : chapter.bodyText,
                 }}
                 className={cn(
-                  "cursor-pointer py-1 font-mono text-[11px] tracking-[-0.01em] transition-all duration-300 sm:text-xs lg:text-[13px]",
-                  isTabActive
-                    ? "underline decoration-1 underline-offset-8 opacity-100"
-                    : "opacity-65 hover:opacity-100"
+                  "cursor-pointer py-1 font-mono text-[13px] tracking-[-0.01em] transition-all duration-300 sm:text-[14px] lg:text-[15px]",
+                  isLeftEnd
+                    ? "font-bold underline decoration-1 underline-offset-8 opacity-100"
+                    : isRightEnd
+                      ? "font-normal opacity-45 [mask-image:linear-gradient(to_right,black_15%,transparent_98%)] hover:opacity-90 hover:[mask-image:none]"
+                      : offset === 1
+                        ? "font-medium opacity-80 hover:opacity-100"
+                        : "font-normal opacity-65 hover:opacity-100"
                 )}
               >
                 <span>{item.label}</span>
@@ -302,8 +322,8 @@ export function AboutSection() {
         data-section-stage
         className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 gap-6 px-[5.2%] py-4 lg:grid-cols-6 lg:gap-0 lg:py-8"
       >
-        {/* Left Main Display Column: Wider (Columns 1-3) and shifted left to start directly below "journal" in "About journal", keeping "Chiedozie Onyekwelu" on one line */}
-        <div className="flex flex-col justify-between sm:pl-[76px] lg:col-span-3 lg:pl-[88px] lg:pr-6">
+        {/* Left Main Display Column: Wider (Columns 1-3) and shifted 10px further left below "journal", keeping "Chiedozie Onyekwelu" on one line */}
+        <div className="flex flex-col justify-between sm:pl-[66px] lg:col-span-3 lg:pl-[78px] lg:pr-6">
           <div>
             <h2
               style={{ color: chapter.accentText }}
@@ -469,7 +489,7 @@ export function AboutSection() {
       {/* Bottom Row: Left "<  >" Navigation Arrows & Right Social Links */}
       <div className="relative z-20 mx-auto grid w-full grid-cols-2 items-center px-[5.2%] lg:grid-cols-6">
         {/* Left "<  >" Arrows aligned with the Left Heading below "journal" */}
-        <div className="flex items-center gap-4 sm:pl-[76px] lg:col-span-3 lg:pl-[88px]">
+        <div className="flex items-center gap-4 sm:pl-[66px] lg:col-span-3 lg:pl-[78px]">
           <button
             type="button"
             onClick={handlePrev}
