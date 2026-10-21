@@ -116,7 +116,7 @@ export function Navbar() {
             </nav>
           </div>
 
-          {/* Desktop Right end: Download CV action with background matching the current Hero section color */}
+          {/* Desktop Right end: Download CV action with background matching the current Hero section color, no border, radius 0 */}
           <a
             href={cvUrl}
             download={cvFileName}
@@ -125,9 +125,8 @@ export function Navbar() {
             style={{
               backgroundColor: activeTheme.bg,
               color: activeTheme.heading,
-              borderColor: activeTheme.swatchBorder,
             }}
-            className="group hidden items-center gap-2.5 rounded-lg border px-4 py-2 text-sm font-medium tracking-[-0.01em] shadow-2xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 md:inline-flex sm:text-[15px]"
+            className="group hidden items-center gap-2.5 rounded-none px-4 py-2 text-sm font-medium tracking-[-0.01em] transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 md:inline-flex sm:text-[15px]"
           >
             <span>Download CV</span>
           </a>
@@ -257,7 +256,7 @@ export function Navbar() {
             </nav>
           </div>
 
-          {/* Sidebar Footer: Download CV link with background matching the current Hero section color */}
+          {/* Sidebar Footer: Download CV link with background matching the current Hero section color, no border, radius 0 */}
           <div className="pt-6">
             <a
               href={cvUrl}
@@ -268,9 +267,8 @@ export function Navbar() {
               style={{
                 backgroundColor: activeTheme.bg,
                 color: activeTheme.heading,
-                borderColor: activeTheme.swatchBorder,
               }}
-              className="inline-flex items-center gap-2.5 rounded-lg border px-4 py-2.5 text-base font-medium tracking-wide shadow-2xs transition-all duration-300 hover:opacity-90"
+              className="inline-flex items-center gap-2.5 rounded-none px-4 py-2.5 text-base font-medium tracking-wide transition-all duration-300 hover:opacity-90"
             >
               <Download className="size-4" />
               <span>Download CV</span>
