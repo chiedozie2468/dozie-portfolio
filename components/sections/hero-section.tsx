@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, User } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { OverviewLineIcon } from "@/components/icons/section-line-icons";
@@ -34,7 +34,6 @@ export function HeroSection({
 
   // Images are black-and-white by default; clicking an image toggles its original color
   const [dpShowColor, setDpShowColor] = useState(false);
-  const [editorialShowColor, setEditorialShowColor] = useState(false);
   const [wordIndex, setWordIndex] = useState(0);
   const [wordVisible, setWordVisible] = useState(true);
 
@@ -59,21 +58,28 @@ export function HeroSection({
       ? "chiedozie."
       : siteSettings.heroDisplayWord;
 
-  // Card 1: Primary Portrait (DP) card
+  // Only show the DP image actually uploaded from the dashboard (never stock /images/hero-*.jpg placeholders)
+  const rawDpUrl =
+    siteSettings.dpImageUrl &&
+    siteSettings.dpImageUrl !== "/images/hero-dp.jpg" &&
+    siteSettings.dpImageUrl !== "/images/hero-editorial.jpg"
+      ? siteSettings.dpImageUrl
+      : "";
+  const rawSecondaryUrl =
+    siteSettings.secondaryImageUrl &&
+    siteSettings.secondaryImageUrl !== "/images/hero-dp.jpg" &&
+    siteSettings.secondaryImageUrl !== "/images/hero-editorial.jpg"
+      ? siteSettings.secondaryImageUrl
+      : "";
+
+  const primaryDpUrl = rawDpUrl || rawSecondaryUrl;
+
+  // Primary Portrait (DP) card uploaded from dashboard
   const dpCard = {
     category: siteSettings.dpCategory || "PORTRAIT",
     title: siteSettings.dpTitle || "Chiedozie Onyekwelu",
     subtitle: siteSettings.dpSubtitle || "— STYLE. /47°",
-    imageUrl: siteSettings.dpImageUrl,
-  };
-
-  // Card 2: Secondary Editorial card (exactly two images on hero, no scrolling)
-  const secondaryCard = {
-    category: siteSettings.secondaryCategory || "EDITORIAL",
-    title: siteSettings.secondaryTitle || "Untitled Res",
-    subtitle: siteSettings.secondarySubtitle || "— PORT. GQ",
-    imageUrl:
-      siteSettings.secondaryImageUrl || "/images/hero-editorial.jpg",
+    imageUrl: primaryDpUrl,
   };
 
   const handleCycleHeroColor = () => {
@@ -142,77 +148,38 @@ export function HeroSection({
           </button>
         </div>
 
-        {/* 3. Hero Frames:
-            - Small screens (< sm): ONLY the big portrait image (Card 1), taller & larger, flush against the extreme right edge.
-            - Larger screens (sm+): Dual Hero Frames — Left image is larger; Right image is vertically centered in the middle of the left image and flush with the right edge. */}
-        <div className="absolute right-0 bottom-[25.5%] z-20 flex items-center gap-3 sm:top-[5%] sm:bottom-auto sm:gap-5 lg:gap-6">
-          {/* Card 1 (Left on desktop / Only image on small screens, flush with extreme right edge on mobile with increased height) */}
-          <div className="flex w-[56vw] max-w-[245px] shrink-0 flex-col sm:w-[25.5vw] sm:max-w-[350px] lg:w-[26.5vw] lg:max-w-[380px]">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => setDpShowColor((prev) => !prev)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setDpShowColor((prev) => !prev);
-                }
-              }}
-              title="Click to toggle original color"
-              className="group relative aspect-[1/1.72] max-h-[56dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:aspect-[1/1.48] sm:max-h-[70dvh] sm:rounded-[3px]"
-            >
-              {dpCard.imageUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
+        {/* 3. Hero Frame: Only displays the DP uploaded from the /edit dashboard */}
+        {dpCard.imageUrl && (
+          <div className="absolute right-0 bottom-[25.5%] z-20 flex items-center sm:top-[5%] sm:bottom-auto">
+            <div className="flex w-[56vw] max-w-[245px] shrink-0 flex-col sm:w-[27.5vw] sm:max-w-[375px] lg:w-[28.5vw] lg:max-w-[405px]">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setDpShowColor((prev) => !prev)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setDpShowColor((prev) => !prev);
+                  }
+                }}
+                title="Click to toggle original color"
+                className="group relative aspect-[1/1.72] max-h-[56dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:aspect-[1/1.48] sm:max-h-[70dvh]"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={dpCard.imageUrl}
                   alt={dpCard.title}
                   className={cn(
-                    "size-full rounded-l-[3px] rounded-r-none object-cover object-top transition-all duration-500 sm:rounded-[3px]",
+                    "size-full rounded-l-[3px] rounded-r-none object-cover object-top transition-all duration-500",
                     dpShowColor
                       ? "grayscale-0 contrast-100"
                       : "grayscale contrast-110"
                   )}
                 />
-              ) : (
-                <div className="flex size-full flex-col items-center justify-center gap-2 p-3 text-center">
-                  <User className="size-7 text-body/50 sm:size-10" />
-                  <span className="font-sans text-[11px] text-body sm:text-sm">
-                    No DP Set
-                  </span>
-                </div>
-              )}
+              </div>
             </div>
           </div>
-
-          {/* Card 2 (Right): Secondary Editorial Image — Hidden on small screens; visible on sm+ touching the extreme right edge */}
-          <div className="hidden w-[23vw] max-w-[115px] shrink-0 flex-col sm:flex sm:w-[14vw] sm:max-w-[195px] lg:w-[14.5vw] lg:max-w-[215px]">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => setEditorialShowColor((prev) => !prev)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setEditorialShowColor((prev) => !prev);
-                }
-              }}
-              title="Click to toggle original color"
-              className="relative aspect-[1/1.48] max-h-[54dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={secondaryCard.imageUrl}
-                alt={secondaryCard.title}
-                className={cn(
-                  "size-full rounded-l-[3px] rounded-r-none object-cover object-left transition-all duration-500",
-                  editorialShowColor
-                    ? "grayscale-0 contrast-100"
-                    : "grayscale contrast-105"
-                )}
-              />
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* 4. Bottom-Left Personal Intro + Giant "chiedozie." */}
         <div className="pointer-events-none absolute right-[4.8%] bottom-[4.5%] left-[4.8%] z-20 flex flex-col sm:right-auto sm:bottom-[5.5%] sm:inline-flex">

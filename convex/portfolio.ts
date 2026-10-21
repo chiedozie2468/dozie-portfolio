@@ -305,15 +305,37 @@ export const getPortfolioData = query({
         ? await ctx.storage.getUrl(rawSettings.educationStorageId)
         : null;
 
+      const rawDp = resolvedDpUrl ?? rawSettings.dpImageUrl ?? "";
+      const rawSecondary =
+        resolvedSecondaryUrl ?? rawSettings.secondaryImageUrl ?? "";
+
+      const cleanDp =
+        rawDp === "/images/hero-dp.jpg" ||
+        rawDp === "/images/hero-editorial.jpg"
+          ? ""
+          : rawDp;
+      const cleanSecondary =
+        rawSecondary === "/images/hero-dp.jpg" ||
+        rawSecondary === "/images/hero-editorial.jpg"
+          ? ""
+          : rawSecondary;
+
+      // If the user uploaded an image into either slot and the primary DP slot is empty, display the uploaded image as the primary DP
+      const effectiveDp = cleanDp || cleanSecondary;
+      const effectiveSecondary =
+        cleanDp && cleanSecondary && cleanSecondary !== cleanDp
+          ? cleanSecondary
+          : "";
+
       siteSettings = {
         heroDisplayWord: rawSettings.heroDisplayWord,
         heroDescription:
           rawSettings.heroDescription ?? DEFAULT_SITE_SETTINGS.heroDescription,
-        dpImageUrl: resolvedDpUrl ?? rawSettings.dpImageUrl,
+        dpImageUrl: effectiveDp,
         dpCategory: rawSettings.dpCategory,
         dpTitle: rawSettings.dpTitle,
         dpSubtitle: rawSettings.dpSubtitle,
-        secondaryImageUrl: resolvedSecondaryUrl ?? rawSettings.secondaryImageUrl,
+        secondaryImageUrl: effectiveSecondary,
         secondaryCategory: rawSettings.secondaryCategory,
         secondaryTitle: rawSettings.secondaryTitle,
         secondarySubtitle: rawSettings.secondarySubtitle,

@@ -42,13 +42,6 @@ import {
 } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
-const PRESET_DP_IMAGES = [
-  { label: "Default Portrait", url: "/images/hero-dp.jpg" },
-  { label: "Editorial Hand Study", url: "/images/hero-editorial.jpg" },
-  { label: "Monochrome Portrait II", url: "/touse/ui/556264991474646099.jpg" },
-  { label: "Architectural Study", url: "/touse/ui/601300987772936853.jpg" },
-] as const;
-
 type ProjectCategory =
   | "Full-Stack"
   | "Platform"
@@ -523,8 +516,10 @@ export default function DashboardPage() {
       await client.mutation(api.portfolio.updateSiteSettings, {
         adminToken: adminToken || "",
         removeDp: true,
+        removeSecondary: true,
       });
       setDpImageUrl("");
+      setSecondaryImageUrl("");
       await refresh();
       setStatusMessage("DP portrait removed.");
     } catch (err) {
@@ -578,13 +573,16 @@ export default function DashboardPage() {
         heroDisplayWord,
         heroDescription,
         dpImageUrl,
-        clearDpStorageId: dpImageUrl !== siteSettings.dpImageUrl,
+        clearDpStorageId:
+          dpImageUrl !== siteSettings.dpImageUrl &&
+          !dpImageUrl.includes(".convex.cloud/api/storage/"),
         dpCategory,
         dpTitle,
         dpSubtitle,
         secondaryImageUrl,
         clearSecondaryStorageId:
-          secondaryImageUrl !== siteSettings.secondaryImageUrl,
+          secondaryImageUrl !== siteSettings.secondaryImageUrl &&
+          !secondaryImageUrl.includes(".convex.cloud/api/storage/"),
         secondaryCategory,
         secondaryTitle,
         secondarySubtitle,
@@ -592,7 +590,8 @@ export default function DashboardPage() {
         cvFileName,
         educationImageUrl,
         clearEducationStorageId:
-          educationImageUrl !== siteSettings.educationImageUrl,
+          educationImageUrl !== siteSettings.educationImageUrl &&
+          !educationImageUrl.includes(".convex.cloud/api/storage/"),
         educationCaption,
         aboutProfileLead,
         aboutProfileSub,
@@ -1067,73 +1066,41 @@ export default function DashboardPage() {
                 <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
                   <span className="inline-flex items-center gap-2 font-mono text-xs font-medium tracking-wider text-heading uppercase">
                     <Sparkles className="size-3.5" />
-                    Live Hero Preview
+                    Live Hero DP Preview
                   </span>
                   <span className="font-serif text-xl font-bold text-heading">
-                    {heroDisplayWord || "dozie."}
+                    {heroDisplayWord || "chiedozie."}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-5">
-                  {/* Preview DP Card */}
-                  <div className="flex flex-col">
-                    <div className="relative aspect-[1/1.35] w-full overflow-hidden bg-surface-secondary">
-                      {dpImageUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={dpImageUrl}
-                          alt={dpTitle}
-                          className="size-full object-cover object-top grayscale contrast-110 transition-all duration-300 hover:grayscale-0"
-                        />
-                      ) : (
-                        <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
-                          <User className="size-8 text-body/50" />
-                          <span className="font-serif text-xs text-body">
-                            DP Removed
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <span className="mt-3 text-[9px] font-medium tracking-[0.2em] text-body uppercase">
-                      {dpCategory || "PORTRAIT"}
-                    </span>
-                    <p className="mt-1 pl-2 font-serif text-base text-heading">
-                      {dpTitle || "Chiedozie Onyekwelu"}
-                    </p>
-                    <p className="pl-2 font-serif text-sm text-heading/85">
-                      {dpSubtitle || "— STYLE. /47°"}
-                    </p>
+                {/* Single Preview DP Card (matches Hero section) */}
+                <div className="mx-auto flex max-w-[260px] flex-col">
+                  <div className="relative aspect-[1/1.48] w-full overflow-hidden rounded-[3px] bg-surface-secondary">
+                    {dpImageUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={dpImageUrl}
+                        alt={dpTitle}
+                        className="size-full object-cover object-top grayscale contrast-110 transition-all duration-300 hover:grayscale-0"
+                      />
+                    ) : (
+                      <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
+                        <User className="size-8 text-body/50" />
+                        <span className="font-serif text-xs text-body">
+                          No DP Uploaded Yet
+                        </span>
+                      </div>
+                    )}
                   </div>
-
-                  {/* Preview Secondary Card */}
-                  <div className="flex flex-col">
-                    <div className="relative aspect-[1/1.35] w-full overflow-hidden bg-surface-secondary">
-                      {secondaryImageUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={secondaryImageUrl}
-                          alt={secondaryTitle}
-                          className="size-full object-cover object-left grayscale contrast-105 transition-all duration-300 hover:grayscale-0"
-                        />
-                      ) : (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src="/images/hero-editorial.jpg"
-                          alt={secondaryTitle || "Default Editorial"}
-                          className="size-full object-cover object-left grayscale contrast-105 transition-all duration-300 hover:grayscale-0"
-                        />
-                      )}
-                    </div>
-                    <span className="mt-3 text-[9px] font-medium tracking-[0.2em] text-body uppercase">
-                      {secondaryCategory || "EDITORIAL"}
-                    </span>
-                    <p className="mt-1 pl-2 font-serif text-base text-heading">
-                      {secondaryTitle || "Untitled Res"}
-                    </p>
-                    <p className="pl-2 font-serif text-sm text-heading/85">
-                      {secondarySubtitle || "— PORT. GQ"}
-                    </p>
-                  </div>
+                  <span className="mt-3 text-[9px] font-medium tracking-[0.2em] text-body uppercase">
+                    {dpCategory || "PORTRAIT"}
+                  </span>
+                  <p className="mt-1 pl-2 font-serif text-base text-heading">
+                    {dpTitle || "Chiedozie Onyekwelu"}
+                  </p>
+                  <p className="pl-2 font-serif text-sm text-heading/85">
+                    {dpSubtitle || "— STYLE. /47°"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1151,7 +1118,8 @@ export default function DashboardPage() {
                       1. Primary Portrait (DP) Image
                     </h2>
                     <p className="text-xs text-body">
-                      Upload a new DP photo, pick a preset, or remove your DP.
+                      Only the DP you upload here will be displayed on the Hero
+                      section.
                     </p>
                   </div>
 
@@ -1197,35 +1165,16 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <span className="mb-2 block font-mono text-[11px] text-body uppercase">
-                    Quick presets:
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {PRESET_DP_IMAGES.map((preset) => (
-                      <button
-                        key={preset.url}
-                        type="button"
-                        onClick={() => setDpImageUrl(preset.url)}
-                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-surface-secondary/60 px-2.5 py-1 text-xs text-heading transition-colors hover:border-heading"
-                      >
-                        <ImageIcon className="size-3" />
-                        <span>{preset.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <label className="mb-1.5 block text-xs font-medium text-heading">
-                      DP Image URL
+                      DP Image URL (Uploaded via Convex Storage)
                     </label>
                     <input
                       type="text"
                       value={dpImageUrl}
                       onChange={(e) => setDpImageUrl(e.target.value)}
-                      placeholder="/images/hero-dp.jpg (or leave empty to remove)"
+                      placeholder="Upload your DP above (or paste image URL)"
                       className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
                     />
                   </div>
