@@ -15,6 +15,24 @@ import { usePortfolioData } from "@/lib/hooks/use-portfolio-data";
 import { DEFAULT_SITE_SETTINGS, DEVELOPER_PROFILE } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
+const TOOLS_I_USE = [
+  "HTML",
+  "CSS",
+  "JavaScript",
+  "TypeScript",
+  "React",
+  "React Native",
+  "Next.js",
+  "Tailwind CSS",
+  "Convex",
+  "Firebase",
+  "Clerk",
+  "Git",
+  "GitHub",
+  "Node.js",
+  "Vercel",
+] as const;
+
 const ABOUT_CHAPTERS = [
   {
     id: "profile",
@@ -31,17 +49,16 @@ const ABOUT_CHAPTERS = [
     badgeBg: "rgba(2, 132, 199, 0.14)",
     sectionWash:
       "radial-gradient(950px circle at 18% 28%, rgba(56, 189, 248, 0.18), transparent 70%)",
-    lines: ["Chiedozie Onyekwelu", "Full-Stack", "Software Engineer"],
+    lines: ["Chiedozie Onyekwelu", "Full-Stack", "Software Developer"],
     metaLeft: "CHIEDOZIE ONYEKWELU",
-    metaRight: "4 SYSTEMS IN TOTAL",
+    metaRight: "LAGOS, NIGERIA",
     ctaLabel: "Download this CV",
     ctaType: "cv" as const,
     leadParagraph:
-      "Chiedozie Onyekwelu is a Full-Stack Software Engineer formed across frontend product engineering and reactive backend architecture, building calm, dependable web applications that teams can understand in under thirty seconds.",
+      "I’m Chiedozie Onyekwelu — a software developer building clean, fast, and reliable web and mobile products.",
     monoParagraph1:
-      "Initially focused on high-velocity React interfaces and operational portals; designing end-to-end systems for event ticketing (KollaTunez), pipeline CRM workflows (Followpoint), and multi-school examination registries (NogaData).",
-    monoParagraph2:
-      "With strict end-to-end TypeScript validation, Convex transactional mutations, and restrained editorial typography across all screen sizes and production deployments.",
+      "Focused on turning real-world ideas into simple digital experiences people enjoy using.",
+    monoParagraph2: "",
   },
   {
     id: "education",
@@ -85,17 +102,16 @@ const ABOUT_CHAPTERS = [
     badgeBg: "rgba(217, 119, 6, 0.15)",
     sectionWash:
       "radial-gradient(950px circle at 24% 35%, rgba(251, 191, 36, 0.2), transparent 70%)",
-    lines: ["Independent", "Full-Stack", "Systems Engineer"],
+    lines: ["Full-Stack", "Product & Web", "Experience"],
     metaLeft: "2022 — PRESENT",
-    metaRight: "UTC+1 GLOBAL DELIVERY",
+    metaRight: "LIVE PLATFORMS",
     ctaLabel: "View selected work",
     ctaType: "work" as const,
     leadParagraph:
-      "2024 — Present · Independent Full-Stack Engineer architecting and delivering production web platforms from database schema to user interface.",
+      "2022 — Present · Building and shipping full-stack web apps, booking platforms, and management portals.",
     monoParagraph1:
-      "Shipped KollaTunez Tours & Ticketing with QR venue verification, Followpoint CRM with automated PDF pipeline dossiers, and NogaData JSAP multi-school candidate orchestration.",
-    monoParagraph2:
-      "2022 — 2024 · Frontend & Full-Stack Developer building responsive Next.js applications, authentication workflows, and standardized component systems for fast product iteration.",
+      "Delivered KollaTunez Tours, Followpoint, NogaData JSAP, and TechFasta from idea to live production.",
+    monoParagraph2: "",
   },
   {
     id: "capabilities",
@@ -112,17 +128,15 @@ const ABOUT_CHAPTERS = [
     badgeBg: "rgba(5, 150, 105, 0.14)",
     sectionWash:
       "radial-gradient(950px circle at 28% 32%, rgba(52, 211, 153, 0.18), transparent 70%)",
-    lines: ["Next.js, Convex", "& TypeScript", "Architecture"],
-    metaLeft: "CORE STACK",
-    metaRight: "END-TO-END TYPE SAFETY",
+    lines: ["Capabilities", "& Tools", "I Use"],
+    metaLeft: "WEB & MOBILE",
+    metaRight: "CORE TOOLKIT",
     ctaLabel: "Start a conversation",
     ctaType: "contact" as const,
     leadParagraph:
-      "Every boundary — from Convex database schemas and Zod validators to React 19 server and client components — is verified before reaching production.",
-    monoParagraph1:
-      "Frontend & Motion: Next.js 16 App Router, React 19, TypeScript, Tailwind CSS v4, editorial layout systems, and accessible micro-interactions.",
-    monoParagraph2:
-      "Backend & Delivery: Convex reactive queries/mutations, BetterAuth, Firebase Admin, Sharp media pipelines, automated PDF/XLSX generation, and Vercel CI/CD.",
+      "Full-stack web and mobile development — from clean interfaces to real-time databases and authentication.",
+    monoParagraph1: "",
+    monoParagraph2: "",
   },
   {
     id: "achievements",
@@ -139,17 +153,16 @@ const ABOUT_CHAPTERS = [
     badgeBg: "rgba(124, 58, 237, 0.14)",
     sectionWash:
       "radial-gradient(950px circle at 26% 30%, rgba(167, 139, 250, 0.2), transparent 70%)",
-    lines: ["Certificates", "& Production", "Milestones"],
-    metaLeft: "VERIFIED MILESTONES",
-    metaRight: "95+ LIGHTHOUSE & ZERO DOWNTIME",
+    lines: ["Production", "Projects &", "Milestones"],
+    metaLeft: "LIVE IN PRODUCTION",
+    metaRight: "4+ PLATFORMS",
     ctaLabel: "Download this CV",
     ctaType: "cv" as const,
     leadParagraph:
-      "Delivered 4+ mission-critical full-stack systems in production with zero-downtime deployments, sub-3-second QR check-in verification, and certified full-stack engineering credentials.",
+      "Shipped 4+ live production platforms serving real users, event bookings, and school exam records.",
     monoParagraph1:
-      "Engineering Milestones: Processed thousands of multi-school student examination records (NogaData JSAP), eliminated booking race conditions with transactional Convex state (KollaTunez), and achieved 95+ Core Web Vitals (TechFasta).",
-    monoParagraph2:
-      "Certifications & Standards: Full-Stack Web Architecture (Next.js, React 19 & TypeScript), Automated Unit & Schema Verification (Vitest + convex-test), and WCAG AA Accessible Interface Engineering.",
+      "95+ performance scores, fast QR ticket verification, and dependable full-stack delivery.",
+    monoParagraph2: "",
   },
 ] as const;
 
@@ -424,29 +437,48 @@ export function AboutSection() {
           <p
             data-about-para
             style={{ color: chapter.accentText }}
-            className="font-sans text-[12px] leading-[1.65] font-normal sm:text-[13px]"
+            className="font-sans text-[14px] leading-[1.65] font-normal sm:text-[15px]"
           >
             {chapter.leadParagraph}
           </p>
 
-          <p
-            data-about-para
-            style={{ color: chapter.bodyText }}
-            className="font-mono text-[11px] leading-[1.75] font-normal sm:text-[12px]"
-          >
-            {chapter.monoParagraph1}
-          </p>
+          {chapter.id === "capabilities" && (
+            <div data-about-para className="flex flex-wrap gap-2 pt-1">
+              {TOOLS_I_USE.map((tool) => (
+                <span
+                  key={tool}
+                  style={{
+                    backgroundColor: chapter.badgeBg,
+                    color: chapter.accentText,
+                    borderColor: chapter.gridBorder,
+                  }}
+                  className="rounded-md border px-3 py-1 font-mono text-xs font-normal"
+                >
+                  {tool}
+                </span>
+              ))}
+            </div>
+          )}
 
-          <p
-            data-about-para
-            style={{ color: chapter.bodyText }}
-            className={cn(
-              "font-mono text-[11px] leading-[1.75] font-normal sm:text-[12px]",
-              chapter.id === "education" ? "block" : "hidden sm:block"
-            )}
-          >
-            {chapter.monoParagraph2}
-          </p>
+          {chapter.monoParagraph1 && (
+            <p
+              data-about-para
+              style={{ color: chapter.bodyText }}
+              className="font-mono text-[12px] leading-[1.7] font-normal sm:text-[13px]"
+            >
+              {chapter.monoParagraph1}
+            </p>
+          )}
+
+          {chapter.monoParagraph2 && (
+            <p
+              data-about-para
+              style={{ color: chapter.bodyText }}
+              className="font-mono text-[12px] leading-[1.7] font-normal sm:text-[13px]"
+            >
+              {chapter.monoParagraph2}
+            </p>
+          )}
         </div>
       </div>
 

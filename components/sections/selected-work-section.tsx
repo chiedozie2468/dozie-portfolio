@@ -299,22 +299,14 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
               </span>
             </div>
 
-            {/* About the Project (Summary & Architecture, +2px larger) */}
-            <div data-work-info className="mt-3.5 space-y-2 sm:mt-4">
+            {/* About the Project (Short, simple summary) */}
+            <div data-work-info className="mt-3.5 sm:mt-4">
               <p
                 style={{ color: headingColor }}
                 className="font-sans text-[14px] leading-[1.6] font-normal sm:text-[14.5px]"
               >
                 {project.summary}
               </p>
-              {project.architecture && (
-                <p
-                  style={{ color: bodyColor }}
-                  className="hidden line-clamp-2 font-mono text-[12.5px] leading-[1.6] font-normal opacity-85 sm:block sm:text-[13px]"
-                >
-                  {project.architecture}
-                </p>
-              )}
             </div>
 
             {/* Tech Stack Pills */}
