@@ -91,7 +91,7 @@ function wrapText(text: string, maxCharsPerLine: number): string[] {
   return lines;
 }
 
-export function downloadPortfolioCv({
+export async function downloadPortfolioCv({
   activeTheme,
   projects = INITIAL_PROJECTS,
   siteSettings = DEFAULT_SITE_SETTINGS,
@@ -100,6 +100,49 @@ export function downloadPortfolioCv({
   projects?: PortfolioProject[];
   siteSettings?: PortfolioSiteSettings;
 }) {
+  const fileName =
+    siteSettings.cvFileName ||
+    DEFAULT_SITE_SETTINGS.cvFileName ||
+    "Chiedozie-Onyekwelu-CV.pdf";
+
+  const customCvUrl = siteSettings.cvUrl?.trim();
+  const hasUploadedPdf =
+    customCvUrl && customCvUrl !== "/chiedozie-onyekwelu-cv.pdf";
+
+  // 1. Always prioritize the PDF CV uploaded from the Admin Dashboard
+  if (hasUploadedPdf) {
+    try {
+      const response = await fetch(customCvUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        const pdfBlob = new Blob([blob], {
+          type: blob.type || "application/pdf",
+        });
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = fileName.endsWith(".pdf")
+          ? fileName
+          : `${fileName}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 8000);
+        return;
+      }
+    } catch {
+      // Fallback to direct anchor if CORS blocks fetch
+      const link = document.createElement("a");
+      link.href = customCvUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+  }
   const PAGE_W = 595.28; // A4 width in pt
   const PAGE_H = 841.89; // A4 height in pt
   const MARGIN_X = 42;

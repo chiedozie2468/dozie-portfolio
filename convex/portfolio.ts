@@ -327,8 +327,16 @@ export const getPortfolioData = query({
           ? ""
           : rawSecondary;
 
-      // If either Hero slot lost its reference earlier, recover any uploaded Hero images from Convex _storage
-      if (!cleanDp || !cleanSecondary) {
+      let finalCvUrl =
+        resolvedCvUrl ?? rawSettings.cvUrl ?? DEFAULT_SITE_SETTINGS.cvUrl;
+
+      // If either Hero slot or CV PDF lost its reference earlier, recover any uploaded files from Convex _storage
+      if (
+        !cleanDp ||
+        !cleanSecondary ||
+        !finalCvUrl ||
+        finalCvUrl === "/chiedozie-onyekwelu-cv.pdf"
+      ) {
         const usedNonHeroIds = new Set<string>();
         for (const p of rawProjects) {
           if (p.imageStorageId) usedNonHeroIds.add(String(p.imageStorageId));
@@ -343,10 +351,21 @@ export const getPortfolioData = query({
         const recentFiles = await ctx.db.system
           .query("_storage")
           .order("desc")
-          .take(20);
+          .take(25);
         const heroCandidateUrls: string[] = [];
 
         for (const file of recentFiles) {
+          if (
+            (!finalCvUrl || finalCvUrl === "/chiedozie-onyekwelu-cv.pdf") &&
+            file.contentType === "application/pdf"
+          ) {
+            const pdfUrl = await ctx.storage.getUrl(file._id);
+            if (pdfUrl) {
+              finalCvUrl = pdfUrl;
+            }
+            continue;
+          }
+
           if (usedNonHeroIds.has(String(file._id))) continue;
           if (file.contentType && !file.contentType.startsWith("image/")) {
             continue;
@@ -384,7 +403,7 @@ export const getPortfolioData = query({
         secondaryCategory: rawSettings.secondaryCategory,
         secondaryTitle: rawSettings.secondaryTitle,
         secondarySubtitle: rawSettings.secondarySubtitle,
-        cvUrl: resolvedCvUrl ?? rawSettings.cvUrl ?? DEFAULT_SITE_SETTINGS.cvUrl,
+        cvUrl: finalCvUrl,
         cvFileName:
           rawSettings.cvFileName ?? DEFAULT_SITE_SETTINGS.cvFileName,
         educationImageUrl:
@@ -601,8 +620,8 @@ export const updateSiteSettings = mutation({
       resolvedCvUrl = DEFAULT_SITE_SETTINGS.cvUrl;
       resolvedCvFileName = DEFAULT_SITE_SETTINGS.cvFileName;
       nextCvStorageId = undefined;
-    } else if (args.cvStorageId) {
-      const url = await ctx.storage.getUrl(args.cvStorageId);
+    } else if (nextCvStorageId) {
+      const url = await ctx.storage.getUrl(nextCvStorageId);
       if (url) resolvedCvUrl = url;
     }
 
@@ -621,8 +640,8 @@ export const updateSiteSettings = mutation({
     if (args.removeEducation) {
       resolvedEducationUrl = "";
       nextEducationStorageId = undefined;
-    } else if (args.educationStorageId) {
-      const url = await ctx.storage.getUrl(args.educationStorageId);
+    } else if (nextEducationStorageId) {
+      const url = await ctx.storage.getUrl(nextEducationStorageId);
       if (url) resolvedEducationUrl = url;
     }
 
