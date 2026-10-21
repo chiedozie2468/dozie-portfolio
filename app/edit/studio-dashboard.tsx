@@ -234,6 +234,25 @@ export default function DashboardPage() {
   const educationFileInputRef = useRef<HTMLInputElement | null>(null);
   const workImageInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Unlock full-page scroll on /edit so the dashboard scrolls freely without CSS scroll-snap
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevSnap = html.style.scrollSnapType;
+    const prevHtmlOverflow = html.style.overflowY;
+    const prevBodyOverflow = body.style.overflowY;
+
+    html.style.scrollSnapType = "none";
+    html.style.overflowY = "auto";
+    body.style.overflowY = "auto";
+
+    return () => {
+      html.style.scrollSnapType = prevSnap;
+      html.style.overflowY = prevHtmlOverflow;
+      body.style.overflowY = prevBodyOverflow;
+    };
+  }, []);
+
   // Check admin session on mount
   useEffect(() => {
     let cancelled = false;
@@ -820,7 +839,10 @@ export default function DashboardPage() {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex min-h-[calc(100dvh-5rem)] w-full items-center justify-center px-4 py-16 md:snap-start">
+      <div
+        data-admin-studio="true"
+        className="flex min-h-[calc(100dvh-5rem)] w-full items-center justify-center px-4 py-16"
+      >
         <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 text-sm font-medium text-heading shadow-sm">
           <Loader2 className="size-4 animate-spin" />
           <span>Verifying encrypted admin session...</span>
@@ -831,7 +853,10 @@ export default function DashboardPage() {
 
   if (!isAuthenticated) {
     return (
-      <section className="flex min-h-[calc(100dvh-5rem)] w-full items-center justify-center px-4 py-10 md:snap-start">
+      <section
+        data-admin-studio="true"
+        className="flex min-h-[calc(100dvh-5rem)] w-full items-center justify-center px-4 py-10"
+      >
         <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-md sm:p-8">
           <div className="mb-6 flex items-center justify-between">
             <Link
@@ -933,7 +958,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="py-10 md:snap-start md:py-14">
+    <div data-admin-studio="true" className="min-h-screen w-full py-10 md:py-14">
       <Container>
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
@@ -1274,14 +1299,25 @@ export default function DashboardPage() {
               <div className="rounded-2xl border border-border bg-card p-6">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h2 className="text-base font-semibold text-heading">
-                      2. CV / Resume Download (Upload PDF or Auto-Generate from Website)
-                    </h2>
-                    <p className="text-xs text-body">
-                      Upload your own PDF CV here to serve that file when
-                      visitors click &ldquo;Download CV&rdquo;, or leave it on
-                      Auto-Generate to download your live website info in the
-                      current Hero color.
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-base font-semibold text-heading">
+                        2. Upload Your CV PDF
+                      </h2>
+                      {cvUrl && cvUrl !== "/chiedozie-onyekwelu-cv.pdf" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+                          <Check className="size-3" />
+                          Uploaded PDF Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-surface-secondary px-2.5 py-0.5 font-mono text-[10px] font-medium text-body">
+                          Ready for PDF Upload
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-body">
+                      Upload your CV PDF file here. Whenever anyone clicks
+                      &ldquo;Download CV&rdquo; on the Navbar or Profile
+                      section, your uploaded PDF will be downloaded directly.
                     </p>
                   </div>
 
@@ -1289,7 +1325,7 @@ export default function DashboardPage() {
                     <input
                       ref={cvFileInputRef}
                       type="file"
-                      accept=".pdf,.doc,.docx,application/pdf"
+                      accept=".pdf,application/pdf"
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -1300,49 +1336,32 @@ export default function DashboardPage() {
                       type="button"
                       disabled={isUploadingCv}
                       onClick={() => cvFileInputRef.current?.click()}
-                      className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-heading px-3.5 py-2 text-xs font-medium text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#0D0D0D] px-4 py-2.5 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-white dark:text-[#0D0D0D]"
                     >
                       {isUploadingCv ? (
                         <>
                           <Loader2 className="size-3.5 animate-spin" />
-                          <span>Uploading CV...</span>
+                          <span>Uploading CV PDF...</span>
                         </>
                       ) : (
                         <>
-                          <FileText className="size-3.5" />
-                          <span>Upload Custom CV PDF</span>
+                          <Upload className="size-3.5" />
+                          <span>Upload CV PDF</span>
                         </>
                       )}
                     </button>
 
-                    {cvUrl && cvUrl !== "/chiedozie-onyekwelu-cv.pdf" && (
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          setIsSaving(true);
-                          try {
-                            const client = new ConvexHttpClient(getConvexUrl());
-                            await client.mutation(
-                              api.portfolio.updateSiteSettings,
-                              {
-                                adminToken: adminToken || "",
-                                removeCv: true,
-                              }
-                            );
-                            setCvUrl("/chiedozie-onyekwelu-cv.pdf");
-                            await refresh();
-                            setStatusMessage(
-                              "Switched back to Auto-Generated Live Website CV (Hero Theme Colored)!"
-                            );
-                          } finally {
-                            setIsSaving(false);
-                          }
-                        }}
-                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-border bg-surface-secondary/70 px-3 py-2 text-xs font-medium text-heading hover:border-destructive hover:text-destructive"
+                    {cvUrl && (
+                      <a
+                        href={cvUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={cvFileName || "Chiedozie-Onyekwelu-CV.pdf"}
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-border bg-surface-secondary/70 px-3 py-2 text-xs font-medium text-heading transition-colors hover:border-heading"
                       >
-                        <RotateCcw className="size-3.5" />
-                        <span>Use Auto-Generated Website CV</span>
-                      </button>
+                        <Download className="size-3.5" />
+                        <span>View / Test PDF</span>
+                      </a>
                     )}
                   </div>
                 </div>
