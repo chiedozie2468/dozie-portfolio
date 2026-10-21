@@ -85,9 +85,14 @@ export default function DashboardPage() {
     "profile"
   );
 
-  // --- Profile, DP & CV state ---
+  // --- Profile, DP, Website Text & Contact state ---
   const [heroDisplayWord, setHeroDisplayWord] = useState(
     siteSettings.heroDisplayWord
+  );
+  const [heroDescription, setHeroDescription] = useState(
+    siteSettings.heroDescription ||
+      DEFAULT_SITE_SETTINGS.heroDescription ||
+      ""
   );
   const [dpImageUrl, setDpImageUrl] = useState(siteSettings.dpImageUrl);
   const [dpCategory, setDpCategory] = useState(siteSettings.dpCategory);
@@ -122,6 +127,68 @@ export default function DashboardPage() {
     siteSettings.educationCaption ||
       DEFAULT_SITE_SETTINGS.educationCaption ||
       "Miva Open University — B.Sc. Computer Science"
+  );
+
+  // About & Contact text states
+  const [aboutProfileLead, setAboutProfileLead] = useState(
+    siteSettings.aboutProfileLead ||
+      DEFAULT_SITE_SETTINGS.aboutProfileLead ||
+      ""
+  );
+  const [aboutProfileSub, setAboutProfileSub] = useState(
+    siteSettings.aboutProfileSub || DEFAULT_SITE_SETTINGS.aboutProfileSub || ""
+  );
+  const [aboutEducationLead, setAboutEducationLead] = useState(
+    siteSettings.aboutEducationLead ||
+      DEFAULT_SITE_SETTINGS.aboutEducationLead ||
+      ""
+  );
+  const [aboutEducationSecondary, setAboutEducationSecondary] = useState(
+    siteSettings.aboutEducationSecondary ||
+      DEFAULT_SITE_SETTINGS.aboutEducationSecondary ||
+      ""
+  );
+  const [aboutEducationPrimary, setAboutEducationPrimary] = useState(
+    siteSettings.aboutEducationPrimary ||
+      DEFAULT_SITE_SETTINGS.aboutEducationPrimary ||
+      ""
+  );
+  const [aboutExperienceLead, setAboutExperienceLead] = useState(
+    siteSettings.aboutExperienceLead ||
+      DEFAULT_SITE_SETTINGS.aboutExperienceLead ||
+      ""
+  );
+  const [aboutExperienceSub, setAboutExperienceSub] = useState(
+    siteSettings.aboutExperienceSub ||
+      DEFAULT_SITE_SETTINGS.aboutExperienceSub ||
+      ""
+  );
+  const [aboutCapabilitiesLead, setAboutCapabilitiesLead] = useState(
+    siteSettings.aboutCapabilitiesLead ||
+      DEFAULT_SITE_SETTINGS.aboutCapabilitiesLead ||
+      ""
+  );
+  const [aboutToolsText, setAboutToolsText] = useState(
+    siteSettings.aboutToolsText || DEFAULT_SITE_SETTINGS.aboutToolsText || ""
+  );
+  const [aboutAchievementsLead, setAboutAchievementsLead] = useState(
+    siteSettings.aboutAchievementsLead ||
+      DEFAULT_SITE_SETTINGS.aboutAchievementsLead ||
+      ""
+  );
+  const [aboutAchievementsSub, setAboutAchievementsSub] = useState(
+    siteSettings.aboutAchievementsSub ||
+      DEFAULT_SITE_SETTINGS.aboutAchievementsSub ||
+      ""
+  );
+  const [contactPhone, setContactPhone] = useState(
+    siteSettings.contactPhone || DEFAULT_SITE_SETTINGS.contactPhone || ""
+  );
+  const [contactEmail, setContactEmail] = useState(
+    siteSettings.contactEmail || DEFAULT_SITE_SETTINGS.contactEmail || ""
+  );
+  const [contactAddress, setContactAddress] = useState(
+    siteSettings.contactAddress || DEFAULT_SITE_SETTINGS.contactAddress || ""
   );
 
   const [isSaving, setIsSaving] = useState(false);
@@ -260,6 +327,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setHeroDisplayWord(siteSettings.heroDisplayWord);
+    setHeroDescription(
+      siteSettings.heroDescription ||
+        DEFAULT_SITE_SETTINGS.heroDescription ||
+        ""
+    );
     setDpImageUrl(siteSettings.dpImageUrl);
     setDpCategory(siteSettings.dpCategory);
     setDpTitle(siteSettings.dpTitle);
@@ -281,6 +353,68 @@ export default function DashboardPage() {
       siteSettings.educationCaption ||
         DEFAULT_SITE_SETTINGS.educationCaption ||
         "Miva Open University — B.Sc. Computer Science"
+    );
+    setAboutProfileLead(
+      siteSettings.aboutProfileLead ||
+        DEFAULT_SITE_SETTINGS.aboutProfileLead ||
+        ""
+    );
+    setAboutProfileSub(
+      siteSettings.aboutProfileSub ||
+        DEFAULT_SITE_SETTINGS.aboutProfileSub ||
+        ""
+    );
+    setAboutEducationLead(
+      siteSettings.aboutEducationLead ||
+        DEFAULT_SITE_SETTINGS.aboutEducationLead ||
+        ""
+    );
+    setAboutEducationSecondary(
+      siteSettings.aboutEducationSecondary ||
+        DEFAULT_SITE_SETTINGS.aboutEducationSecondary ||
+        ""
+    );
+    setAboutEducationPrimary(
+      siteSettings.aboutEducationPrimary ||
+        DEFAULT_SITE_SETTINGS.aboutEducationPrimary ||
+        ""
+    );
+    setAboutExperienceLead(
+      siteSettings.aboutExperienceLead ||
+        DEFAULT_SITE_SETTINGS.aboutExperienceLead ||
+        ""
+    );
+    setAboutExperienceSub(
+      siteSettings.aboutExperienceSub ||
+        DEFAULT_SITE_SETTINGS.aboutExperienceSub ||
+        ""
+    );
+    setAboutCapabilitiesLead(
+      siteSettings.aboutCapabilitiesLead ||
+        DEFAULT_SITE_SETTINGS.aboutCapabilitiesLead ||
+        ""
+    );
+    setAboutToolsText(
+      siteSettings.aboutToolsText || DEFAULT_SITE_SETTINGS.aboutToolsText || ""
+    );
+    setAboutAchievementsLead(
+      siteSettings.aboutAchievementsLead ||
+        DEFAULT_SITE_SETTINGS.aboutAchievementsLead ||
+        ""
+    );
+    setAboutAchievementsSub(
+      siteSettings.aboutAchievementsSub ||
+        DEFAULT_SITE_SETTINGS.aboutAchievementsSub ||
+        ""
+    );
+    setContactPhone(
+      siteSettings.contactPhone || DEFAULT_SITE_SETTINGS.contactPhone || ""
+    );
+    setContactEmail(
+      siteSettings.contactEmail || DEFAULT_SITE_SETTINGS.contactEmail || ""
+    );
+    setContactAddress(
+      siteSettings.contactAddress || DEFAULT_SITE_SETTINGS.contactAddress || ""
     );
   }, [siteSettings]);
 
@@ -442,6 +576,7 @@ export default function DashboardPage() {
       await client.mutation(api.portfolio.updateSiteSettings, {
         adminToken: adminToken || "",
         heroDisplayWord,
+        heroDescription,
         dpImageUrl,
         clearDpStorageId: dpImageUrl !== siteSettings.dpImageUrl,
         dpCategory,
@@ -459,10 +594,26 @@ export default function DashboardPage() {
         clearEducationStorageId:
           educationImageUrl !== siteSettings.educationImageUrl,
         educationCaption,
+        aboutProfileLead,
+        aboutProfileSub,
+        aboutEducationLead,
+        aboutEducationSecondary,
+        aboutEducationPrimary,
+        aboutExperienceLead,
+        aboutExperienceSub,
+        aboutCapabilitiesLead,
+        aboutToolsText,
+        aboutAchievementsLead,
+        aboutAchievementsSub,
+        contactPhone,
+        contactEmail,
+        contactAddress,
       });
 
       await refresh();
-      setStatusMessage("Hero, DP & CV settings saved to Convex!");
+      setStatusMessage(
+        "Hero images, website text & contact settings saved to Convex!"
+      );
     } catch (err) {
       setErrorMessage(
         err instanceof Error
@@ -636,7 +787,6 @@ export default function DashboardPage() {
   };
 
   const handleDeleteWork = async (project: PortfolioProject) => {
-    if (!project._id) return;
     setErrorMessage(null);
     setStatusMessage(null);
 
@@ -644,7 +794,8 @@ export default function DashboardPage() {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.deleteProject, {
         adminToken: adminToken || "",
-        id: project._id as Id<"projects">,
+        id: project._id ? (project._id as Id<"projects">) : undefined,
+        slug: project.slug,
       });
       await refresh();
       setStatusMessage(`Removed "${project.title}" from your portfolio.`);
@@ -1130,6 +1281,19 @@ export default function DashboardPage() {
                       className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
                     />
                   </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1.5 block text-xs font-medium text-heading">
+                      Hero Intro Description Text
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={heroDescription}
+                      onChange={(e) => setHeroDescription(e.target.value)}
+                      placeholder="I build digital experiences that turn ideas into useful products..."
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1383,6 +1547,193 @@ export default function DashboardPage() {
                       value={educationCaption}
                       onChange={(e) => setEducationCaption(e.target.value)}
                       placeholder="Miva Open University — B.Sc. Computer Science"
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 5. Website Text & Contact Info Editor */}
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="mb-4">
+                  <h2 className="text-base font-semibold text-heading">
+                    5. Website Text, Tools &amp; Contact Details
+                  </h2>
+                  <p className="text-xs text-body">
+                    Edit the text displayed in the About section chapters, Tools
+                    I Use, and Contact section (also automatically updates your
+                    downloaded CV).
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      About — Profile Lead Text
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={aboutProfileLead}
+                      onChange={(e) => setAboutProfileLead(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      About — Profile Subtext
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutProfileSub}
+                      onChange={(e) => setAboutProfileSub(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      About — Education Lead Text
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutEducationLead}
+                      onChange={(e) => setAboutEducationLead(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      Secondary School Line
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutEducationSecondary}
+                      onChange={(e) =>
+                        setAboutEducationSecondary(e.target.value)
+                      }
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      Primary School Line
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutEducationPrimary}
+                      onChange={(e) => setAboutEducationPrimary(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      About — Experience Lead Text
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutExperienceLead}
+                      onChange={(e) => setAboutExperienceLead(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      About — Experience Subtext
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutExperienceSub}
+                      onChange={(e) => setAboutExperienceSub(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      About — Capabilities Lead Text
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutCapabilitiesLead}
+                      onChange={(e) => setAboutCapabilitiesLead(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      Tools I Use (comma-separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutToolsText}
+                      onChange={(e) => setAboutToolsText(e.target.value)}
+                      placeholder="HTML, CSS, JavaScript, TypeScript, React, React Native, Next.js..."
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      About — Achievements Lead Text
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutAchievementsLead}
+                      onChange={(e) => setAboutAchievementsLead(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      About — Achievements Subtext
+                    </label>
+                    <input
+                      type="text"
+                      value={aboutAchievementsSub}
+                      onChange={(e) => setAboutAchievementsSub(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      Contact Phone
+                    </label>
+                    <input
+                      type="text"
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      Contact Email
+                    </label>
+                    <input
+                      type="email"
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs font-medium text-heading">
+                      Contact Studio Address
+                    </label>
+                    <input
+                      type="text"
+                      value={contactAddress}
+                      onChange={(e) => setContactAddress(e.target.value)}
                       className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
                     />
                   </div>
@@ -1814,16 +2165,14 @@ export default function DashboardPage() {
                         >
                           <Edit3 className="size-3.5" />
                         </button>
-                        {proj._id && (
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteWork(proj)}
-                            title="Delete work"
-                            className="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border border-border bg-card text-body hover:border-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteWork(proj)}
+                          title="Delete work"
+                          className="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border border-border bg-card text-body hover:border-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
                       </div>
                     </div>
                   ))}

@@ -15,12 +15,19 @@ import { useState } from "react";
 
 import { ContactLineIcon } from "@/components/icons/section-line-icons";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
+import { usePortfolioData } from "@/lib/hooks/use-portfolio-data";
 import { DEVELOPER_PROFILE } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
 export function ContactSection() {
   const { activeSection } = useSectionFocus();
+  const { siteSettings } = usePortfolioData();
   const isSectionActive = activeSection === "contact";
+  const displayPhone = siteSettings.contactPhone || DEVELOPER_PROFILE.phoneRaw;
+  const displayEmail = siteSettings.contactEmail || DEVELOPER_PROFILE.email;
+  const displayAddress =
+    siteSettings.contactAddress ||
+    "20 Abeokuta, Owode Onirin, Lagos State, Nigeria";
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -199,10 +206,10 @@ export function ContactSection() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5 text-[16px] font-light text-slate-900">
                   <a
-                    href="tel:+2349153251972"
+                    href={`tel:${displayPhone}`}
                     className="transition-opacity hover:opacity-70"
                   >
-                    09153251972
+                    {displayPhone}
                   </a>
                   <span className="text-slate-300">•</span>
                   <a
@@ -225,10 +232,10 @@ export function ContactSection() {
               </div>
               <div className="min-w-0">
                 <a
-                  href={`mailto:${DEVELOPER_PROFILE.email}`}
+                  href={`mailto:${displayEmail}`}
                   className="block truncate text-[16px] font-light text-slate-900 transition-opacity hover:opacity-70"
                 >
-                  {DEVELOPER_PROFILE.email}
+                  {displayEmail}
                 </a>
               </div>
             </div>
@@ -240,7 +247,7 @@ export function ContactSection() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-[16px] font-light text-slate-900">
-                  20 Abeokuta, Owode Onirin, Lagos State, Nigeria
+                  {displayAddress}
                 </p>
               </div>
             </div>

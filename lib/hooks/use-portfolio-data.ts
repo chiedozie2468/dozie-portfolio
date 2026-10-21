@@ -58,7 +58,17 @@ export function usePortfolioData() {
 
     async function run() {
       try {
-        const result = await client.query(api.portfolio.getPortfolioData, {});
+        let result = await client.query(api.portfolio.getPortfolioData, {});
+        if (cancelled) return;
+
+        if (!result.projects || result.projects.length === 0) {
+          try {
+            await client.mutation(api.portfolio.seedIfEmpty, {});
+            result = await client.query(api.portfolio.getPortfolioData, {});
+          } catch {
+            // Ignore seed errors if offline
+          }
+        }
         if (cancelled) return;
 
         if (result.projects && result.projects.length > 0) {

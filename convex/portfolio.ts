@@ -307,6 +307,8 @@ export const getPortfolioData = query({
 
       siteSettings = {
         heroDisplayWord: rawSettings.heroDisplayWord,
+        heroDescription:
+          rawSettings.heroDescription ?? DEFAULT_SITE_SETTINGS.heroDescription,
         dpImageUrl: resolvedDpUrl ?? rawSettings.dpImageUrl,
         dpCategory: rawSettings.dpCategory,
         dpTitle: rawSettings.dpTitle,
@@ -325,6 +327,46 @@ export const getPortfolioData = query({
         educationCaption:
           rawSettings.educationCaption ??
           DEFAULT_SITE_SETTINGS.educationCaption,
+        aboutProfileLead:
+          rawSettings.aboutProfileLead ??
+          DEFAULT_SITE_SETTINGS.aboutProfileLead,
+        aboutProfileSub:
+          rawSettings.aboutProfileSub ??
+          DEFAULT_SITE_SETTINGS.aboutProfileSub,
+        aboutEducationLead:
+          rawSettings.aboutEducationLead ??
+          DEFAULT_SITE_SETTINGS.aboutEducationLead,
+        aboutEducationSecondary:
+          rawSettings.aboutEducationSecondary ??
+          DEFAULT_SITE_SETTINGS.aboutEducationSecondary,
+        aboutEducationPrimary:
+          rawSettings.aboutEducationPrimary ??
+          DEFAULT_SITE_SETTINGS.aboutEducationPrimary,
+        aboutExperienceLead:
+          rawSettings.aboutExperienceLead ??
+          DEFAULT_SITE_SETTINGS.aboutExperienceLead,
+        aboutExperienceSub:
+          rawSettings.aboutExperienceSub ??
+          DEFAULT_SITE_SETTINGS.aboutExperienceSub,
+        aboutCapabilitiesLead:
+          rawSettings.aboutCapabilitiesLead ??
+          DEFAULT_SITE_SETTINGS.aboutCapabilitiesLead,
+        aboutToolsText:
+          rawSettings.aboutToolsText ?? DEFAULT_SITE_SETTINGS.aboutToolsText,
+        aboutAchievementsLead:
+          rawSettings.aboutAchievementsLead ??
+          DEFAULT_SITE_SETTINGS.aboutAchievementsLead,
+        aboutAchievementsSub:
+          rawSettings.aboutAchievementsSub ??
+          DEFAULT_SITE_SETTINGS.aboutAchievementsSub,
+        contactPhone:
+          rawSettings.contactPhone ?? DEFAULT_SITE_SETTINGS.contactPhone,
+        contactWhatsapp:
+          rawSettings.contactWhatsapp ?? DEFAULT_SITE_SETTINGS.contactWhatsapp,
+        contactAddress:
+          rawSettings.contactAddress ?? DEFAULT_SITE_SETTINGS.contactAddress,
+        contactEmail:
+          rawSettings.contactEmail ?? DEFAULT_SITE_SETTINGS.contactEmail,
         updatedAt: rawSettings.updatedAt,
       };
     }
@@ -386,6 +428,7 @@ export const updateSiteSettings = mutation({
   args: {
     adminToken: v.string(),
     heroDisplayWord: v.optional(v.string()),
+    heroDescription: v.optional(v.string()),
     dpImageUrl: v.optional(v.string()),
     dpStorageId: v.optional(v.id("_storage")),
     clearDpStorageId: v.optional(v.boolean()),
@@ -409,6 +452,17 @@ export const updateSiteSettings = mutation({
     clearEducationStorageId: v.optional(v.boolean()),
     removeEducation: v.optional(v.boolean()),
     educationCaption: v.optional(v.string()),
+    aboutProfileLead: v.optional(v.string()),
+    aboutProfileSub: v.optional(v.string()),
+    aboutEducationLead: v.optional(v.string()),
+    aboutEducationSecondary: v.optional(v.string()),
+    aboutEducationPrimary: v.optional(v.string()),
+    aboutExperienceLead: v.optional(v.string()),
+    aboutExperienceSub: v.optional(v.string()),
+    aboutCapabilitiesLead: v.optional(v.string()),
+    aboutToolsText: v.optional(v.string()),
+    aboutAchievementsLead: v.optional(v.string()),
+    aboutAchievementsSub: v.optional(v.string()),
     contactPhone: v.optional(v.string()),
     contactWhatsapp: v.optional(v.string()),
     contactAddress: v.optional(v.string()),
@@ -511,6 +565,11 @@ export const updateSiteSettings = mutation({
         args.heroDisplayWord?.trim() ||
         existing?.heroDisplayWord ||
         DEFAULT_SITE_SETTINGS.heroDisplayWord,
+      heroDescription:
+        args.heroDescription !== undefined
+          ? args.heroDescription.trim()
+          : (existing?.heroDescription ??
+            DEFAULT_SITE_SETTINGS.heroDescription),
       dpImageUrl: resolvedDpUrl,
       dpStorageId: nextDpStorageId,
       dpCategory:
@@ -548,6 +607,60 @@ export const updateSiteSettings = mutation({
         args.educationCaption?.trim() ||
         existing?.educationCaption ||
         DEFAULT_SITE_SETTINGS.educationCaption,
+      aboutProfileLead:
+        args.aboutProfileLead !== undefined
+          ? args.aboutProfileLead.trim()
+          : (existing?.aboutProfileLead ??
+            DEFAULT_SITE_SETTINGS.aboutProfileLead),
+      aboutProfileSub:
+        args.aboutProfileSub !== undefined
+          ? args.aboutProfileSub.trim()
+          : (existing?.aboutProfileSub ??
+            DEFAULT_SITE_SETTINGS.aboutProfileSub),
+      aboutEducationLead:
+        args.aboutEducationLead !== undefined
+          ? args.aboutEducationLead.trim()
+          : (existing?.aboutEducationLead ??
+            DEFAULT_SITE_SETTINGS.aboutEducationLead),
+      aboutEducationSecondary:
+        args.aboutEducationSecondary !== undefined
+          ? args.aboutEducationSecondary.trim()
+          : (existing?.aboutEducationSecondary ??
+            DEFAULT_SITE_SETTINGS.aboutEducationSecondary),
+      aboutEducationPrimary:
+        args.aboutEducationPrimary !== undefined
+          ? args.aboutEducationPrimary.trim()
+          : (existing?.aboutEducationPrimary ??
+            DEFAULT_SITE_SETTINGS.aboutEducationPrimary),
+      aboutExperienceLead:
+        args.aboutExperienceLead !== undefined
+          ? args.aboutExperienceLead.trim()
+          : (existing?.aboutExperienceLead ??
+            DEFAULT_SITE_SETTINGS.aboutExperienceLead),
+      aboutExperienceSub:
+        args.aboutExperienceSub !== undefined
+          ? args.aboutExperienceSub.trim()
+          : (existing?.aboutExperienceSub ??
+            DEFAULT_SITE_SETTINGS.aboutExperienceSub),
+      aboutCapabilitiesLead:
+        args.aboutCapabilitiesLead !== undefined
+          ? args.aboutCapabilitiesLead.trim()
+          : (existing?.aboutCapabilitiesLead ??
+            DEFAULT_SITE_SETTINGS.aboutCapabilitiesLead),
+      aboutToolsText:
+        args.aboutToolsText !== undefined
+          ? args.aboutToolsText.trim()
+          : (existing?.aboutToolsText ?? DEFAULT_SITE_SETTINGS.aboutToolsText),
+      aboutAchievementsLead:
+        args.aboutAchievementsLead !== undefined
+          ? args.aboutAchievementsLead.trim()
+          : (existing?.aboutAchievementsLead ??
+            DEFAULT_SITE_SETTINGS.aboutAchievementsLead),
+      aboutAchievementsSub:
+        args.aboutAchievementsSub !== undefined
+          ? args.aboutAchievementsSub.trim()
+          : (existing?.aboutAchievementsSub ??
+            DEFAULT_SITE_SETTINGS.aboutAchievementsSub),
       contactPhone:
         args.contactPhone?.trim() ||
         existing?.contactPhone ||
@@ -673,11 +786,28 @@ export const upsertProject = mutation({
 });
 
 export const deleteProject = mutation({
-  args: { id: v.id("projects"), adminToken: v.string() },
+  args: {
+    id: v.optional(v.id("projects")),
+    slug: v.optional(v.string()),
+    adminToken: v.string(),
+  },
   handler: async (ctx, args) => {
     await assertValidAdminToken(ctx, args.adminToken);
-    await ctx.db.delete(args.id);
-    return { deleted: true };
+    if (args.id) {
+      await ctx.db.delete(args.id);
+      return { deleted: true };
+    }
+    if (args.slug) {
+      const existing = await ctx.db
+        .query("projects")
+        .withIndex("by_slug", (q) => q.eq("slug", args.slug!))
+        .unique();
+      if (existing) {
+        await ctx.db.delete(existing._id);
+        return { deleted: true };
+      }
+    }
+    return { deleted: false };
   },
 });
 

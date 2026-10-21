@@ -148,6 +148,7 @@ export interface CapabilityGroup {
 
 export interface PortfolioSiteSettings {
   heroDisplayWord: string;
+  heroDescription?: string;
   dpImageUrl: string;
   dpCategory: string;
   dpTitle: string;
@@ -160,6 +161,17 @@ export interface PortfolioSiteSettings {
   cvFileName?: string;
   educationImageUrl?: string;
   educationCaption?: string;
+  aboutProfileLead?: string;
+  aboutProfileSub?: string;
+  aboutEducationLead?: string;
+  aboutEducationSecondary?: string;
+  aboutEducationPrimary?: string;
+  aboutExperienceLead?: string;
+  aboutExperienceSub?: string;
+  aboutCapabilitiesLead?: string;
+  aboutToolsText?: string;
+  aboutAchievementsLead?: string;
+  aboutAchievementsSub?: string;
   contactPhone?: string;
   contactWhatsapp?: string;
   contactAddress?: string;
@@ -169,6 +181,8 @@ export interface PortfolioSiteSettings {
 
 export const DEFAULT_SITE_SETTINGS: PortfolioSiteSettings = {
   heroDisplayWord: "chiedozie.",
+  heroDescription:
+    "I build digital experiences that turn ideas into useful products, combining creativity, technology, and a focus on solving real problems.",
   dpImageUrl: "/images/hero-dp.jpg",
   dpCategory: "PORTRAIT",
   dpTitle: "Chiedozie Onyekwelu",
@@ -181,6 +195,28 @@ export const DEFAULT_SITE_SETTINGS: PortfolioSiteSettings = {
   cvFileName: "Chiedozie-Onyekwelu-CV.pdf",
   educationImageUrl: "/images/hero-dp.jpg",
   educationCaption: "Miva Open University — B.Sc. Computer Science",
+  aboutProfileLead:
+    "I’m Chiedozie Onyekwelu — a software developer building clean, fast, and reliable web and mobile products.",
+  aboutProfileSub:
+    "Focused on turning real-world ideas into simple digital experiences people enjoy using.",
+  aboutEducationLead:
+    "Studying B.Sc. Computer Science at Miva Open University.",
+  aboutEducationSecondary:
+    "Secondary School: Community High School, Enugu State.",
+  aboutEducationPrimary:
+    "Primary School: Community Primary School, Enugu State.",
+  aboutExperienceLead:
+    "2022 — Present · Building and shipping full-stack web apps, booking platforms, and management portals.",
+  aboutExperienceSub:
+    "Delivered KollaTunez Tours, Followpoint, NogaData JSAP, and TechFasta from idea to live production.",
+  aboutCapabilitiesLead:
+    "Full-stack web and mobile development — from clean interfaces to real-time databases and authentication.",
+  aboutToolsText:
+    "HTML, CSS, JavaScript, TypeScript, React, React Native, Next.js, Tailwind CSS, Convex, Firebase, Clerk, Git, GitHub, Node.js, Vercel",
+  aboutAchievementsLead:
+    "Shipped 4+ live production platforms serving real users, event bookings, and school exam records.",
+  aboutAchievementsSub:
+    "95+ performance scores, fast QR ticket verification, and dependable full-stack delivery.",
   contactPhone: "09153251972",
   contactWhatsapp: "+234 915 325 1972",
   contactAddress: "20 Abeokuta, Owode Onirin, Lagos State, Nigeria",

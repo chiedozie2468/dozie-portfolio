@@ -227,8 +227,21 @@ export function downloadPortfolioCv({
   // --- SECTION 1: PROFILE & WHAT I DO ---
   drawSectionHeading("Profile & What I Do");
 
+  const heroDesc =
+    siteSettings.heroDescription ||
+    DEFAULT_SITE_SETTINGS.heroDescription ||
+    "I build digital experiences that turn ideas into useful products, combining creativity, technology, and a focus on solving real problems.";
+  const profileLead =
+    siteSettings.aboutProfileLead ||
+    DEFAULT_SITE_SETTINGS.aboutProfileLead ||
+    "I'm Chiedozie Onyekwelu - a software developer building clean, fast, and reliable web and mobile products.";
+  const profileSub =
+    siteSettings.aboutProfileSub ||
+    DEFAULT_SITE_SETTINGS.aboutProfileSub ||
+    "Focused on turning real-world ideas into simple digital experiences people enjoy using.";
+
   const introLines = wrapText(
-    "I build digital experiences that turn ideas into useful products, combining creativity, technology, and a focus on solving real problems. I'm Chiedozie Onyekwelu - a software developer building clean, fast, and reliable web and mobile products focused on turning real-world ideas into simple digital experiences people enjoy using.",
+    `${heroDesc} ${profileLead} ${profileSub}`,
     98
   );
   for (const line of introLines) {
@@ -240,42 +253,39 @@ export function downloadPortfolioCv({
   // --- SECTION 2: CAPABILITIES & TOOLS I USE ---
   drawSectionHeading("Capabilities & Tools I Use");
 
-  drawText(
-    "Full-stack web and mobile development - from clean interfaces to real-time databases and authentication.",
-    MARGIN_X,
-    y,
-    "F1",
-    9.5,
-    headingRgb
-  );
+  const capLead =
+    siteSettings.aboutCapabilitiesLead ||
+    DEFAULT_SITE_SETTINGS.aboutCapabilitiesLead ||
+    "Full-stack web and mobile development - from clean interfaces to real-time databases and authentication.";
+  drawText(capLead, MARGIN_X, y, "F1", 9.5, headingRgb);
   y -= 15;
+
+  const toolsBarText = (
+    siteSettings.aboutToolsText ||
+    DEFAULT_SITE_SETTINGS.aboutToolsText ||
+    "HTML, CSS, JavaScript, TypeScript, React, React Native, Next.js, Tailwind CSS, Convex, Firebase, Clerk, Git, GitHub, Node.js, Vercel"
+  )
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .join("  |  ");
 
   // Subtle badge bar for tools
   ops.push(`${fmtRgb(badgeRgb)} rg`);
   ops.push(
     `${MARGIN_X.toFixed(2)} ${(y - 5).toFixed(2)} ${CONTENT_W.toFixed(2)} 18 re f`
   );
-  drawText(
-    "HTML  |  CSS  |  JavaScript  |  TypeScript  |  React  |  React Native  |  Next.js  |  Tailwind CSS  |  Convex  |  Firebase  |  Clerk  |  Git  |  GitHub  |  Node.js  |  Vercel",
-    MARGIN_X + 8,
-    y + 1,
-    "F3",
-    7.8,
-    headingRgb
-  );
+  drawText(toolsBarText, MARGIN_X + 8, y + 1, "F3", 7.8, headingRgb);
   y -= 16;
 
   // --- SECTION 3: EXPERIENCE & SELECTED PROJECTS ---
   drawSectionHeading("Experience & Selected Production Projects (2022 - Present)");
 
-  drawText(
-    "2022 - Present  |  Full-Stack Product & Web Developer - Building and shipping full-stack web apps, booking platforms, and management portals.",
-    MARGIN_X,
-    y,
-    "F1",
-    9.2,
-    bodyRgb
-  );
+  const expLead =
+    siteSettings.aboutExperienceLead ||
+    DEFAULT_SITE_SETTINGS.aboutExperienceLead ||
+    "2022 - Present  |  Building and shipping full-stack web apps, booking platforms, and management portals.";
+  drawText(expLead, MARGIN_X, y, "F1", 9.2, bodyRgb);
   y -= 15;
 
   const normalizedProjects = (
@@ -318,7 +328,8 @@ export function downloadPortfolioCv({
   drawSectionHeading("Education");
 
   drawText(
-    "Miva Open University  —  B.Sc. Computer Science",
+    siteSettings.educationCaption ||
+      "Miva Open University  —  B.Sc. Computer Science",
     MARGIN_X,
     y,
     "F2",
@@ -327,7 +338,8 @@ export function downloadPortfolioCv({
   );
   y -= 13;
   drawText(
-    "Secondary School: Community High School, Enugu State.",
+    siteSettings.aboutEducationSecondary ||
+      "Secondary School: Community High School, Enugu State.",
     MARGIN_X,
     y,
     "F3",
@@ -336,7 +348,8 @@ export function downloadPortfolioCv({
   );
   y -= 12;
   drawText(
-    "Primary School: Community Primary School, Enugu State.",
+    siteSettings.aboutEducationPrimary ||
+      "Primary School: Community Primary School, Enugu State.",
     MARGIN_X,
     y,
     "F3",
@@ -348,10 +361,16 @@ export function downloadPortfolioCv({
   // --- SECTION 5: ACHIEVEMENTS & MILESTONES ---
   drawSectionHeading("Achievements & Milestones");
 
-  const achLines = wrapText(
-    "Shipped 4+ live production platforms serving real users, event bookings, and school exam records. 95+ performance scores, fast QR ticket verification, and dependable full-stack delivery.",
-    98
-  );
+  const achLead =
+    siteSettings.aboutAchievementsLead ||
+    DEFAULT_SITE_SETTINGS.aboutAchievementsLead ||
+    "Shipped 4+ live production platforms serving real users, event bookings, and school exam records.";
+  const achSub =
+    siteSettings.aboutAchievementsSub ||
+    DEFAULT_SITE_SETTINGS.aboutAchievementsSub ||
+    "95+ performance scores, fast QR ticket verification, and dependable full-stack delivery.";
+
+  const achLines = wrapText(`${achLead} ${achSub}`, 98);
   for (const line of achLines) {
     drawText(line, MARGIN_X, y, "F1", 9.2, headingRgb);
     y -= 12.5;

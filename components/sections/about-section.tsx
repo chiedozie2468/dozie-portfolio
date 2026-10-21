@@ -179,7 +179,40 @@ export function AboutSection() {
   const isSectionActive = activeSection === "about";
   const stageRef = useRef<HTMLDivElement | null>(null);
 
-  const chapter = ABOUT_CHAPTERS[chapterIndex];
+  const baseChapter = ABOUT_CHAPTERS[chapterIndex];
+  const chapter = {
+    ...baseChapter,
+    leadParagraph:
+      baseChapter.id === "profile"
+        ? siteSettings.aboutProfileLead || baseChapter.leadParagraph
+        : baseChapter.id === "education"
+          ? siteSettings.aboutEducationLead || baseChapter.leadParagraph
+          : baseChapter.id === "experience"
+            ? siteSettings.aboutExperienceLead || baseChapter.leadParagraph
+            : baseChapter.id === "capabilities"
+              ? siteSettings.aboutCapabilitiesLead || baseChapter.leadParagraph
+              : siteSettings.aboutAchievementsLead || baseChapter.leadParagraph,
+    monoParagraph1:
+      baseChapter.id === "profile"
+        ? siteSettings.aboutProfileSub ?? baseChapter.monoParagraph1
+        : baseChapter.id === "education"
+          ? siteSettings.aboutEducationSecondary ?? baseChapter.monoParagraph1
+          : baseChapter.id === "experience"
+            ? siteSettings.aboutExperienceSub ?? baseChapter.monoParagraph1
+            : baseChapter.id === "achievements"
+              ? siteSettings.aboutAchievementsSub ?? baseChapter.monoParagraph1
+              : baseChapter.monoParagraph1,
+    monoParagraph2:
+      baseChapter.id === "education"
+        ? siteSettings.aboutEducationPrimary ?? baseChapter.monoParagraph2
+        : baseChapter.monoParagraph2,
+  };
+  const toolsList = siteSettings.aboutToolsText
+    ? siteSettings.aboutToolsText
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+    : [...TOOLS_I_USE];
   const educationImageUrl =
     siteSettings.educationImageUrl ||
     DEFAULT_SITE_SETTINGS.educationImageUrl ||
@@ -463,7 +496,7 @@ export function AboutSection() {
 
           {chapter.id === "capabilities" && (
             <div data-about-para className="flex flex-wrap gap-2 pt-1">
-              {TOOLS_I_USE.map((tool) => (
+              {toolsList.map((tool) => (
                 <span
                   key={tool}
                   style={{

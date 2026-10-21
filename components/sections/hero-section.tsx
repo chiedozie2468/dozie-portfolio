@@ -247,12 +247,20 @@ export function HeroSection({
             style={{ color: activeTheme.body }}
             className="mb-2.5 max-w-[88vw] font-sans text-xs leading-relaxed font-normal transition-colors duration-500 sm:mb-4 sm:w-0 sm:min-w-full sm:max-w-none sm:text-base sm:leading-snug lg:text-lg xl:text-xl"
           >
-            I build digital experiences that turn ideas into useful products
-            <span className="hidden sm:inline">
-              , combining creativity, technology, and a focus on solving real
-              problems
-            </span>
-            .
+            {siteSettings.heroDescription &&
+            siteSettings.heroDescription !==
+              DEFAULT_SITE_SETTINGS.heroDescription ? (
+              siteSettings.heroDescription
+            ) : (
+              <>
+                I build digital experiences that turn ideas into useful products
+                <span className="hidden sm:inline">
+                  , combining creativity, technology, and a focus on solving
+                  real problems
+                </span>
+                .
+              </>
+            )}
           </p>
 
           <h1
