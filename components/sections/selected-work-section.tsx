@@ -235,18 +235,15 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
       {/* Main Two-Column Editorial Stage aligned to the 6 vertical grid lines (One Project on Screen) */}
       <div
         ref={stageRef}
-        className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-6 px-[5.2%] py-3 lg:grid-cols-6 lg:gap-0 lg:py-6"
+        className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-8 px-[5.2%] py-3 lg:grid-cols-6 lg:gap-10 lg:py-6"
       >
-        {/* Column 1 spacer (rope switcher moved to right side only) */}
-        <div className="hidden lg:col-span-1 lg:block" />
-
-        {/* Columns 2-3 (Left Column): Project Title, About the Project, Stack & Live Link */}
-        <div className="flex flex-col justify-between lg:col-span-2 lg:pr-6">
+        {/* Columns 1-2 (Left Column): Compact Project Info with generous breathing room before the project screen */}
+        <div className="flex max-w-[390px] flex-col justify-between lg:col-span-2 lg:pr-8 xl:pr-12">
           <div>
-            {/* Large font-normal 3-line Title matching About section */}
+            {/* Clean 3-line Title */}
             <h2
               style={{ color: headingColor }}
-              className="font-sans text-[2rem] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[2.6rem] lg:text-[3rem] xl:text-[3.4rem]"
+              className="font-sans text-[1.85rem] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[2.35rem] lg:text-[2.55rem] xl:text-[2.95rem]"
             >
               {titleLines.map((line, i) => (
                 <span
@@ -265,7 +262,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
             {/* Category & Year/Status Meta Labels */}
             <div
               data-work-info
-              className="mt-4 flex flex-wrap items-center gap-4 font-mono text-[9.5px] font-normal tracking-[0.14em] uppercase sm:mt-5 sm:gap-6 sm:text-[10.5px]"
+              className="mt-3.5 flex flex-wrap items-center gap-3 font-mono text-[9.5px] font-normal tracking-[0.14em] uppercase sm:mt-4 sm:gap-4 sm:text-[10px]"
             >
               <span
                 style={{
@@ -282,17 +279,17 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
             </div>
 
             {/* About the Project (Summary & Architecture) */}
-            <div data-work-info className="mt-4 space-y-2.5 sm:mt-5">
+            <div data-work-info className="mt-3.5 space-y-2 sm:mt-4">
               <p
                 style={{ color: headingColor }}
-                className="font-sans text-[12px] leading-[1.6] font-normal sm:text-[13px]"
+                className="font-sans text-[12px] leading-[1.6] font-normal sm:text-[12.5px]"
               >
                 {project.summary}
               </p>
               {project.architecture && (
                 <p
                   style={{ color: bodyColor }}
-                  className="line-clamp-3 font-mono text-[11px] leading-[1.65] font-normal opacity-85 sm:text-[11.5px]"
+                  className="line-clamp-2 font-mono text-[10.5px] leading-[1.6] font-normal opacity-85 sm:text-[11px]"
                 >
                   {project.architecture}
                 </p>
@@ -303,7 +300,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
             {project.stack && project.stack.length > 0 && (
               <div
                 data-work-info
-                className="mt-3.5 flex flex-wrap gap-1.5 sm:mt-4"
+                className="mt-3 flex flex-wrap gap-1.5 sm:mt-3.5"
               >
                 {project.stack.slice(0, 6).map((tech) => (
                   <span
@@ -313,7 +310,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                       color: headingColor,
                       borderColor: gridBorder,
                     }}
-                    className="rounded-md border px-2 py-0.5 font-mono text-[10px] font-normal"
+                    className="rounded-md border px-2 py-0.5 font-mono text-[9.5px] font-normal"
                   >
                     {tech}
                   </span>
@@ -324,7 +321,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
             {/* Live Link Button & Repo Link */}
             <div
               data-work-info
-              className="mt-5 flex flex-wrap items-center gap-3 sm:mt-6"
+              className="mt-4 flex flex-wrap items-center gap-3 sm:mt-5"
             >
               {liveUrl ? (
                 <a
@@ -335,7 +332,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                     backgroundColor: buttonBg,
                     color: buttonText,
                   }}
-                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-6 font-mono text-[11px] font-normal shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
+                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-5 font-mono text-[11px] font-normal shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-10 sm:px-6"
                 >
                   <Globe className="size-3.5" />
                   <span>View live project</span>
@@ -363,7 +360,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                     borderColor: gridBorder,
                     color: headingColor,
                   }}
-                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-4 font-mono text-[11px] font-normal transition-opacity hover:opacity-75 sm:h-11"
+                  className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-4 font-mono text-[11px] font-normal transition-opacity hover:opacity-75"
                 >
                   <span>Source</span>
                   <ExternalLink className="size-3" />
@@ -373,11 +370,11 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
           </div>
         </div>
 
-        {/* Columns 4-6 (Right Column): Scrollable Live Website Viewport / Project Scroll Window */}
+        {/* Columns 3-6 (Right 4 Columns): Wide Scrollable Live Website Viewport with plenty of space */}
         <div
           data-work-preview
           data-allow-inner-scroll
-          className="flex flex-col lg:col-span-3 lg:pl-8"
+          className="flex flex-col lg:col-span-4 lg:pl-4 xl:pl-8 lg:pr-6"
         >
           <div
             style={{
@@ -386,7 +383,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
                 ? "rgba(15, 18, 24, 0.9)"
                 : "#FFFFFF",
             }}
-            className="flex h-[44dvh] min-h-[310px] max-h-[540px] w-full flex-col overflow-hidden rounded-[3px] border shadow-md sm:h-[56dvh]"
+            className="flex h-[46dvh] min-h-[320px] max-h-[590px] w-full flex-col overflow-hidden rounded-[3px] border shadow-md sm:h-[60dvh]"
           >
             {/* Scrollable Body: Live Website Iframe (when liveUrl exists) OR Scrollable Project Showcase */}
             {liveUrl && previewMode === "live" ? (
@@ -508,8 +505,6 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
 
       {/* Bottom Row: Left "<  >" Navigation Arrows & Right Project Links */}
       <div className="relative z-20 mx-auto grid w-full grid-cols-2 items-center px-[5.2%] lg:grid-cols-6">
-        <div className="hidden lg:col-span-1 lg:block" />
-
         {/* Left "<  >" Arrows aligned with the Left Heading */}
         <div className="flex items-center gap-4 lg:col-span-2">
           <button
@@ -540,10 +535,10 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
           </button>
         </div>
 
-        {/* Right Links aligned with the Right Grid Columns */}
+        {/* Right Links aligned with the Right 4 Grid Columns */}
         <div
           style={{ color: headingColor }}
-          className="flex items-center justify-end gap-8 font-mono text-[10.5px] font-normal sm:gap-14 sm:text-[11.5px] lg:col-span-3"
+          className="flex items-center justify-end gap-8 font-mono text-[10.5px] font-normal sm:gap-14 sm:text-[11.5px] lg:col-span-4 lg:pr-6"
         >
           {liveUrl && (
             <a
