@@ -108,7 +108,7 @@ export function HeroSection({
     >
       <div className="relative h-full w-full">
         {/* 1. Left Vertical "Colors +" — hidden on small screens to prevent crowding; visible on sm+ */}
-        <div className="absolute top-[35%] left-[5.2%] z-20 hidden -translate-y-1/2 items-center sm:flex">
+        <div className="absolute top-[35%] left-[5.2%] z-30 hidden -translate-y-1/2 items-center sm:flex">
           <button
             type="button"
             onClick={handleCycleHeroColor}
@@ -120,8 +120,8 @@ export function HeroSection({
           </button>
         </div>
 
-        {/* 2. Circular "Colors" Button — positioned cleanly on mobile and desktop */}
-        <div className="absolute top-[22%] left-[18%] z-20 -translate-x-1/2 -translate-y-1/2 sm:top-[38%] sm:left-[48%] lg:left-[49.4%]">
+        {/* 2. Circular "Colors" Button — visible and centered cleanly on mobile and big screens */}
+        <div className="absolute top-[22%] left-[18%] z-30 -translate-x-1/2 -translate-y-1/2 sm:top-[34%] sm:left-[44%] lg:left-[46%]">
           <button
             type="button"
             onClick={handleCycleHeroColor}

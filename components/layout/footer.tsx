@@ -113,5 +113,9 @@ export function FooterContent() {
 }
 
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/edit")) {
+    return null;
+  }
   return <FooterContent />;
 }

@@ -820,8 +820,8 @@ export default function DashboardPage() {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex min-h-[75vh] items-center justify-center py-16">
-        <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 text-sm font-medium text-heading">
+      <div className="flex min-h-[calc(100dvh-5rem)] w-full items-center justify-center px-4 py-16 md:snap-start">
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 text-sm font-medium text-heading shadow-sm">
           <Loader2 className="size-4 animate-spin" />
           <span>Verifying encrypted admin session...</span>
         </div>
@@ -831,111 +831,109 @@ export default function DashboardPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-[82vh] items-center justify-center py-12">
-        <Container className="max-w-md">
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-            <div className="mb-6 flex items-center justify-between">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-body transition-colors hover:text-heading"
-              >
-                <ArrowLeft className="size-3.5" />
-                <span>Back to Portfolio</span>
-              </Link>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-secondary/70 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-wider text-heading uppercase">
-                <Lock className="size-3" />
-                Protected
-              </span>
-            </div>
-
-            <div className="mb-6">
-              <h1 className="font-serif text-2xl font-bold tracking-tight text-heading sm:text-3xl">
-                Admin Sign In
-              </h1>
-              <p className="mt-1.5 text-xs leading-relaxed text-body">
-                Sign in with your authorized email and password to access your
-                protected Convex studio dashboard.
-              </p>
-            </div>
-
-            {authError && (
-              <div className="mb-5 rounded-xl border border-destructive/50 bg-background p-3.5 text-xs font-medium text-destructive">
-                {authError}
-              </div>
-            )}
-
-            <form onSubmit={handleAuthSubmit} className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-heading">
-                  Admin Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={authEmail}
-                  onChange={(e) => setAuthEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-heading focus:border-heading focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-heading">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    minLength={6}
-                    autoComplete="current-password"
-                    value={authPassword}
-                    onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full rounded-xl border border-border bg-background py-2.5 pr-10 pl-3.5 text-sm text-heading focus:border-heading focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-body hover:text-heading"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmittingAuth}
-                className="mt-2 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-heading px-5 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-              >
-                {isSubmittingAuth ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    <span>Signing In...</span>
-                  </>
-                ) : (
-                  <>
-                    <KeyRound className="size-4" />
-                    <span>Sign In to Dashboard</span>
-                  </>
-                )}
-              </button>
-            </form>
+      <section className="flex min-h-[calc(100dvh-5rem)] w-full items-center justify-center px-4 py-10 md:snap-start">
+        <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-md sm:p-8">
+          <div className="mb-6 flex items-center justify-between">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-body transition-colors hover:text-heading"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span>Back to Portfolio</span>
+            </Link>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-secondary/70 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-wider text-heading uppercase">
+              <Lock className="size-3" />
+              Protected
+            </span>
           </div>
-        </Container>
-      </div>
+
+          <div className="mb-6 text-center">
+            <h1 className="font-serif text-2xl font-bold tracking-tight text-heading sm:text-3xl">
+              Admin Sign In
+            </h1>
+            <p className="mt-1.5 text-xs leading-relaxed text-body">
+              Sign in with your authorized email and password to access your
+              protected Convex studio dashboard.
+            </p>
+          </div>
+
+          {authError && (
+            <div className="mb-5 rounded-xl border border-destructive/50 bg-background p-3.5 text-center text-xs font-medium text-destructive">
+              {authError}
+            </div>
+          )}
+
+          <form onSubmit={handleAuthSubmit} className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-heading">
+                Admin Email
+              </label>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-heading focus:border-heading focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-heading">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  minLength={6}
+                  autoComplete="current-password"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full rounded-xl border border-border bg-background py-2.5 pr-10 pl-3.5 text-sm text-heading focus:border-heading focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-body hover:text-heading"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmittingAuth}
+              className="mt-2 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#0D0D0D] px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-white dark:text-[#0D0D0D]"
+            >
+              {isSubmittingAuth ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                <>
+                  <KeyRound className="size-4" />
+                  <span>Sign In to Dashboard</span>
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="py-10 md:py-14">
+    <div className="py-10 md:snap-start md:py-14">
       <Container>
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
