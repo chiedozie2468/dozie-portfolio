@@ -1,14 +1,5 @@
-import type { Metadata } from "next";
-import DashboardPage from "@/app/dashboard/page";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Admin Studio | Protected",
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
-
-export default function AdminPage() {
-  return <DashboardPage />;
+export default function AdminRedirectPage() {
+  redirect("/");
 }

@@ -395,18 +395,17 @@ export function SectionFocusProvider({ children }: { children: ReactNode }) {
   }, [reducedMotion, setActiveSection]);
 
   // Keep the home URL clean (no leftover #work or #work#contact hashes)
-  // and redirect to /admin if the user typed /admin after a hash in the URL bar
+  // and redirect to /edit if the user typed /edit after a hash in the URL bar
   useEffect(() => {
     const handleHashNavigation = () => {
       const hash = window.location.hash;
       if (!hash) return;
 
       if (
-        hash.toLowerCase().includes("/admin") ||
-        hash.toLowerCase().includes("admin") ||
-        hash.toLowerCase().includes("dashboard")
+        hash.toLowerCase().includes("/edit") ||
+        hash.toLowerCase() === "#edit"
       ) {
-        window.location.href = "/admin";
+        window.location.href = "/edit";
         return;
       }
 
