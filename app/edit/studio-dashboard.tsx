@@ -1073,34 +1073,60 @@ export default function DashboardPage() {
                   </span>
                 </div>
 
-                {/* Single Preview DP Card (matches Hero section) */}
-                <div className="mx-auto flex max-w-[260px] flex-col">
-                  <div className="relative aspect-[1/1.48] w-full overflow-hidden rounded-[3px] bg-surface-secondary">
-                    {dpImageUrl ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={dpImageUrl}
-                        alt={dpTitle}
-                        className="size-full object-cover object-top grayscale contrast-110 transition-all duration-300 hover:grayscale-0"
-                      />
-                    ) : (
-                      <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
-                        <User className="size-8 text-body/50" />
-                        <span className="font-serif text-xs text-body">
-                          No DP Uploaded Yet
-                        </span>
-                      </div>
-                    )}
+                <div className="grid grid-cols-2 items-center gap-5">
+                  {/* Preview DP Card (Left on Desktop + Only image on Mobile) */}
+                  <div className="flex flex-col">
+                    <div className="relative aspect-[1/1.55] w-full overflow-hidden rounded-[3px] bg-surface-secondary">
+                      {dpImageUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={dpImageUrl}
+                          alt={dpTitle}
+                          className="size-full object-cover object-top grayscale contrast-110 transition-all duration-300 hover:grayscale-0"
+                        />
+                      ) : (
+                        <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
+                          <User className="size-8 text-body/50" />
+                          <span className="font-serif text-xs text-body">
+                            No DP Uploaded
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="mt-3 text-[9px] font-medium tracking-[0.2em] text-body uppercase">
+                      {dpCategory || "PORTRAIT"} · Mobile + Desktop Left
+                    </span>
+                    <p className="mt-1 pl-2 font-serif text-base text-heading">
+                      {dpTitle || "Chiedozie Onyekwelu"}
+                    </p>
                   </div>
-                  <span className="mt-3 text-[9px] font-medium tracking-[0.2em] text-body uppercase">
-                    {dpCategory || "PORTRAIT"}
-                  </span>
-                  <p className="mt-1 pl-2 font-serif text-base text-heading">
-                    {dpTitle || "Chiedozie Onyekwelu"}
-                  </p>
-                  <p className="pl-2 font-serif text-sm text-heading/85">
-                    {dpSubtitle || "— STYLE. /47°"}
-                  </p>
+
+                  {/* Preview Secondary Card (Right on Desktop Only) */}
+                  <div className="flex flex-col">
+                    <div className="relative aspect-[1/1.35] w-full overflow-hidden rounded-[3px] bg-surface-secondary">
+                      {secondaryImageUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={secondaryImageUrl}
+                          alt={secondaryTitle}
+                          className="size-full object-cover object-left grayscale contrast-105 transition-all duration-300 hover:grayscale-0"
+                        />
+                      ) : (
+                        <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
+                          <User className="size-8 text-body/50" />
+                          <span className="font-serif text-xs text-body">
+                            No 2nd Image Uploaded
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="mt-3 text-[9px] font-medium tracking-[0.2em] text-body uppercase">
+                      {secondaryCategory || "EDITORIAL"} · Desktop Right
+                    </span>
+                    <p className="mt-1 pl-2 font-serif text-base text-heading">
+                      {secondaryTitle || "Untitled Res"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

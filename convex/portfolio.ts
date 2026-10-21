@@ -309,23 +309,61 @@ export const getPortfolioData = query({
       const rawSecondary =
         resolvedSecondaryUrl ?? rawSettings.secondaryImageUrl ?? "";
 
-      const cleanDp =
+      let cleanDp =
         rawDp === "/images/hero-dp.jpg" ||
         rawDp === "/images/hero-editorial.jpg"
           ? ""
           : rawDp;
-      const cleanSecondary =
+      let cleanSecondary =
         rawSecondary === "/images/hero-dp.jpg" ||
         rawSecondary === "/images/hero-editorial.jpg"
           ? ""
           : rawSecondary;
 
-      // If the user uploaded an image into either slot and the primary DP slot is empty, display the uploaded image as the primary DP
+      // If either Hero slot lost its reference earlier, recover any uploaded Hero images from Convex _storage
+      if (!cleanDp || !cleanSecondary) {
+        const usedNonHeroIds = new Set<string>();
+        for (const p of rawProjects) {
+          if (p.imageStorageId) usedNonHeroIds.add(String(p.imageStorageId));
+        }
+        if (rawSettings.educationStorageId) {
+          usedNonHeroIds.add(String(rawSettings.educationStorageId));
+        }
+        if (rawSettings.cvStorageId) {
+          usedNonHeroIds.add(String(rawSettings.cvStorageId));
+        }
+
+        const recentFiles = await ctx.db.system
+          .query("_storage")
+          .order("desc")
+          .take(20);
+        const heroCandidateUrls: string[] = [];
+
+        for (const file of recentFiles) {
+          if (usedNonHeroIds.has(String(file._id))) continue;
+          if (file.contentType && !file.contentType.startsWith("image/")) {
+            continue;
+          }
+          const url = await ctx.storage.getUrl(file._id);
+          if (url && !heroCandidateUrls.includes(url)) {
+            heroCandidateUrls.push(url);
+          }
+        }
+
+        if (!cleanDp && heroCandidateUrls.length > 0) {
+          cleanDp =
+            heroCandidateUrls.find((u) => u !== cleanSecondary) ??
+            heroCandidateUrls[0];
+        }
+        if (!cleanSecondary && heroCandidateUrls.length > 0) {
+          cleanSecondary =
+            heroCandidateUrls.find((u) => u !== cleanDp) ??
+            heroCandidateUrls[0];
+        }
+      }
+
       const effectiveDp = cleanDp || cleanSecondary;
-      const effectiveSecondary =
-        cleanDp && cleanSecondary && cleanSecondary !== cleanDp
-          ? cleanSecondary
-          : "";
+      const effectiveSecondary = cleanSecondary || cleanDp;
 
       siteSettings = {
         heroDisplayWord: rawSettings.heroDisplayWord,
@@ -512,8 +550,8 @@ export const updateSiteSettings = mutation({
     if (args.removeDp) {
       resolvedDpUrl = "";
       nextDpStorageId = undefined;
-    } else if (args.dpStorageId) {
-      const url = await ctx.storage.getUrl(args.dpStorageId);
+    } else if (nextDpStorageId) {
+      const url = await ctx.storage.getUrl(nextDpStorageId);
       if (url) resolvedDpUrl = url;
     }
 
@@ -532,8 +570,8 @@ export const updateSiteSettings = mutation({
     if (args.removeSecondary) {
       resolvedSecondaryUrl = "";
       nextSecondaryStorageId = undefined;
-    } else if (args.secondaryStorageId) {
-      const url = await ctx.storage.getUrl(args.secondaryStorageId);
+    } else if (nextSecondaryStorageId) {
+      const url = await ctx.storage.getUrl(nextSecondaryStorageId);
       if (url) resolvedSecondaryUrl = url;
     }
 

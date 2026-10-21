@@ -34,6 +34,7 @@ export function HeroSection({
 
   // Images are black-and-white by default; clicking an image toggles its original color
   const [dpShowColor, setDpShowColor] = useState(false);
+  const [editorialShowColor, setEditorialShowColor] = useState(false);
   const [wordIndex, setWordIndex] = useState(0);
   const [wordVisible, setWordVisible] = useState(true);
 
@@ -58,7 +59,7 @@ export function HeroSection({
       ? "chiedozie."
       : siteSettings.heroDisplayWord;
 
-  // Only show the DP image actually uploaded from the dashboard (never stock /images/hero-*.jpg placeholders)
+  // Only show real images uploaded from the dashboard (never stock /images/hero-*.jpg placeholders)
   const rawDpUrl =
     siteSettings.dpImageUrl &&
     siteSettings.dpImageUrl !== "/images/hero-dp.jpg" &&
@@ -73,13 +74,22 @@ export function HeroSection({
       : "";
 
   const primaryDpUrl = rawDpUrl || rawSecondaryUrl;
+  const secondaryDpUrl = rawSecondaryUrl || rawDpUrl;
 
-  // Primary Portrait (DP) card uploaded from dashboard
+  // Card 1: Left Hero Image on Big Screen + Only Hero Image on Small Screen (real from dashboard)
   const dpCard = {
     category: siteSettings.dpCategory || "PORTRAIT",
     title: siteSettings.dpTitle || "Chiedozie Onyekwelu",
     subtitle: siteSettings.dpSubtitle || "— STYLE. /47°",
     imageUrl: primaryDpUrl,
+  };
+
+  // Card 2: Right Hero Image on Big Screen only (real from dashboard)
+  const secondaryCard = {
+    category: siteSettings.secondaryCategory || "EDITORIAL",
+    title: siteSettings.secondaryTitle || "Untitled Res",
+    subtitle: siteSettings.secondarySubtitle || "— PORT. GQ",
+    imageUrl: secondaryDpUrl,
   };
 
   const handleCycleHeroColor = () => {
@@ -148,36 +158,72 @@ export function HeroSection({
           </button>
         </div>
 
-        {/* 3. Hero Frame: Only displays the DP uploaded from the /edit dashboard */}
-        {dpCard.imageUrl && (
-          <div className="absolute right-0 bottom-[25.5%] z-20 flex items-center sm:top-[5%] sm:bottom-auto">
-            <div className="flex w-[56vw] max-w-[245px] shrink-0 flex-col sm:w-[27.5vw] sm:max-w-[375px] lg:w-[28.5vw] lg:max-w-[405px]">
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => setDpShowColor((prev) => !prev)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setDpShowColor((prev) => !prev);
-                  }
-                }}
-                title="Click to toggle original color"
-                className="group relative aspect-[1/1.72] max-h-[56dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:aspect-[1/1.48] sm:max-h-[70dvh]"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={dpCard.imageUrl}
-                  alt={dpCard.title}
-                  className={cn(
-                    "size-full rounded-l-[3px] rounded-r-none object-cover object-top transition-all duration-500",
-                    dpShowColor
-                      ? "grayscale-0 contrast-100"
-                      : "grayscale contrast-110"
-                  )}
-                />
+        {/* 3. Hero Frames:
+            - Small screen (< sm): ONLY 1 image shows
+            - Big screen (sm+): 2 images show side-by-side, and the left image stretches down to align with the bottom of "chiedozie." (bottom-[5.5%]) */}
+        {(dpCard.imageUrl || secondaryCard.imageUrl) && (
+          <div className="absolute right-0 bottom-[25.5%] z-20 flex items-center gap-3 sm:top-[5%] sm:bottom-[5.5%] sm:gap-5 lg:gap-6">
+            {/* Image 1 (Left on big screen, only image on small screen): bottom aligned with "chiedozie." on big screen */}
+            {dpCard.imageUrl && (
+              <div className="flex w-[56vw] max-w-[245px] shrink-0 flex-col sm:h-full sm:w-[25.5vw] sm:max-w-[355px] lg:w-[26.5vw] lg:max-w-[385px]">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setDpShowColor((prev) => !prev)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setDpShowColor((prev) => !prev);
+                    }
+                  }}
+                  title="Click to toggle original color"
+                  className="group relative aspect-[1/1.72] max-h-[56dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary sm:aspect-auto sm:h-full sm:max-h-none sm:rounded-[3px]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={dpCard.imageUrl}
+                    alt={dpCard.title}
+                    className={cn(
+                      "size-full rounded-l-[3px] rounded-r-none object-cover object-top transition-all duration-500 sm:rounded-[3px]",
+                      dpShowColor
+                        ? "grayscale-0 contrast-100"
+                        : "grayscale contrast-110"
+                    )}
+                  />
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Image 2 (Right on big screen, hidden on small screen) */}
+            {secondaryCard.imageUrl && (
+              <div className="hidden w-[23vw] max-w-[115px] shrink-0 flex-col sm:flex sm:w-[14vw] sm:max-w-[195px] lg:w-[14.5vw] lg:max-w-[215px]">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setEditorialShowColor((prev) => !prev)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setEditorialShowColor((prev) => !prev);
+                    }
+                  }}
+                  title="Click to toggle original color"
+                  className="relative aspect-[1/1.48] max-h-[56dvh] w-full cursor-pointer overflow-hidden rounded-l-[3px] rounded-r-none bg-surface-secondary"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={secondaryCard.imageUrl}
+                    alt={secondaryCard.title}
+                    className={cn(
+                      "size-full rounded-l-[3px] rounded-r-none object-cover object-left transition-all duration-500",
+                      editorialShowColor
+                        ? "grayscale-0 contrast-100"
+                        : "grayscale contrast-105"
+                    )}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
 
