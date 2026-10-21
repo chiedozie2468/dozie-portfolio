@@ -428,7 +428,7 @@ export function AboutSection() {
               )}
             </div>
 
-            {/* Distinctly colored CTA action button (Download CV only shown on Profile) */}
+            {/* Distinctly colored CTA action button (Download CV only shown on Profile, fixed chapter color) */}
             {chapter.ctaType !== "none" && chapter.ctaLabel && (
               <div data-about-cta className="mt-6 sm:mt-8">
                 {chapter.ctaType === "cv" ? (
@@ -436,10 +436,10 @@ export function AboutSection() {
                     type="button"
                     onClick={handleDownloadCv}
                     style={{
-                      backgroundColor: activeTheme.bg,
-                      color: activeTheme.heading,
+                      backgroundColor: chapter.buttonBg,
+                      color: chapter.buttonText,
                     }}
-                    className="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-none px-6 font-mono text-[13px] font-light transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
+                    className="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-6 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
                   >
                     <Download className="size-3.5 transition-transform group-hover:scale-110" />
                     <span>{chapter.ctaLabel}</span>
