@@ -6,8 +6,32 @@ import {
   INITIAL_PROJECTS,
 } from "../lib/portfolio-data";
 
-const ALLOWED_ADMIN_EMAIL = "onyekwelochiedozie1@gmail.com";
+const DEFAULT_ALLOWED_EMAIL_HASHES = [
+  "be1b9922385afdb8b54500e11c913683d9e1ca6c74b699bb007d2373551157d8",
+  "dca92296f11c4dff79054421ec62183902d7ac6bd7b8a94b413fb580794a0eee",
+];
+const DEFAULT_PASSWORD_SALT = "9f4a8c2e7b1d6f3a5e0c9b8a4d2f1e7c";
+const DEFAULT_PASSWORD_HASH =
+  "18d0df24f24b699e543cac26eae6a607a0ac189a7c71d4950e0609f7346f2ec2";
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
+
+function getAllowedEmailHashes(): string[] {
+  const envHashes = process.env.ADMIN_EMAIL_HASHES;
+  if (envHashes && envHashes.trim().length > 0) {
+    return envHashes
+      .split(",")
+      .map((h) => h.trim().toLowerCase())
+      .filter(Boolean);
+  }
+  return DEFAULT_ALLOWED_EMAIL_HASHES;
+}
+
+function getConfiguredPasswordSaltAndHash(): { salt: string; hash: string } {
+  return {
+    salt: process.env.ADMIN_PASSWORD_SALT || DEFAULT_PASSWORD_SALT,
+    hash: process.env.ADMIN_PASSWORD_HASH || DEFAULT_PASSWORD_HASH,
+  };
+}
 
 async function sha256Hex(input: string): Promise<string> {
   const bytes = new TextEncoder().encode(input);
@@ -29,55 +53,50 @@ async function assertValidAdminToken(
   ctx: QueryCtx | MutationCtx,
   adminToken?: string
 ) {
-  const adminRecord = await ctx.db
-    .query("adminAuth")
-    .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
-    .unique();
+  if (!adminToken || adminToken.trim().length < 32) {
+    throw new Error("Unauthorized: Please sign in to the Admin Dashboard.");
+  }
 
-  // If the admin account has been configured, require a valid unexpired session token
-  if (adminRecord) {
-    if (!adminToken) {
-      throw new Error("Unauthorized: Please sign in to the Admin Dashboard.");
-    }
-    const now = Date.now();
-    const validSession = adminRecord.sessionTokens.some(
-      (s) => s.token === adminToken && s.expiresAt > now
-    );
-    if (!validSession) {
-      throw new Error("Session expired or invalid. Please sign in again.");
-    }
+  const adminRecord = await ctx.db.query("adminAuth").first();
+  if (!adminRecord) {
+    throw new Error("Unauthorized: Please sign in to the Admin Dashboard.");
+  }
+
+  const now = Date.now();
+  const validSession = adminRecord.sessionTokens.some(
+    (s) => s.token === adminToken && s.expiresAt > now
+  );
+  if (!validSession) {
+    throw new Error("Session expired or invalid. Please sign in again.");
   }
 }
 
 /**
- * Check whether the admin password has been created yet (never exposes the email).
+ * Check whether the admin authentication guard is active (never exposes email or credentials).
  */
 export const getAdminAuthStatus = query({
   args: {},
-  handler: async (ctx) => {
-    const adminRecord = await ctx.db
-      .query("adminAuth")
-      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
-      .unique();
+  handler: async () => {
     return {
-      isConfigured: Boolean(adminRecord),
+      isConfigured: true,
     };
   },
 });
 
 /**
  * Verify an existing session token stored in the browser.
+ * Never exposes email, passwordHash, salt, or sessionTokens.
  */
 export const verifyAdminSession = query({
   args: { token: v.string() },
   handler: async (ctx, args) => {
-    const adminRecord = await ctx.db
-      .query("adminAuth")
-      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
-      .unique();
+    if (!args.token || args.token.trim().length < 32) {
+      return { valid: false, isConfigured: true };
+    }
 
+    const adminRecord = await ctx.db.query("adminAuth").first();
     if (!adminRecord) {
-      return { valid: false, isConfigured: false };
+      return { valid: false, isConfigured: true };
     }
 
     const now = Date.now();
@@ -88,67 +107,13 @@ export const verifyAdminSession = query({
     return {
       valid: isValid,
       isConfigured: true,
-      email: isValid ? adminRecord.email : undefined,
     };
   },
 });
 
 /**
- * First-time Admin Setup: only allows onyekwelochiedozie1@gmail.com to create and confirm a password.
- */
-export const setupAdminAccount = mutation({
-  args: {
-    email: v.string(),
-    password: v.string(),
-    confirmPassword: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const normalizedEmail = args.email.trim().toLowerCase();
-    if (normalizedEmail !== ALLOWED_ADMIN_EMAIL) {
-      throw new Error("Unauthorized email address.");
-    }
-
-    if (args.password.length < 6) {
-      throw new Error("Password must be at least 6 characters long.");
-    }
-
-    if (args.password !== args.confirmPassword) {
-      throw new Error("Passwords do not match. Please confirm your password.");
-    }
-
-    const existing = await ctx.db
-      .query("adminAuth")
-      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
-      .unique();
-
-    if (existing) {
-      throw new Error(
-        "Admin password is already created. Please switch to Sign In."
-      );
-    }
-
-    const now = Date.now();
-    const salt = generateRandomHex(16);
-    const passwordHash = await sha256Hex(`${salt}:${args.password}`);
-    const token = generateRandomHex(32);
-
-    await ctx.db.insert("adminAuth", {
-      email: ALLOWED_ADMIN_EMAIL,
-      passwordHash,
-      salt,
-      sessionTokens: [{ token, expiresAt: now + SESSION_DURATION_MS }],
-      updatedAt: now,
-    });
-
-    return {
-      token,
-      email: ALLOWED_ADMIN_EMAIL,
-    };
-  },
-});
-
-/**
- * Sign in with onyekwelochiedozie1@gmail.com and password.
+ * Sign in with authorized admin email and password.
+ * Credentials are verified against SHA-256 salted hashes inside Convex; nothing is exposed.
  */
 export const loginAdmin = mutation({
   args: {
@@ -157,45 +122,70 @@ export const loginAdmin = mutation({
   },
   handler: async (ctx, args) => {
     const normalizedEmail = args.email.trim().toLowerCase();
-    if (normalizedEmail !== ALLOWED_ADMIN_EMAIL) {
+    const emailHash = await sha256Hex(normalizedEmail);
+    const allowedHashes = getAllowedEmailHashes();
+
+    if (!allowedHashes.includes(emailHash)) {
       throw new Error("Invalid email or password.");
     }
 
-    const adminRecord = await ctx.db
-      .query("adminAuth")
-      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
-      .unique();
+    const { salt: envSalt, hash: envHash } = getConfiguredPasswordSaltAndHash();
+    const adminRecord = await ctx.db.query("adminAuth").first();
 
-    if (!adminRecord) {
-      throw new Error(
-        "Admin password has not been created yet. Use 'Create Password' first."
+    let isPasswordValid = false;
+    let nextSalt = envSalt;
+    let nextPasswordHash = envHash;
+
+    // Check against Convex env / configured hash
+    const envCandidateHash = await sha256Hex(`${envSalt}:${args.password}`);
+    if (envCandidateHash === envHash) {
+      isPasswordValid = true;
+    } else if (adminRecord) {
+      // Also support password if changed via changeAdminPassword in Convex DB
+      const dbCandidateHash = await sha256Hex(
+        `${adminRecord.salt}:${args.password}`
       );
+      if (dbCandidateHash === adminRecord.passwordHash) {
+        isPasswordValid = true;
+        nextSalt = adminRecord.salt;
+        nextPasswordHash = adminRecord.passwordHash;
+      }
     }
 
-    const candidateHash = await sha256Hex(
-      `${adminRecord.salt}:${args.password}`
-    );
-    if (candidateHash !== adminRecord.passwordHash) {
+    if (!isPasswordValid) {
       throw new Error("Invalid email or password.");
     }
 
     const now = Date.now();
     const token = generateRandomHex(32);
-    const activeTokens = adminRecord.sessionTokens
-      .filter((s) => s.expiresAt > now)
-      .slice(-9);
 
-    await ctx.db.patch(adminRecord._id, {
-      sessionTokens: [
-        ...activeTokens,
-        { token, expiresAt: now + SESSION_DURATION_MS },
-      ],
-      updatedAt: now,
-    });
+    if (adminRecord) {
+      const activeTokens = adminRecord.sessionTokens
+        .filter((s) => s.expiresAt > now)
+        .slice(-9);
+
+      await ctx.db.patch(adminRecord._id, {
+        email: emailHash,
+        salt: nextSalt,
+        passwordHash: nextPasswordHash,
+        sessionTokens: [
+          ...activeTokens,
+          { token, expiresAt: now + SESSION_DURATION_MS },
+        ],
+        updatedAt: now,
+      });
+    } else {
+      await ctx.db.insert("adminAuth", {
+        email: emailHash,
+        salt: nextSalt,
+        passwordHash: nextPasswordHash,
+        sessionTokens: [{ token, expiresAt: now + SESSION_DURATION_MS }],
+        updatedAt: now,
+      });
+    }
 
     return {
       token,
-      email: adminRecord.email,
     };
   },
 });
@@ -206,10 +196,7 @@ export const loginAdmin = mutation({
 export const logoutAdmin = mutation({
   args: { token: v.string() },
   handler: async (ctx, args) => {
-    const adminRecord = await ctx.db
-      .query("adminAuth")
-      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
-      .unique();
+    const adminRecord = await ctx.db.query("adminAuth").first();
 
     if (adminRecord) {
       await ctx.db.patch(adminRecord._id, {
@@ -243,11 +230,7 @@ export const changeAdminPassword = mutation({
       throw new Error("New password and confirmation do not match.");
     }
 
-    const adminRecord = await ctx.db
-      .query("adminAuth")
-      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
-      .unique();
-
+    const adminRecord = await ctx.db.query("adminAuth").first();
     if (!adminRecord) {
       throw new Error("Admin account not found.");
     }
@@ -255,7 +238,15 @@ export const changeAdminPassword = mutation({
     const currentHash = await sha256Hex(
       `${adminRecord.salt}:${args.currentPassword}`
     );
-    if (currentHash !== adminRecord.passwordHash) {
+    const { salt: envSalt, hash: envHash } = getConfiguredPasswordSaltAndHash();
+    const envCurrentHash = await sha256Hex(
+      `${envSalt}:${args.currentPassword}`
+    );
+
+    if (
+      currentHash !== adminRecord.passwordHash &&
+      envCurrentHash !== envHash
+    ) {
       throw new Error("Current password is incorrect.");
     }
 
@@ -356,7 +347,7 @@ export const listProjects = query({
 });
 
 export const listMessages = query({
-  args: { adminToken: v.optional(v.string()) },
+  args: { adminToken: v.string() },
   handler: async (ctx, args) => {
     await assertValidAdminToken(ctx, args.adminToken);
     return await ctx.db
@@ -368,7 +359,7 @@ export const listMessages = query({
 });
 
 export const deleteMessage = mutation({
-  args: { id: v.id("messages"), adminToken: v.optional(v.string()) },
+  args: { id: v.id("messages"), adminToken: v.string() },
   handler: async (ctx, args) => {
     await assertValidAdminToken(ctx, args.adminToken);
     await ctx.db.delete(args.id);
@@ -381,7 +372,7 @@ export const deleteMessage = mutation({
  * project cover image, or CV PDF directly from the dashboard.
  */
 export const generateUploadUrl = mutation({
-  args: { adminToken: v.optional(v.string()) },
+  args: { adminToken: v.string() },
   handler: async (ctx, args) => {
     await assertValidAdminToken(ctx, args.adminToken);
     return await ctx.storage.generateUploadUrl();
@@ -393,7 +384,7 @@ export const generateUploadUrl = mutation({
  */
 export const updateSiteSettings = mutation({
   args: {
-    adminToken: v.optional(v.string()),
+    adminToken: v.string(),
     heroDisplayWord: v.optional(v.string()),
     dpImageUrl: v.optional(v.string()),
     dpStorageId: v.optional(v.id("_storage")),
@@ -591,7 +582,7 @@ export const updateSiteSettings = mutation({
  */
 export const upsertProject = mutation({
   args: {
-    adminToken: v.optional(v.string()),
+    adminToken: v.string(),
     id: v.optional(v.id("projects")),
     slug: v.string(),
     title: v.string(),
@@ -682,7 +673,7 @@ export const upsertProject = mutation({
 });
 
 export const deleteProject = mutation({
-  args: { id: v.id("projects"), adminToken: v.optional(v.string()) },
+  args: { id: v.id("projects"), adminToken: v.string() },
   handler: async (ctx, args) => {
     await assertValidAdminToken(ctx, args.adminToken);
     await ctx.db.delete(args.id);

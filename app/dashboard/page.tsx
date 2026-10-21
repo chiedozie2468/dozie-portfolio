@@ -75,12 +75,8 @@ export default function DashboardPage() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminToken, setAdminToken] = useState<string | null>(null);
-  const [authenticatedEmail, setAuthenticatedEmail] = useState<string>("");
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [authMode, setAuthMode] = useState<"login" | "setup">("setup");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
-  const [authConfirmPassword, setAuthConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
@@ -184,22 +180,13 @@ export default function DashboardPage() {
     async function checkAdminSession() {
       setIsCheckingAuth(true);
       try {
-        const client = new ConvexHttpClient(getConvexUrl());
-        const status = await client.query(
-          api.portfolio.getAdminAuthStatus,
-          {}
-        );
-        if (!cancelled) {
-          setIsInitialized(status.isConfigured);
-          setAuthMode(status.isConfigured ? "login" : "setup");
-        }
-
         const storedToken =
           typeof window !== "undefined"
             ? window.localStorage.getItem(ADMIN_SESSION_STORAGE_KEY)
             : null;
 
         if (storedToken) {
+          const client = new ConvexHttpClient(getConvexUrl());
           const verification = await client.query(
             api.portfolio.verifyAdminSession,
             { token: storedToken }
@@ -207,7 +194,6 @@ export default function DashboardPage() {
           if (!cancelled && verification.valid) {
             setAdminToken(storedToken);
             setIsAuthenticated(true);
-            setAuthenticatedEmail(verification.email || "");
           } else if (!cancelled) {
             window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
           }
@@ -233,30 +219,14 @@ export default function DashboardPage() {
 
     try {
       const client = new ConvexHttpClient(getConvexUrl());
-      if (authMode === "setup") {
-        const res = await client.mutation(api.portfolio.setupAdminAccount, {
-          email: authEmail,
-          password: authPassword,
-          confirmPassword: authConfirmPassword,
-        });
-        window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, res.token);
-        setAdminToken(res.token);
-        setAuthenticatedEmail(res.email);
-        setIsInitialized(true);
-        setIsAuthenticated(true);
-        setAuthPassword("");
-        setAuthConfirmPassword("");
-      } else {
-        const res = await client.mutation(api.portfolio.loginAdmin, {
-          email: authEmail,
-          password: authPassword,
-        });
-        window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, res.token);
-        setAdminToken(res.token);
-        setAuthenticatedEmail(res.email);
-        setIsAuthenticated(true);
-        setAuthPassword("");
-      }
+      const res = await client.mutation(api.portfolio.loginAdmin, {
+        email: authEmail,
+        password: authPassword,
+      });
+      window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, res.token);
+      setAdminToken(res.token);
+      setIsAuthenticated(true);
+      setAuthPassword("");
     } catch (err) {
       setAuthError(
         err instanceof Error
@@ -284,9 +254,7 @@ export default function DashboardPage() {
       }
       setAdminToken(null);
       setIsAuthenticated(false);
-      setAuthenticatedEmail("");
       setAuthPassword("");
-      setAuthConfirmPassword("");
     }
   };
 
@@ -342,7 +310,7 @@ export default function DashboardPage() {
   const uploadToConvexStorage = async (file: File): Promise<Id<"_storage">> => {
     const client = new ConvexHttpClient(getConvexUrl());
     const postUrl = await client.mutation(api.portfolio.generateUploadUrl, {
-      adminToken: adminToken ?? undefined,
+      adminToken: adminToken || "",
     });
     const uploadResponse = await fetch(postUrl, {
       method: "POST",
@@ -375,14 +343,14 @@ export default function DashboardPage() {
       const updated = await client.mutation(
         api.portfolio.updateSiteSettings,
         target === "dp"
-          ? { adminToken: adminToken ?? undefined, dpStorageId: storageId }
+          ? { adminToken: adminToken || "", dpStorageId: storageId }
           : target === "secondary"
             ? {
-                adminToken: adminToken ?? undefined,
+                adminToken: adminToken || "",
                 secondaryStorageId: storageId,
               }
             : {
-                adminToken: adminToken ?? undefined,
+                adminToken: adminToken || "",
                 educationStorageId: storageId,
               }
       );
@@ -419,7 +387,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.updateSiteSettings, {
-        adminToken: adminToken ?? undefined,
+        adminToken: adminToken || "",
         removeDp: true,
       });
       setDpImageUrl("");
@@ -443,7 +411,7 @@ export default function DashboardPage() {
       const storageId = await uploadToConvexStorage(file);
       const client = new ConvexHttpClient(getConvexUrl());
       const updated = await client.mutation(api.portfolio.updateSiteSettings, {
-        adminToken: adminToken ?? undefined,
+        adminToken: adminToken || "",
         cvStorageId: storageId,
         cvFileName: file.name,
       });
@@ -472,7 +440,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.updateSiteSettings, {
-        adminToken: adminToken ?? undefined,
+        adminToken: adminToken || "",
         heroDisplayWord,
         dpImageUrl,
         clearDpStorageId: dpImageUrl !== siteSettings.dpImageUrl,
@@ -514,7 +482,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.updateSiteSettings, {
-        adminToken: adminToken ?? undefined,
+        adminToken: adminToken || "",
         ...DEFAULT_SITE_SETTINGS,
         clearDpStorageId: true,
         clearSecondaryStorageId: true,
@@ -620,7 +588,7 @@ export default function DashboardPage() {
 
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.upsertProject, {
-        adminToken: adminToken ?? undefined,
+        adminToken: adminToken || "",
         id: editingProjectId ? (editingProjectId as Id<"projects">) : undefined,
         slug: generatedSlug,
         title: workTitle.trim(),
@@ -675,7 +643,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.deleteProject, {
-        adminToken: adminToken ?? undefined,
+        adminToken: adminToken || "",
         id: project._id as Id<"projects">,
       });
       await refresh();
@@ -691,7 +659,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.deleteMessage, {
-        adminToken: adminToken ?? undefined,
+        adminToken: adminToken || "",
         id,
       });
       setMessages((prev) => prev.filter((m) => m._id !== id));
@@ -732,49 +700,12 @@ export default function DashboardPage() {
 
             <div className="mb-6">
               <h1 className="font-serif text-2xl font-bold tracking-tight text-heading sm:text-3xl">
-                {authMode === "setup"
-                  ? "Create Admin Password"
-                  : "Admin Sign In"}
+                Admin Sign In
               </h1>
               <p className="mt-1.5 text-xs leading-relaxed text-body">
-                {authMode === "setup"
-                  ? "Enter your authorized admin email, create a strong password, and confirm it to unlock your studio dashboard."
-                  : "Sign in with your authorized admin email and password to manage your portfolio."}
+                Sign in with your authorized email and password to access your
+                protected Convex studio dashboard.
               </p>
-            </div>
-
-            {/* Mode Switcher Tabs */}
-            <div className="mb-6 grid grid-cols-2 gap-1.5 rounded-xl border border-border bg-background p-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode("login");
-                  setAuthError(null);
-                }}
-                className={cn(
-                  "cursor-pointer rounded-lg py-2 text-xs font-semibold transition-all",
-                  authMode === "login"
-                    ? "bg-heading text-background"
-                    : "text-body hover:text-heading"
-                )}
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode("setup");
-                  setAuthError(null);
-                }}
-                className={cn(
-                  "cursor-pointer rounded-lg py-2 text-xs font-semibold transition-all",
-                  authMode === "setup"
-                    ? "bg-heading text-background"
-                    : "text-body hover:text-heading"
-                )}
-              >
-                {isInitialized ? "Reset / Setup" : "Create Password"}
-              </button>
             </div>
 
             {authError && (
@@ -786,7 +717,7 @@ export default function DashboardPage() {
             <form onSubmit={handleAuthSubmit} className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-heading">
-                  Authorized Admin Email
+                  Admin Email
                 </label>
                 <input
                   type="email"
@@ -794,30 +725,24 @@ export default function DashboardPage() {
                   autoComplete="email"
                   value={authEmail}
                   onChange={(e) => setAuthEmail(e.target.value)}
-                  placeholder="Enter your admin email"
+                  placeholder="Enter your email"
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-heading focus:border-heading focus:outline-none"
                 />
               </div>
 
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-heading">
-                  {authMode === "setup" ? "Create Password" : "Password"}
+                  Password
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     required
                     minLength={6}
-                    autoComplete={
-                      authMode === "setup" ? "new-password" : "current-password"
-                    }
+                    autoComplete="current-password"
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
-                    placeholder={
-                      authMode === "setup"
-                        ? "Create password (min. 6 characters)"
-                        : "Enter your password"
-                    }
+                    placeholder="Enter your password"
                     className="w-full rounded-xl border border-border bg-background py-2.5 pr-10 pl-3.5 text-sm text-heading focus:border-heading focus:outline-none"
                   />
                   <button
@@ -835,24 +760,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {authMode === "setup" && (
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-heading">
-                    Confirm Password
-                  </label>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    minLength={6}
-                    autoComplete="new-password"
-                    value={authConfirmPassword}
-                    onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                    placeholder="Re-enter password to confirm"
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-heading focus:border-heading focus:outline-none"
-                  />
-                </div>
-              )}
-
               <button
                 type="submit"
                 disabled={isSubmittingAuth}
@@ -861,20 +768,12 @@ export default function DashboardPage() {
                 {isSubmittingAuth ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    <span>
-                      {authMode === "setup"
-                        ? "Creating Password & Signing In..."
-                        : "Signing In..."}
-                    </span>
+                    <span>Signing In...</span>
                   </>
                 ) : (
                   <>
                     <KeyRound className="size-4" />
-                    <span>
-                      {authMode === "setup"
-                        ? "Create Password & Sign In"
-                        : "Sign In to Dashboard"}
-                    </span>
+                    <span>Sign In to Dashboard</span>
                   </>
                 )}
               </button>
@@ -902,12 +801,8 @@ export default function DashboardPage() {
               Admin Studio Dashboard
             </h1>
             <p className="mt-1 text-sm text-body">
-              Signed in as{" "}
-              <span className="font-mono text-xs font-semibold text-heading">
-                {authenticatedEmail || "Admin"}
-              </span>{" "}
-              · Manage your DP portrait, CV download, and Projects live on
-              Convex.
+              Protected Convex session · Manage your DP portrait, CV download,
+              and Projects live on Convex.
             </p>
           </div>
 

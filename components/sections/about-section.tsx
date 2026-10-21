@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -77,9 +78,9 @@ const ABOUT_CHAPTERS = [
       "radial-gradient(950px circle at 22% 30%, rgba(129, 140, 248, 0.2), transparent 70%)",
     lines: ["Miva Open University", "B.Sc. Computer Science", "Academic Journey"],
     metaLeft: "MIVA OPEN UNIVERSITY",
-    metaRight: "ENUGU STATE — LAGOS",
-    ctaLabel: "Download this CV",
-    ctaType: "cv" as const,
+    metaRight: "",
+    ctaLabel: "",
+    ctaType: "none" as const,
     leadParagraph:
       "Studying B.Sc. Computer Science at Miva Open University.",
     monoParagraph1:
@@ -156,8 +157,8 @@ const ABOUT_CHAPTERS = [
     lines: ["Production", "Projects &", "Milestones"],
     metaLeft: "LIVE IN PRODUCTION",
     metaRight: "4+ PLATFORMS",
-    ctaLabel: "Download this CV",
-    ctaType: "cv" as const,
+    ctaLabel: "",
+    ctaType: "none" as const,
     leadParagraph:
       "Shipped 4+ live production platforms serving real users, event bookings, and school exam records.",
     monoParagraph1:
@@ -169,6 +170,7 @@ const ABOUT_CHAPTERS = [
 export function AboutSection() {
   const [chapterIndex, setChapterIndex] = useState(0);
   const [eduShowColor, setEduShowColor] = useState(false);
+  const [eduLightboxOpen, setEduLightboxOpen] = useState(false);
   const { activeSection, reducedMotion } = useSectionFocus();
   const { siteSettings } = usePortfolioData();
   const isSectionActive = activeSection === "about";
@@ -367,58 +369,74 @@ export function AboutSection() {
               >
                 {chapter.metaLeft}
               </span>
-              <span style={{ color: chapter.bodyText }} className="font-light">
-                {chapter.metaRight}
-              </span>
-            </div>
-
-            {/* Distinctly colored CTA action button */}
-            <div data-about-cta className="mt-6 sm:mt-8">
-              {chapter.ctaType === "cv" ? (
-                <a
-                  href={cvUrl}
-                  download={cvFileName}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    backgroundColor: chapter.buttonBg,
-                    color: chapter.buttonText,
-                  }}
-                  className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-6 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
-                >
-                  <Download className="size-3.5 transition-transform group-hover:scale-110" />
-                  <span>{chapter.ctaLabel}</span>
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const targetId =
-                      chapter.ctaType === "work" ? "work" : "contact";
-                    const el = document.getElementById(targetId);
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  style={{
-                    backgroundColor: chapter.buttonBg,
-                    color: chapter.buttonText,
-                  }}
-                  className="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-6 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
-                >
-                  <span>{chapter.ctaLabel}</span>
-                  <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </button>
+              {chapter.metaRight && (
+                <span style={{ color: chapter.bodyText }} className="font-light">
+                  {chapter.metaRight}
+                </span>
               )}
             </div>
+
+            {/* Distinctly colored CTA action button (Download CV only shown on Profile) */}
+            {chapter.ctaType !== "none" && chapter.ctaLabel && (
+              <div data-about-cta className="mt-6 sm:mt-8">
+                {chapter.ctaType === "cv" ? (
+                  <a
+                    href={cvUrl}
+                    download={cvFileName}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      backgroundColor: chapter.buttonBg,
+                      color: chapter.buttonText,
+                    }}
+                    className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-6 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
+                  >
+                    <Download className="size-3.5 transition-transform group-hover:scale-110" />
+                    <span>{chapter.ctaLabel}</span>
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const targetId =
+                        chapter.ctaType === "work" ? "work" : "contact";
+                      const el = document.getElementById(targetId);
+                      if (el) el.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    style={{
+                      backgroundColor: chapter.buttonBg,
+                      color: chapter.buttonText,
+                    }}
+                    className="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-6 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
+                  >
+                    <span>{chapter.ctaLabel}</span>
+                    <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Right Editorial Paragraphs Column (+ Clean School Photo when on Education chapter) */}
-        <div className="flex flex-col justify-center space-y-4 sm:space-y-5 lg:col-span-3 lg:pl-8 xl:pr-12">
+        {/* Right Editorial Paragraphs Column (+ Larger School Photo when on Education chapter, clickable for full display) */}
+        <div className="flex flex-col justify-center space-y-3 sm:space-y-4 lg:col-span-3 lg:pl-8 xl:pr-12">
           {chapter.id === "education" && (
             <div
               data-about-para
-              onClick={() => setEduShowColor((prev) => !prev)}
-              className="relative aspect-[4/3] w-full max-w-[240px] cursor-pointer overflow-hidden rounded-[3px] bg-white/60 sm:w-[220px]"
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                setEduShowColor(true);
+                setEduLightboxOpen(true);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setEduShowColor(true);
+                  setEduLightboxOpen(true);
+                }
+              }}
+              className="relative aspect-[4/3] w-full max-w-[300px] cursor-pointer overflow-hidden rounded-[3px] bg-white/60 shadow-xs transition-transform duration-300 hover:scale-[1.01] sm:w-[320px] sm:max-w-[340px] lg:w-[360px] lg:max-w-[380px]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -437,7 +455,7 @@ export function AboutSection() {
           <p
             data-about-para
             style={{ color: chapter.accentText }}
-            className="font-sans text-[16px] leading-[1.65] font-light sm:text-[17px]"
+            className="font-sans text-[16px] leading-[1.6] font-light sm:text-[17px]"
           >
             {chapter.leadParagraph}
           </p>
@@ -460,24 +478,26 @@ export function AboutSection() {
             </div>
           )}
 
-          {chapter.monoParagraph1 && (
-            <p
-              data-about-para
-              style={{ color: chapter.bodyText }}
-              className="font-mono text-[14px] leading-[1.7] font-light sm:text-[15px]"
-            >
-              {chapter.monoParagraph1}
-            </p>
-          )}
+          {(chapter.monoParagraph1 || chapter.monoParagraph2) && (
+            <div data-about-para className="space-y-1 sm:space-y-1.5">
+              {chapter.monoParagraph1 && (
+                <p
+                  style={{ color: chapter.bodyText }}
+                  className="font-mono text-[14px] leading-[1.55] font-light sm:text-[15px]"
+                >
+                  {chapter.monoParagraph1}
+                </p>
+              )}
 
-          {chapter.monoParagraph2 && (
-            <p
-              data-about-para
-              style={{ color: chapter.bodyText }}
-              className="font-mono text-[14px] leading-[1.7] font-light sm:text-[15px]"
-            >
-              {chapter.monoParagraph2}
-            </p>
+              {chapter.monoParagraph2 && (
+                <p
+                  style={{ color: chapter.bodyText }}
+                  className="font-mono text-[14px] leading-[1.55] font-light sm:text-[15px]"
+                >
+                  {chapter.monoParagraph2}
+                </p>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -548,6 +568,36 @@ export function AboutSection() {
           </a>
         </div>
       </div>
+
+      {/* Full-Screen Lightbox Preview when Education Image is Clicked */}
+      {eduLightboxOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setEduLightboxOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-h-[88dvh] max-w-[92vw] overflow-hidden rounded-[4px] bg-black shadow-2xl sm:max-w-3xl"
+          >
+            <button
+              type="button"
+              onClick={() => setEduLightboxOpen(false)}
+              aria-label="Close full image"
+              className="absolute top-3 right-3 z-10 flex size-9 cursor-pointer items-center justify-center rounded-full bg-black/65 text-white transition-colors hover:bg-black"
+            >
+              <X className="size-4" />
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={educationImageUrl}
+              alt={educationCaption}
+              className="max-h-[85dvh] w-auto max-w-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 }

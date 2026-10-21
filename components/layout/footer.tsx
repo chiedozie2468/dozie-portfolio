@@ -35,14 +35,14 @@ export function FooterContent() {
   const { setActiveSection } = useSectionFocus();
 
   return (
-    <footer className="relative z-20 flex min-h-[calc(100dvh-3.5rem)] w-full shrink-0 flex-col justify-center overflow-hidden border-t border-slate-800 bg-[#070B12] py-12 text-slate-100 sm:min-h-[calc(100dvh-5rem)] md:snap-start md:snap-always">
+    <footer className="relative z-20 flex min-h-[46dvh] w-full shrink-0 flex-col justify-center overflow-hidden border-t border-slate-800 bg-[#070B12] py-8 text-slate-100 sm:min-h-[48dvh] sm:py-10 md:snap-start md:snap-always">
       {/* Subtle dark radial glow */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_50%,rgba(56,189,248,0.12),transparent_70%),radial-gradient(700px_circle_at_80%_50%,rgba(167,139,250,0.12),transparent_70%)]"
       />
 
-      <Container className="relative z-10 flex flex-col justify-between gap-10 py-14">
+      <Container className="relative z-10 flex flex-col justify-between gap-6 py-4 sm:gap-8 sm:py-6">
         <div className="flex flex-col gap-3">
           <Link
             href="/"
