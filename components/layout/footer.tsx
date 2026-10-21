@@ -35,14 +35,14 @@ export function FooterContent() {
   const { setActiveSection } = useSectionFocus();
 
   return (
-    <footer className="relative z-20 w-full shrink-0 overflow-hidden border-t border-slate-800 bg-[#070B12] text-slate-100">
+    <footer className="relative z-20 mt-[18px] w-full shrink-0 overflow-hidden border-t border-slate-800 bg-[#070B12] text-slate-100 md:snap-end">
       {/* Subtle dark radial glow */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_50%,rgba(56,189,248,0.12),transparent_70%),radial-gradient(700px_circle_at_80%_50%,rgba(167,139,250,0.12),transparent_70%)]"
       />
 
-      <Container className="relative z-10 flex flex-col justify-between gap-4 py-6 sm:flex-row sm:items-center sm:py-7">
+      <Container className="relative z-10 flex flex-col justify-between gap-5 py-8 sm:flex-row sm:items-center sm:py-10">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <Link
             href="/"
@@ -69,7 +69,7 @@ export function FooterContent() {
             >
               <SectionLineIcon
                 sectionId={link.sectionId}
-                className="size-3.5 opacity-75 transition-opacity group-hover:opacity-100"
+                className="size-4 opacity-75 transition-opacity group-hover:opacity-100"
               />
               <span>{link.label}</span>
             </Link>
@@ -96,9 +96,5 @@ export function FooterContent() {
 }
 
 export function Footer() {
-  const pathname = usePathname();
-  if (pathname === "/") {
-    return null;
-  }
   return <FooterContent />;
 }
