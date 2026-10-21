@@ -117,11 +117,22 @@ export default function DashboardPage() {
   const [cvFileName, setCvFileName] = useState(
     siteSettings.cvFileName || DEFAULT_SITE_SETTINGS.cvFileName || ""
   );
+  const [educationImageUrl, setEducationImageUrl] = useState(
+    siteSettings.educationImageUrl ||
+      DEFAULT_SITE_SETTINGS.educationImageUrl ||
+      ""
+  );
+  const [educationCaption, setEducationCaption] = useState(
+    siteSettings.educationCaption ||
+      DEFAULT_SITE_SETTINGS.educationCaption ||
+      "Miva Open University — B.Sc. Computer Science"
+  );
 
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingDp, setIsUploadingDp] = useState(false);
   const [isUploadingSecondary, setIsUploadingSecondary] = useState(false);
   const [isUploadingCv, setIsUploadingCv] = useState(false);
+  const [isUploadingEducation, setIsUploadingEducation] = useState(false);
 
   // --- Works / Projects Manager state ---
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
@@ -164,6 +175,7 @@ export default function DashboardPage() {
   const dpFileInputRef = useRef<HTMLInputElement | null>(null);
   const secondaryFileInputRef = useRef<HTMLInputElement | null>(null);
   const cvFileInputRef = useRef<HTMLInputElement | null>(null);
+  const educationFileInputRef = useRef<HTMLInputElement | null>(null);
   const workImageInputRef = useRef<HTMLInputElement | null>(null);
 
   // Check admin session on mount
@@ -292,6 +304,16 @@ export default function DashboardPage() {
     setCvFileName(
       siteSettings.cvFileName || DEFAULT_SITE_SETTINGS.cvFileName || ""
     );
+    setEducationImageUrl(
+      siteSettings.educationImageUrl ||
+        DEFAULT_SITE_SETTINGS.educationImageUrl ||
+        ""
+    );
+    setEducationCaption(
+      siteSettings.educationCaption ||
+        DEFAULT_SITE_SETTINGS.educationCaption ||
+        "Miva Open University — B.Sc. Computer Science"
+    );
   }, [siteSettings]);
 
   const loadMessages = useCallback(async () => {
@@ -336,15 +358,16 @@ export default function DashboardPage() {
     return storageId;
   };
 
-  // 1. Upload DP or Secondary Image
+  // 1. Upload DP, Secondary, or Education Image
   const handleHeroImageUpload = async (
     file: File,
-    target: "dp" | "secondary"
+    target: "dp" | "secondary" | "education"
   ) => {
     setErrorMessage(null);
     setStatusMessage(null);
     if (target === "dp") setIsUploadingDp(true);
-    else setIsUploadingSecondary(true);
+    else if (target === "secondary") setIsUploadingSecondary(true);
+    else setIsUploadingEducation(true);
 
     try {
       const storageId = await uploadToConvexStorage(file);
@@ -353,20 +376,29 @@ export default function DashboardPage() {
         api.portfolio.updateSiteSettings,
         target === "dp"
           ? { adminToken: adminToken ?? undefined, dpStorageId: storageId }
-          : {
-              adminToken: adminToken ?? undefined,
-              secondaryStorageId: storageId,
-            }
+          : target === "secondary"
+            ? {
+                adminToken: adminToken ?? undefined,
+                secondaryStorageId: storageId,
+              }
+            : {
+                adminToken: adminToken ?? undefined,
+                educationStorageId: storageId,
+              }
       );
 
       if (target === "dp") setDpImageUrl(updated.dpImageUrl);
-      else setSecondaryImageUrl(updated.secondaryImageUrl);
+      else if (target === "secondary")
+        setSecondaryImageUrl(updated.secondaryImageUrl);
+      else setEducationImageUrl(updated.educationImageUrl || "");
 
       await refresh();
       setStatusMessage(
         target === "dp"
           ? "DP portrait uploaded and live on Hero!"
-          : "Secondary editorial image uploaded and live!"
+          : target === "secondary"
+            ? "Secondary editorial image uploaded and live!"
+            : "Education / Matriculation photo uploaded and live in About -> Education!"
       );
     } catch (err) {
       setErrorMessage(
@@ -375,6 +407,7 @@ export default function DashboardPage() {
     } finally {
       setIsUploadingDp(false);
       setIsUploadingSecondary(false);
+      setIsUploadingEducation(false);
     }
   };
 
@@ -454,6 +487,10 @@ export default function DashboardPage() {
         secondarySubtitle,
         cvUrl,
         cvFileName,
+        educationImageUrl,
+        clearEducationStorageId:
+          educationImageUrl !== siteSettings.educationImageUrl,
+        educationCaption,
       });
 
       await refresh();
@@ -1379,6 +1416,78 @@ export default function DashboardPage() {
                       value={secondarySubtitle}
                       onChange={(e) => setSecondarySubtitle(e.target.value)}
                       placeholder="— PORT. GQ"
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Education / Miva Open University Photo Card */}
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-base font-semibold text-heading">
+                      4. Education Photo (Miva Open University — About Section)
+                    </h2>
+                    <p className="text-xs text-body">
+                      Upload your matriculation or day-at-school picture for the
+                      Education chapter in the About section.
+                    </p>
+                  </div>
+
+                  <input
+                    ref={educationFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleHeroImageUpload(file, "education");
+                    }}
+                  />
+                  <button
+                    type="button"
+                    disabled={isUploadingEducation}
+                    onClick={() => educationFileInputRef.current?.click()}
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-surface-secondary/70 px-3.5 py-2 text-xs font-medium text-heading transition-colors hover:border-heading disabled:opacity-50"
+                  >
+                    {isUploadingEducation ? (
+                      <>
+                        <Loader2 className="size-3.5 animate-spin" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Camera className="size-3.5" />
+                        <span>Upload School / Matriculation Photo</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-medium text-heading">
+                      Education Photo URL
+                    </label>
+                    <input
+                      type="text"
+                      value={educationImageUrl}
+                      onChange={(e) => setEducationImageUrl(e.target.value)}
+                      placeholder="/images/hero-dp.jpg"
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-xs font-medium text-heading">
+                      Education Caption
+                    </label>
+                    <input
+                      type="text"
+                      value={educationCaption}
+                      onChange={(e) => setEducationCaption(e.target.value)}
+                      placeholder="Miva Open University — B.Sc. Computer Science"
                       className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-heading focus:border-heading focus:outline-none"
                     />
                   </div>

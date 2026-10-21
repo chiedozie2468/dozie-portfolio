@@ -44,6 +44,33 @@ const ABOUT_CHAPTERS = [
       "With strict end-to-end TypeScript validation, Convex transactional mutations, and restrained editorial typography across all screen sizes and production deployments.",
   },
   {
+    id: "education",
+    label: "Education",
+    screenBg: "#EEF2FF",
+    accentHex: "#4F46E5",
+    accentText: "#1E1B4B",
+    bodyText: "#3730A3",
+    gridBorder: "rgba(79, 70, 229, 0.16)",
+    tabIdleBg: "#E0E7FF",
+    tabIdleBorder: "rgba(79, 70, 229, 0.28)",
+    buttonBg: "#1E1B4B",
+    buttonText: "#EEF2FF",
+    badgeBg: "rgba(79, 70, 229, 0.14)",
+    sectionWash:
+      "radial-gradient(950px circle at 22% 30%, rgba(129, 140, 248, 0.2), transparent 70%)",
+    lines: ["Miva Open University", "B.Sc. Computer Science", "Academic & Engineering"],
+    metaLeft: "MIVA OPEN UNIVERSITY",
+    metaRight: "B.SC. COMPUTER SCIENCE",
+    ctaLabel: "Download this CV",
+    ctaType: "cv" as const,
+    leadParagraph:
+      "Currently studying B.Sc. Computer Science at Miva Open University — combining formal university computer science foundations with hands-on full-stack software engineering in production.",
+    monoParagraph1:
+      "Academic Core: Algorithms & Data Structures, Software Engineering Architecture, Database Management Systems, Object-Oriented Programming, Operating Systems, and Distributed Computing.",
+    monoParagraph2:
+      "Campus & Applied Practice: Translating rigorous computer science theory from Miva Open University directly into scalable Next.js, TypeScript, and Convex systems.",
+  },
+  {
     id: "experience",
     label: "Experience",
     screenBg: "#FDF6E4",
@@ -128,12 +155,22 @@ const ABOUT_CHAPTERS = [
 
 export function AboutSection() {
   const [chapterIndex, setChapterIndex] = useState(0);
+  const [eduShowColor, setEduShowColor] = useState(false);
   const { activeSection, reducedMotion } = useSectionFocus();
   const { siteSettings } = usePortfolioData();
   const isSectionActive = activeSection === "about";
   const stageRef = useRef<HTMLDivElement | null>(null);
 
   const chapter = ABOUT_CHAPTERS[chapterIndex];
+  const educationImageUrl =
+    siteSettings.educationImageUrl ||
+    DEFAULT_SITE_SETTINGS.educationImageUrl ||
+    siteSettings.dpImageUrl ||
+    "/images/hero-dp.jpg";
+  const educationCaption =
+    siteSettings.educationCaption ||
+    DEFAULT_SITE_SETTINGS.educationCaption ||
+    "Miva Open University — B.Sc. Computer Science";
   const cvUrl =
     siteSettings.cvUrl ||
     DEFAULT_SITE_SETTINGS.cvUrl ||
@@ -342,8 +379,67 @@ export function AboutSection() {
           </div>
         </div>
 
-        {/* Right Editorial Paragraphs Column: Matching size of other sections (Columns 4-6) */}
+        {/* Right Editorial Paragraphs Column (+ School/Matriculation Photo when on Education chapter) */}
         <div className="flex flex-col justify-center space-y-4 sm:space-y-5 lg:col-span-3 lg:pl-8 xl:pr-12">
+          {chapter.id === "education" && (
+            <div
+              data-about-para
+              className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5"
+            >
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setEduShowColor((prev) => !prev)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setEduShowColor((prev) => !prev);
+                  }
+                }}
+                title="Click to toggle photo color"
+                style={{ borderColor: chapter.gridBorder }}
+                className="relative aspect-[4/3] w-full max-w-[230px] shrink-0 cursor-pointer overflow-hidden rounded-[3px] border bg-white/60 shadow-xs sm:w-[200px]"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={educationImageUrl}
+                  alt={educationCaption}
+                  className={cn(
+                    "size-full object-cover object-top transition-all duration-500",
+                    eduShowColor
+                      ? "grayscale-0 contrast-100"
+                      : "grayscale contrast-105 hover:grayscale-0"
+                  )}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <span
+                  style={{
+                    backgroundColor: chapter.badgeBg,
+                    color: chapter.accentText,
+                  }}
+                  className="inline-block rounded-md px-2.5 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.12em]"
+                >
+                  CAMPUS / MATRICULATION PHOTO
+                </span>
+                <p
+                  style={{ color: chapter.accentText }}
+                  className="font-sans text-xs font-medium sm:text-[13px]"
+                >
+                  {educationCaption}
+                </p>
+                <p
+                  style={{ color: chapter.bodyText }}
+                  className="font-mono text-[10.5px] leading-relaxed opacity-80"
+                >
+                  Click photo to toggle full color · Upload your matriculation or
+                  day-at-school picture anytime in Admin (`/admin`).
+                </p>
+              </div>
+            </div>
+          )}
+
           <p
             data-about-para
             style={{ color: chapter.accentText }}

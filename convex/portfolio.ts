@@ -310,6 +310,9 @@ export const getPortfolioData = query({
       const resolvedCvUrl = rawSettings.cvStorageId
         ? await ctx.storage.getUrl(rawSettings.cvStorageId)
         : null;
+      const resolvedEducationUrl = rawSettings.educationStorageId
+        ? await ctx.storage.getUrl(rawSettings.educationStorageId)
+        : null;
 
       siteSettings = {
         heroDisplayWord: rawSettings.heroDisplayWord,
@@ -324,6 +327,13 @@ export const getPortfolioData = query({
         cvUrl: resolvedCvUrl ?? rawSettings.cvUrl ?? DEFAULT_SITE_SETTINGS.cvUrl,
         cvFileName:
           rawSettings.cvFileName ?? DEFAULT_SITE_SETTINGS.cvFileName,
+        educationImageUrl:
+          resolvedEducationUrl ??
+          rawSettings.educationImageUrl ??
+          DEFAULT_SITE_SETTINGS.educationImageUrl,
+        educationCaption:
+          rawSettings.educationCaption ??
+          DEFAULT_SITE_SETTINGS.educationCaption,
         updatedAt: rawSettings.updatedAt,
       };
     }
@@ -403,6 +413,11 @@ export const updateSiteSettings = mutation({
     cvStorageId: v.optional(v.id("_storage")),
     cvFileName: v.optional(v.string()),
     removeCv: v.optional(v.boolean()),
+    educationImageUrl: v.optional(v.string()),
+    educationStorageId: v.optional(v.id("_storage")),
+    clearEducationStorageId: v.optional(v.boolean()),
+    removeEducation: v.optional(v.boolean()),
+    educationCaption: v.optional(v.string()),
     contactPhone: v.optional(v.string()),
     contactWhatsapp: v.optional(v.string()),
     contactAddress: v.optional(v.string()),
@@ -479,6 +494,26 @@ export const updateSiteSettings = mutation({
       if (url) resolvedCvUrl = url;
     }
 
+    // Education photo resolution
+    let nextEducationStorageId =
+      args.clearEducationStorageId || args.removeEducation
+        ? undefined
+        : (args.educationStorageId ?? existing?.educationStorageId);
+
+    let resolvedEducationUrl =
+      args.educationImageUrl !== undefined
+        ? args.educationImageUrl
+        : (existing?.educationImageUrl ??
+          DEFAULT_SITE_SETTINGS.educationImageUrl);
+
+    if (args.removeEducation) {
+      resolvedEducationUrl = "";
+      nextEducationStorageId = undefined;
+    } else if (args.educationStorageId) {
+      const url = await ctx.storage.getUrl(args.educationStorageId);
+      if (url) resolvedEducationUrl = url;
+    }
+
     const payload = {
       key: "main" as const,
       heroDisplayWord:
@@ -516,6 +551,12 @@ export const updateSiteSettings = mutation({
       cvUrl: resolvedCvUrl,
       cvStorageId: nextCvStorageId,
       cvFileName: resolvedCvFileName,
+      educationImageUrl: resolvedEducationUrl,
+      educationStorageId: nextEducationStorageId,
+      educationCaption:
+        args.educationCaption?.trim() ||
+        existing?.educationCaption ||
+        DEFAULT_SITE_SETTINGS.educationCaption,
       contactPhone:
         args.contactPhone?.trim() ||
         existing?.contactPhone ||

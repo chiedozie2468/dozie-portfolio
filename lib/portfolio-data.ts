@@ -158,6 +158,8 @@ export interface PortfolioSiteSettings {
   secondarySubtitle: string;
   cvUrl?: string;
   cvFileName?: string;
+  educationImageUrl?: string;
+  educationCaption?: string;
   contactPhone?: string;
   contactWhatsapp?: string;
   contactAddress?: string;
@@ -177,6 +179,8 @@ export const DEFAULT_SITE_SETTINGS: PortfolioSiteSettings = {
   secondarySubtitle: "— PORT. GQ",
   cvUrl: "/chiedozie-onyekwelu-cv.pdf",
   cvFileName: "Chiedozie-Onyekwelu-CV.pdf",
+  educationImageUrl: "/images/hero-dp.jpg",
+  educationCaption: "Miva Open University — B.Sc. Computer Science",
   contactPhone: "09153251972",
   contactWhatsapp: "+234 915 325 1972",
   contactAddress: "20 Abeokuta, Owode Onirin, Lagos State, Nigeria",
