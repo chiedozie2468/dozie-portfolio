@@ -192,7 +192,7 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
           className="inline-flex items-center gap-2.5"
         >
           <ProjectLineIcon className="size-5 shrink-0 opacity-85 sm:size-6 lg:size-7" />
-          <span className="font-sans text-sm font-normal tracking-[-0.015em] transition-colors duration-300 sm:text-base lg:text-lg">
+          <span className="font-sans text-[19px] font-normal tracking-[-0.015em] transition-colors duration-300 sm:text-[21px] lg:text-[23px]">
             Selected projects
           </span>
           <span
@@ -238,12 +238,12 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
         className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 items-center gap-8 px-[5.2%] py-3 lg:grid-cols-6 lg:gap-10 lg:py-6"
       >
         {/* Columns 1-2 (Left Column): Starts directly under "Selected projects" where the text started */}
-        <div className="flex max-w-[430px] flex-col justify-between sm:pl-[34px] lg:col-span-2 lg:pl-[38px] lg:pr-6 xl:pr-10">
+        <div className="flex max-w-[460px] flex-col justify-between sm:pl-[34px] lg:col-span-2 lg:pl-[38px] lg:pr-6 xl:pr-8">
           <div>
-            {/* Clean 3-line Title */}
+            {/* Clean 3-line Title (+5px larger) */}
             <h2
               style={{ color: headingColor }}
-              className="font-sans text-[1.85rem] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[2.35rem] lg:text-[2.55rem] xl:text-[2.95rem]"
+              className="font-sans text-[35px] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[43px] lg:text-[46px] xl:text-[52px]"
             >
               {titleLines.map((line, i) => (
                 <span
@@ -278,18 +278,18 @@ export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
               </span>
             </div>
 
-            {/* About the Project (Summary & Architecture) */}
+            {/* About the Project (Summary & Architecture, +2px larger) */}
             <div data-work-info className="mt-3.5 space-y-2 sm:mt-4">
               <p
                 style={{ color: headingColor }}
-                className="font-sans text-[12px] leading-[1.6] font-normal sm:text-[12.5px]"
+                className="font-sans text-[14px] leading-[1.6] font-normal sm:text-[14.5px]"
               >
                 {project.summary}
               </p>
               {project.architecture && (
                 <p
                   style={{ color: bodyColor }}
-                  className="line-clamp-2 font-mono text-[10.5px] leading-[1.6] font-normal opacity-85 sm:text-[11px]"
+                  className="line-clamp-2 font-mono text-[12.5px] leading-[1.6] font-normal opacity-85 sm:text-[13px]"
                 >
                   {project.architecture}
                 </p>
