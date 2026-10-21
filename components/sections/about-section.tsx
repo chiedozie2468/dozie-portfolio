@@ -31,7 +31,7 @@ const ABOUT_CHAPTERS = [
     badgeBg: "rgba(2, 132, 199, 0.14)",
     sectionWash:
       "radial-gradient(950px circle at 18% 28%, rgba(56, 189, 248, 0.18), transparent 70%)",
-    lines: ["Chiedozie", "Onyekwelu", "Full-Stack Engineer"],
+    lines: ["Chiedozie Onyekwelu", "Full-Stack", "Software Engineer"],
     metaLeft: "CHIEDOZIE ONYEKWELU",
     metaRight: "4 SYSTEMS IN TOTAL",
     ctaLabel: "Download this CV",
@@ -213,7 +213,7 @@ export function AboutSection() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 mx-auto grid w-full grid-cols-6 px-[5.2%]"
       >
-        <div style={{ borderColor: chapter.gridBorder }} className="border-x" />
+        <div style={{ borderColor: chapter.gridBorder }} className="border-l" />
         <div style={{ borderColor: chapter.gridBorder }} className="border-r" />
         <div style={{ borderColor: chapter.gridBorder }} className="border-r" />
         <div style={{ borderColor: chapter.gridBorder }} className="border-r" />
@@ -265,15 +265,12 @@ export function AboutSection() {
         data-section-stage
         className="relative z-20 my-auto mx-auto grid w-full grid-cols-1 gap-6 px-[5.2%] py-4 lg:grid-cols-6 lg:gap-0 lg:py-8"
       >
-        {/* Column 1 spacer (rope switcher moved to right side only) */}
-        <div className="hidden lg:col-span-1 lg:block" />
-
-        {/* Left Main Display Column: Larger 3-line Title (font-normal, no extra weight) + Meta + Action Button (Columns 2-3) */}
-        <div className="flex flex-col justify-between lg:col-span-2 lg:pr-6">
+        {/* Left Main Display Column: Wider (Columns 1-3) and shifted left to start directly below "journal" in "About journal", keeping "Chiedozie Onyekwelu" on one line */}
+        <div className="flex flex-col justify-between sm:pl-[76px] lg:col-span-3 lg:pl-[88px] lg:pr-6">
           <div>
             <h2
               style={{ color: chapter.accentText }}
-              className="font-sans text-[2.25rem] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[2.85rem] lg:text-[3.35rem] xl:text-[3.85rem]"
+              className="font-sans text-[2rem] leading-[1.08] font-normal tracking-[-0.03em] sm:text-[2.55rem] lg:text-[2.85rem] xl:text-[3.35rem]"
             >
               {chapter.lines.map((line, i) => (
                 <span
@@ -282,7 +279,7 @@ export function AboutSection() {
                   style={{
                     color: i === 0 ? chapter.accentHex : chapter.accentText,
                   }}
-                  className="block font-normal transition-colors duration-500"
+                  className="block font-normal sm:whitespace-nowrap transition-colors duration-500"
                 >
                   {line}
                 </span>
@@ -375,10 +372,8 @@ export function AboutSection() {
 
       {/* Bottom Row: Left "<  >" Navigation Arrows & Right Social Links */}
       <div className="relative z-20 mx-auto grid w-full grid-cols-2 items-center px-[5.2%] lg:grid-cols-6">
-        <div className="hidden lg:col-span-1 lg:block" />
-
-        {/* Left "<  >" Arrows aligned with the Left Heading */}
-        <div className="flex items-center gap-4 lg:col-span-2">
+        {/* Left "<  >" Arrows aligned with the Left Heading below "journal" */}
+        <div className="flex items-center gap-4 sm:pl-[76px] lg:col-span-3 lg:pl-[88px]">
           <button
             type="button"
             onClick={handlePrev}
