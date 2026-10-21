@@ -24,7 +24,7 @@ export const navLinks: NavLinkItem[] = [
     sectionId: "work",
     href: "/#work",
     routeHref: "/projects",
-    label: "Work",
+    label: "Projects",
     accent: SECTION_ACCENTS.work,
   },
   {

@@ -1,3 +1,119 @@
+export interface ProjectColorTheme {
+  id: string;
+  label: string;
+  lightBg: string;
+  cardTint: string;
+  badgeBg: string;
+  textHex: string;
+  accentHex: string;
+  borderHex: string;
+}
+
+export const PROJECT_COLOR_THEMES: Record<string, ProjectColorTheme> = {
+  green: {
+    id: "green",
+    label: "Emerald Green",
+    lightBg: "#ECFDF5",
+    cardTint: "#D1FAE5",
+    badgeBg: "#D1FAE5",
+    textHex: "#065F46",
+    accentHex: "#059669",
+    borderHex: "rgba(5, 150, 105, 0.28)",
+  },
+  amber: {
+    id: "amber",
+    label: "Warm Amber",
+    lightBg: "#FFFBEB",
+    cardTint: "#FEF3C7",
+    badgeBg: "#FEF3C7",
+    textHex: "#92400E",
+    accentHex: "#D97706",
+    borderHex: "rgba(217, 119, 6, 0.28)",
+  },
+  purple: {
+    id: "purple",
+    label: "Royal Purple",
+    lightBg: "#F5F3FF",
+    cardTint: "#EDE9FE",
+    badgeBg: "#EDE9FE",
+    textHex: "#4C1D95",
+    accentHex: "#7C3AED",
+    borderHex: "rgba(124, 58, 237, 0.28)",
+  },
+  blue: {
+    id: "blue",
+    label: "Ocean Blue",
+    lightBg: "#EFF6FF",
+    cardTint: "#DBEAFE",
+    badgeBg: "#DBEAFE",
+    textHex: "#1E3A8A",
+    accentHex: "#2563EB",
+    borderHex: "rgba(37, 99, 235, 0.28)",
+  },
+  rose: {
+    id: "rose",
+    label: "Crimson Rose",
+    lightBg: "#FFF1F2",
+    cardTint: "#FFE4E6",
+    badgeBg: "#FFE4E6",
+    textHex: "#9F1239",
+    accentHex: "#E11D48",
+    borderHex: "rgba(225, 29, 72, 0.28)",
+  },
+  teal: {
+    id: "teal",
+    label: "Teal Cyan",
+    lightBg: "#F0FDFA",
+    cardTint: "#CCFBF1",
+    badgeBg: "#CCFBF1",
+    textHex: "#115E59",
+    accentHex: "#0D9488",
+    borderHex: "rgba(13, 148, 136, 0.28)",
+  },
+  terracotta: {
+    id: "terracotta",
+    label: "Terracotta",
+    lightBg: "#FFF7ED",
+    cardTint: "#FFEDD5",
+    badgeBg: "#FFEDD5",
+    textHex: "#7C2D12",
+    accentHex: "#EA580C",
+    borderHex: "rgba(234, 88, 12, 0.28)",
+  },
+  slate: {
+    id: "slate",
+    label: "Classic Slate",
+    lightBg: "#F8FAFC",
+    cardTint: "#E2E8F0",
+    badgeBg: "#E2E8F0",
+    textHex: "#1E293B",
+    accentHex: "#334155",
+    borderHex: "rgba(51, 65, 85, 0.28)",
+  },
+};
+
+export const PROJECT_COLOR_THEME_LIST: ProjectColorTheme[] =
+  Object.values(PROJECT_COLOR_THEMES);
+
+export function getProjectColorTheme(
+  themeColor?: string,
+  slug?: string,
+  fallbackIndex = 0
+): ProjectColorTheme {
+  if (themeColor && PROJECT_COLOR_THEMES[themeColor]) {
+    return PROJECT_COLOR_THEMES[themeColor];
+  }
+  const normalizedSlug = (slug || "").toLowerCase();
+  if (normalizedSlug.includes("followpoint")) return PROJECT_COLOR_THEMES.green;
+  if (normalizedSlug.includes("kollatunez")) return PROJECT_COLOR_THEMES.amber;
+  if (normalizedSlug.includes("nogadata")) return PROJECT_COLOR_THEMES.purple;
+  if (normalizedSlug.includes("techfasta")) return PROJECT_COLOR_THEMES.blue;
+
+  return PROJECT_COLOR_THEME_LIST[
+    fallbackIndex % PROJECT_COLOR_THEME_LIST.length
+  ];
+}
+
 export interface PortfolioProject {
   _id?: string;
   slug: string;
@@ -15,6 +131,7 @@ export interface PortfolioProject {
   imageUrl?: string;
   liveUrl?: string;
   repoUrl?: string;
+  themeColor?: string;
   featured: boolean;
   order: number;
 }
@@ -89,6 +206,7 @@ export const INITIAL_PROJECTS: PortfolioProject[] = [
       "Resend",
     ],
     liveUrl: "https://kollatunez.com",
+    themeColor: "amber",
     featured: true,
     order: 1,
   },
@@ -121,6 +239,7 @@ export const INITIAL_PROJECTS: PortfolioProject[] = [
       "Vitest",
       "jsPDF",
     ],
+    themeColor: "green",
     featured: true,
     order: 2,
   },
@@ -152,6 +271,7 @@ export const INITIAL_PROJECTS: PortfolioProject[] = [
       "jsPDF AutoTable",
       "Nodemailer",
     ],
+    themeColor: "purple",
     featured: true,
     order: 3,
   },
@@ -183,6 +303,7 @@ export const INITIAL_PROJECTS: PortfolioProject[] = [
       "Resend",
       "Tailwind CSS",
     ],
+    themeColor: "blue",
     featured: true,
     order: 4,
   },

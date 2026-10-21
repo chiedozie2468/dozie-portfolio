@@ -1,10 +1,276 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import {
   DEFAULT_SITE_SETTINGS,
   INITIAL_CAPABILITIES,
   INITIAL_PROJECTS,
 } from "../lib/portfolio-data";
+
+const ALLOWED_ADMIN_EMAIL = "onyekwelochiedozie1@gmail.com";
+const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
+
+async function sha256Hex(input: string): Promise<string> {
+  const bytes = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function generateRandomHex(byteLength = 24): string {
+  const arr = new Uint8Array(byteLength);
+  crypto.getRandomValues(arr);
+  return Array.from(arr)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function assertValidAdminToken(
+  ctx: QueryCtx | MutationCtx,
+  adminToken?: string
+) {
+  const adminRecord = await ctx.db
+    .query("adminAuth")
+    .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
+    .unique();
+
+  // If the admin account has been configured, require a valid unexpired session token
+  if (adminRecord) {
+    if (!adminToken) {
+      throw new Error("Unauthorized: Please sign in to the Admin Dashboard.");
+    }
+    const now = Date.now();
+    const validSession = adminRecord.sessionTokens.some(
+      (s) => s.token === adminToken && s.expiresAt > now
+    );
+    if (!validSession) {
+      throw new Error("Session expired or invalid. Please sign in again.");
+    }
+  }
+}
+
+/**
+ * Check whether the admin password has been created yet (never exposes the email).
+ */
+export const getAdminAuthStatus = query({
+  args: {},
+  handler: async (ctx) => {
+    const adminRecord = await ctx.db
+      .query("adminAuth")
+      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
+      .unique();
+    return {
+      isConfigured: Boolean(adminRecord),
+    };
+  },
+});
+
+/**
+ * Verify an existing session token stored in the browser.
+ */
+export const verifyAdminSession = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const adminRecord = await ctx.db
+      .query("adminAuth")
+      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
+      .unique();
+
+    if (!adminRecord) {
+      return { valid: false, isConfigured: false };
+    }
+
+    const now = Date.now();
+    const isValid = adminRecord.sessionTokens.some(
+      (s) => s.token === args.token && s.expiresAt > now
+    );
+
+    return {
+      valid: isValid,
+      isConfigured: true,
+      email: isValid ? adminRecord.email : undefined,
+    };
+  },
+});
+
+/**
+ * First-time Admin Setup: only allows onyekwelochiedozie1@gmail.com to create and confirm a password.
+ */
+export const setupAdminAccount = mutation({
+  args: {
+    email: v.string(),
+    password: v.string(),
+    confirmPassword: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const normalizedEmail = args.email.trim().toLowerCase();
+    if (normalizedEmail !== ALLOWED_ADMIN_EMAIL) {
+      throw new Error("Unauthorized email address.");
+    }
+
+    if (args.password.length < 6) {
+      throw new Error("Password must be at least 6 characters long.");
+    }
+
+    if (args.password !== args.confirmPassword) {
+      throw new Error("Passwords do not match. Please confirm your password.");
+    }
+
+    const existing = await ctx.db
+      .query("adminAuth")
+      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
+      .unique();
+
+    if (existing) {
+      throw new Error(
+        "Admin password is already created. Please switch to Sign In."
+      );
+    }
+
+    const now = Date.now();
+    const salt = generateRandomHex(16);
+    const passwordHash = await sha256Hex(`${salt}:${args.password}`);
+    const token = generateRandomHex(32);
+
+    await ctx.db.insert("adminAuth", {
+      email: ALLOWED_ADMIN_EMAIL,
+      passwordHash,
+      salt,
+      sessionTokens: [{ token, expiresAt: now + SESSION_DURATION_MS }],
+      updatedAt: now,
+    });
+
+    return {
+      token,
+      email: ALLOWED_ADMIN_EMAIL,
+    };
+  },
+});
+
+/**
+ * Sign in with onyekwelochiedozie1@gmail.com and password.
+ */
+export const loginAdmin = mutation({
+  args: {
+    email: v.string(),
+    password: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const normalizedEmail = args.email.trim().toLowerCase();
+    if (normalizedEmail !== ALLOWED_ADMIN_EMAIL) {
+      throw new Error("Invalid email or password.");
+    }
+
+    const adminRecord = await ctx.db
+      .query("adminAuth")
+      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
+      .unique();
+
+    if (!adminRecord) {
+      throw new Error(
+        "Admin password has not been created yet. Use 'Create Password' first."
+      );
+    }
+
+    const candidateHash = await sha256Hex(
+      `${adminRecord.salt}:${args.password}`
+    );
+    if (candidateHash !== adminRecord.passwordHash) {
+      throw new Error("Invalid email or password.");
+    }
+
+    const now = Date.now();
+    const token = generateRandomHex(32);
+    const activeTokens = adminRecord.sessionTokens
+      .filter((s) => s.expiresAt > now)
+      .slice(-9);
+
+    await ctx.db.patch(adminRecord._id, {
+      sessionTokens: [
+        ...activeTokens,
+        { token, expiresAt: now + SESSION_DURATION_MS },
+      ],
+      updatedAt: now,
+    });
+
+    return {
+      token,
+      email: adminRecord.email,
+    };
+  },
+});
+
+/**
+ * Sign out and invalidate the current session token.
+ */
+export const logoutAdmin = mutation({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const adminRecord = await ctx.db
+      .query("adminAuth")
+      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
+      .unique();
+
+    if (adminRecord) {
+      await ctx.db.patch(adminRecord._id, {
+        sessionTokens: adminRecord.sessionTokens.filter(
+          (s) => s.token !== args.token
+        ),
+        updatedAt: Date.now(),
+      });
+    }
+    return { loggedOut: true };
+  },
+});
+
+/**
+ * Change admin password while signed in.
+ */
+export const changeAdminPassword = mutation({
+  args: {
+    adminToken: v.string(),
+    currentPassword: v.string(),
+    newPassword: v.string(),
+    confirmPassword: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await assertValidAdminToken(ctx, args.adminToken);
+
+    if (args.newPassword.length < 6) {
+      throw new Error("New password must be at least 6 characters.");
+    }
+    if (args.newPassword !== args.confirmPassword) {
+      throw new Error("New password and confirmation do not match.");
+    }
+
+    const adminRecord = await ctx.db
+      .query("adminAuth")
+      .withIndex("by_email", (q) => q.eq("email", ALLOWED_ADMIN_EMAIL))
+      .unique();
+
+    if (!adminRecord) {
+      throw new Error("Admin account not found.");
+    }
+
+    const currentHash = await sha256Hex(
+      `${adminRecord.salt}:${args.currentPassword}`
+    );
+    if (currentHash !== adminRecord.passwordHash) {
+      throw new Error("Current password is incorrect.");
+    }
+
+    const newSalt = generateRandomHex(16);
+    const newPasswordHash = await sha256Hex(`${newSalt}:${args.newPassword}`);
+
+    await ctx.db.patch(adminRecord._id, {
+      salt: newSalt,
+      passwordHash: newPasswordHash,
+      updatedAt: Date.now(),
+    });
+
+    return { updated: true };
+  },
+});
 
 /**
  * Fetch published projects, engineering capabilities, and hero/DP/CV site settings.
@@ -80,8 +346,9 @@ export const listProjects = query({
 });
 
 export const listMessages = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { adminToken: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    await assertValidAdminToken(ctx, args.adminToken);
     return await ctx.db
       .query("messages")
       .withIndex("by_created_at")
@@ -91,8 +358,9 @@ export const listMessages = query({
 });
 
 export const deleteMessage = mutation({
-  args: { id: v.id("messages") },
+  args: { id: v.id("messages"), adminToken: v.optional(v.string()) },
   handler: async (ctx, args) => {
+    await assertValidAdminToken(ctx, args.adminToken);
     await ctx.db.delete(args.id);
     return { deleted: true };
   },
@@ -103,8 +371,9 @@ export const deleteMessage = mutation({
  * project cover image, or CV PDF directly from the dashboard.
  */
 export const generateUploadUrl = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { adminToken: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    await assertValidAdminToken(ctx, args.adminToken);
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -114,6 +383,7 @@ export const generateUploadUrl = mutation({
  */
 export const updateSiteSettings = mutation({
   args: {
+    adminToken: v.optional(v.string()),
     heroDisplayWord: v.optional(v.string()),
     dpImageUrl: v.optional(v.string()),
     dpStorageId: v.optional(v.id("_storage")),
@@ -135,6 +405,7 @@ export const updateSiteSettings = mutation({
     removeCv: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    await assertValidAdminToken(ctx, args.adminToken);
     const now = Date.now();
     const existing = await ctx.db
       .query("siteSettings")
@@ -259,6 +530,7 @@ export const updateSiteSettings = mutation({
  */
 export const upsertProject = mutation({
   args: {
+    adminToken: v.optional(v.string()),
     id: v.optional(v.id("projects")),
     slug: v.string(),
     title: v.string(),
@@ -282,10 +554,12 @@ export const upsertProject = mutation({
     removeImage: v.optional(v.boolean()),
     liveUrl: v.optional(v.string()),
     repoUrl: v.optional(v.string()),
+    themeColor: v.optional(v.string()),
     featured: v.boolean(),
     order: v.number(),
   },
   handler: async (ctx, args) => {
+    await assertValidAdminToken(ctx, args.adminToken);
     const now = Date.now();
     const existingById = args.id ? await ctx.db.get(args.id) : null;
     const existingBySlug = !existingById
@@ -330,6 +604,7 @@ export const upsertProject = mutation({
       imageStorageId: nextImageStorageId,
       liveUrl: args.liveUrl?.trim() || undefined,
       repoUrl: args.repoUrl?.trim() || undefined,
+      themeColor: args.themeColor?.trim() || existing?.themeColor || "green",
       featured: args.featured,
       order: args.order,
       updatedAt: now,
@@ -346,8 +621,9 @@ export const upsertProject = mutation({
 });
 
 export const deleteProject = mutation({
-  args: { id: v.id("projects") },
+  args: { id: v.id("projects"), adminToken: v.optional(v.string()) },
   handler: async (ctx, args) => {
+    await assertValidAdminToken(ctx, args.adminToken);
     await ctx.db.delete(args.id);
     return { deleted: true };
   },

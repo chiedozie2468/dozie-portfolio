@@ -24,6 +24,7 @@ export default defineSchema({
     imageStorageId: v.optional(v.id("_storage")),
     liveUrl: v.optional(v.string()),
     repoUrl: v.optional(v.string()),
+    themeColor: v.optional(v.string()),
     featured: v.boolean(),
     order: v.number(),
     updatedAt: v.number(),
@@ -81,4 +82,17 @@ export default defineSchema({
     cvFileName: v.optional(v.string()),
     updatedAt: v.number(),
   }).index("by_key", ["key"]),
+
+  adminAuth: defineTable({
+    email: v.string(),
+    passwordHash: v.string(),
+    salt: v.string(),
+    sessionTokens: v.array(
+      v.object({
+        token: v.string(),
+        expiresAt: v.number(),
+      })
+    ),
+    updatedAt: v.number(),
+  }).index("by_email", ["email"]),
 });

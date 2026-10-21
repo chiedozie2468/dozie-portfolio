@@ -1,494 +1,573 @@
 "use client";
 
-import { ArrowUpRight, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Play, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-import { useSectionFocus } from "@/components/providers/section-focus-provider";
-import type { PortfolioProject } from "@/lib/portfolio-data";
+import {
+  DEVELOPER_PROFILE,
+  getProjectColorTheme,
+  type PortfolioProject,
+} from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
 interface SelectedWorkSectionProps {
   projects: PortfolioProject[];
 }
 
-const DEFAULT_WORK_VISUALS = [
-  {
-    image: "/images/work-1.jpg",
-    swatch: "#32271F",
-    sectionBg: "#32271F",
-    accentTint: "rgba(248, 248, 246, 0.08)",
-    accentBorder: "rgba(248, 248, 246, 0.45)",
-    hexLabel: "#32271F",
-  },
-  {
-    image: "/images/work-2.jpg",
-    swatch: "#2B2D2F",
-    sectionBg: "#2B2D2F",
-    accentTint: "rgba(248, 248, 246, 0.08)",
-    accentBorder: "rgba(248, 248, 246, 0.45)",
-    hexLabel: "#2B2D2F",
-  },
-  {
-    image: "/images/work-3.jpg",
-    swatch: "#623D28",
-    sectionBg: "#623D28",
-    accentTint: "rgba(248, 248, 246, 0.08)",
-    accentBorder: "rgba(248, 248, 246, 0.45)",
-    hexLabel: "#623D28",
-  },
-  {
-    image: "/images/hero-editorial.jpg",
-    swatch: "#1F3A3D",
-    sectionBg: "#1F3A3D",
-    accentTint: "rgba(248, 248, 246, 0.08)",
-    accentBorder: "rgba(248, 248, 246, 0.45)",
-    hexLabel: "#1F3A3D",
-  },
+const DEFAULT_PROJECT_IMAGES = [
+  "/images/work-1.jpg",
+  "/images/work-2.jpg",
+  "/images/work-3.jpg",
+  "/images/hero-editorial.jpg",
 ] as const;
 
 export function SelectedWorkSection({ projects }: SelectedWorkSectionProps) {
-  const { activeSection } = useSectionFocus();
-  const isSectionActive = activeSection === "work";
-
-  const [startIndex, setStartIndex] = useState(0);
-  const [hoveredCardIdx, setHoveredCardIdx] = useState<number | null>(null);
-  const [selectedCardIdx, setSelectedCardIdx] = useState<number | null>(null);
-  const [colorSlugs, setColorSlugs] = useState<Record<string, boolean>>({});
-  const [activeProject, setActiveProject] = useState<PortfolioProject | null>(
-    null
-  );
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const rowRef = useRef<HTMLDivElement | null>(null);
 
   const total = projects.length;
-  const visibleProjects =
-    total > 0
-      ? [
-          projects[startIndex % total],
-          projects[(startIndex + 1) % total],
-          projects[(startIndex + 2) % total],
-        ].filter(Boolean)
-      : [];
 
-  const activeCardIdx = hoveredCardIdx ?? selectedCardIdx;
-  const activeVisual =
-    activeCardIdx !== null
-      ? DEFAULT_WORK_VISUALS[
-          (startIndex + activeCardIdx) % DEFAULT_WORK_VISUALS.length
-        ]
+  // Close detail view on Escape key & cycle with Left/Right arrows
+  useEffect(() => {
+    if (selectedIdx === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedIdx(null);
+      } else if (e.key === "ArrowRight" && total > 0) {
+        setSelectedIdx((prev) =>
+          prev === null ? 0 : (prev + 1) % total
+        );
+      } else if (e.key === "ArrowLeft" && total > 0) {
+        setSelectedIdx((prev) =>
+          prev === null ? 0 : (prev - 1 + total) % total
+        );
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedIdx, total]);
+
+  if (total === 0) {
+    return null;
+  }
+
+  const scrollRowBy = (direction: "prev" | "next") => {
+    const el = rowRef.current;
+    if (!el) return;
+    const cardWidth = el.clientWidth / 3;
+    el.scrollBy({
+      left: direction === "next" ? cardWidth : -cardWidth,
+      behavior: "smooth",
+    });
+  };
+
+  const handleRowWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const el = rowRef.current;
+    if (!el) return;
+
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      const maxScrollLeft = el.scrollWidth - el.clientWidth;
+      if (maxScrollLeft <= 4) return;
+
+      const isScrollingRight = e.deltaY > 0;
+      const canScrollRight = el.scrollLeft < maxScrollLeft - 4;
+      const canScrollLeft = el.scrollLeft > 4;
+
+      if (
+        (isScrollingRight && canScrollRight) ||
+        (!isScrollingRight && canScrollLeft)
+      ) {
+        e.preventDefault();
+        el.scrollBy({ left: e.deltaY * 1.35, behavior: "auto" });
+      }
+    }
+  };
+
+  const hoveredProject =
+    hoveredIdx !== null ? projects[hoveredIdx % total] : null;
+  const hoveredTheme =
+    hoveredProject && hoveredIdx !== null
+      ? getProjectColorTheme(
+          hoveredProject.themeColor,
+          hoveredProject.slug,
+          hoveredIdx
+        )
       : null;
-  const isThemedBg = activeVisual !== null;
 
-  const handleNext = () => {
-    if (total > 0) {
-      setStartIndex((prev) => (prev + 1) % total);
-    }
-  };
-
-  const handlePrev = () => {
-    if (total > 0) {
-      setStartIndex((prev) => (prev - 1 + total) % total);
-    }
-  };
-
-  const handleCardClick = (slug: string, idx: number) => {
-    setSelectedCardIdx((prev) => (prev === idx ? null : idx));
-    setColorSlugs((prev) => ({ ...prev, [slug]: !prev[slug] }));
-  };
+  const activeProject =
+    selectedIdx !== null ? projects[selectedIdx % total] : null;
+  const activeTheme =
+    activeProject && selectedIdx !== null
+      ? getProjectColorTheme(
+          activeProject.themeColor,
+          activeProject.slug,
+          selectedIdx
+        )
+      : null;
+  const activeFallbackImg =
+    selectedIdx !== null
+      ? DEFAULT_PROJECT_IMAGES[selectedIdx % DEFAULT_PROJECT_IMAGES.length]
+      : DEFAULT_PROJECT_IMAGES[0];
 
   return (
     <section
       id="work"
       data-section-id="work"
       style={{
-        backgroundColor: activeVisual ? activeVisual.sectionBg : undefined,
-        backgroundImage:
-          !activeVisual && isSectionActive
-            ? "radial-gradient(950px circle at 65% 42%, rgba(250, 204, 21, 0.095), transparent 72%)"
-            : undefined,
+        backgroundColor: hoveredTheme ? hoveredTheme.lightBg : undefined,
       }}
-      className={cn(
-        "relative flex min-h-dvh w-full flex-col justify-between overflow-hidden border-t border-border/60 py-10 transition-colors duration-500 ease-out select-none sm:py-14",
-        !activeVisual && "bg-background"
-      )}
+      className="relative flex min-h-dvh w-full flex-col justify-between overflow-hidden border-t border-border/60 bg-background px-[4.8%] py-14 transition-colors duration-500 ease-out select-none sm:py-20"
     >
-      {/* Top active accent bar */}
-      <div
-        data-section-accent-bar
-        className={cn(
-          "pointer-events-none absolute top-0 left-0 h-[3px] w-full origin-left transition-all duration-500",
-          isThemedBg
-            ? "bg-[#F8F8F6]/60 opacity-100"
-            : isSectionActive
-              ? "bg-[#FACC15] opacity-100"
-              : "bg-[#FACC15] opacity-25"
-        )}
-      />
-
-      {/* 1. Top Editorial Row: SELECTED / WORKS / SYSTEMS */}
-      <div
-        className={cn(
-          "mx-auto flex w-full items-center justify-between px-[5.5%] font-sans text-[9.5px] font-normal tracking-[0.22em] uppercase transition-colors duration-500 sm:text-[11px]",
-          isThemedBg ? "text-[#F8F8F6]/90" : "text-heading/85"
-        )}
-      >
-        <span>SELECTED</span>
-        <span
-          className={cn(
-            "inline-flex items-center gap-2 rounded-full px-3.5 py-1 transition-all duration-500",
-            isThemedBg
-              ? "bg-[#F8F8F6]/15 font-semibold text-[#F8F8F6]"
-              : isSectionActive
-                ? "bg-[#FACC15]/20 font-semibold text-[#92400E]"
-                : ""
-          )}
-        >
+      {/* Top Section Heading: "View some of the projects I’ve built" */}
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
           <span
-            className={cn(
-              "size-1.5 rounded-full transition-colors duration-500",
-              isThemedBg ? "bg-[#F8F8F6]" : "bg-[#FACC15]"
-            )}
-          />
-          <span>WORKS</span>
-        </span>
-        <span>SYSTEMS</span>
-      </div>
+            style={{
+              color: hoveredTheme ? hoveredTheme.textHex : undefined,
+            }}
+            className="font-sans text-xs font-medium tracking-[0.08em] text-body uppercase transition-colors duration-300"
+          >
+            Selected Projects
+          </span>
+          <h2
+            style={{
+              color: hoveredTheme ? hoveredTheme.textHex : undefined,
+            }}
+            className="mt-1.5 font-sans text-2xl font-bold tracking-[-0.025em] text-heading transition-colors duration-300 sm:text-3xl lg:text-4xl"
+          >
+            View some of the products I’ve built
+          </h2>
+        </div>
 
-      {/* 2. Middle Stage: Left Calligraphic Signature + 3 Vertical Cards on the Right (3rd bleeding off right edge) */}
-      <div className="relative my-auto py-10 sm:py-14">
-        <div className="relative flex min-h-[420px] w-full items-center sm:min-h-[500px]">
-          {/* Left 35% area: Minimalist cursive signature mark + subtle slide controls */}
-          <div className="flex w-[32%] flex-col items-center justify-center pl-[5.5%] sm:w-[35%]">
-            <button
-              type="button"
-              onClick={handleNext}
-              title="Cycle works"
-              className="group flex cursor-pointer flex-col items-center gap-5 focus:outline-none"
-            >
-              {/* Cursive calligraphic monogram matching the reference */}
-              <div
-                className={cn(
-                  "flex size-20 items-center justify-center rounded-full border transition-all duration-500 sm:size-28",
-                  isThemedBg
-                    ? "border-[#F8F8F6]/35 bg-[#F8F8F6]/10"
-                    : isSectionActive
-                      ? "border-[#FACC15]/50 bg-[#FACC15]/12"
-                      : "border-transparent"
-                )}
+        <div className="flex items-center gap-3">
+          <span className="hidden font-sans text-xs text-body sm:inline">
+            Click any project to view specification
+          </span>
+          {total > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollRowBy("prev")}
+                aria-label="Scroll projects left"
+                className="flex size-8 cursor-pointer items-center justify-center rounded-[3px] border border-border bg-background/80 text-heading transition-colors hover:border-heading"
               >
-                <svg
-                  viewBox="0 0 80 110"
-                  className={cn(
-                    "h-14 w-10 transition-all duration-500 group-hover:scale-105 sm:h-20 sm:w-14",
-                    isThemedBg ? "text-[#F8F8F6]" : "text-heading"
-                  )}
-                  fill="none"
-                >
-                  <path
-                    d="M22 24 C30 28, 44 26, 52 23 C45 34, 34 42, 32 46 C40 44, 48 52, 42 66 C36 80, 20 92, 16 84 C12 76, 26 60, 48 54"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-
-              {total > 1 && (
-                <div
-                  className={cn(
-                    "flex items-center gap-3 transition-colors duration-500",
-                    isThemedBg ? "text-[#F8F8F6]/80" : "text-body"
-                  )}
-                >
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePrev();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.stopPropagation();
-                        handlePrev();
-                      }
-                    }}
-                    className={cn(
-                      "rounded-full p-1 transition-colors",
-                      isThemedBg
-                        ? "hover:bg-[#F8F8F6]/20 hover:text-[#F8F8F6]"
-                        : "hover:bg-[#FACC15]/20 hover:text-heading"
-                    )}
-                    aria-label="Previous work"
-                  >
-                    <ChevronLeft className="size-3.5" />
-                  </span>
-                  <span
-                    className={cn(
-                      "font-mono text-[9.5px] font-medium tracking-[0.18em] uppercase transition-colors duration-500",
-                      isThemedBg ? "text-[#F8F8F6]" : "text-heading"
-                    )}
-                  >
-                    0{(startIndex % total) + 1} / 0{total}
-                  </span>
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleNext();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.stopPropagation();
-                        handleNext();
-                      }
-                    }}
-                    className={cn(
-                      "rounded-full p-1 transition-colors",
-                      isThemedBg
-                        ? "hover:bg-[#F8F8F6]/20 hover:text-[#F8F8F6]"
-                        : "hover:bg-[#FACC15]/20 hover:text-heading"
-                    )}
-                    aria-label="Next work"
-                  >
-                    <ChevronRight className="size-3.5" />
-                  </span>
-                </div>
-              )}
-            </button>
-          </div>
-
-          {/* Right 65% area: 3 Vertical Cards with the 3rd card extending past the right edge */}
-          <div className="absolute top-1/2 left-[34%] flex -translate-y-1/2 items-start gap-[3.5vw] sm:left-[35.5%] sm:gap-[4.2vw]">
-            {visibleProjects.map((project, idx) => {
-              const globalIdx = (startIndex + idx) % DEFAULT_WORK_VISUALS.length;
-              const visual = DEFAULT_WORK_VISUALS[globalIdx];
-              const imageUrl = project.imageUrl || visual.image;
-              const isCardActive = activeCardIdx === idx;
-              const showColor = !!colorSlugs[project.slug] || isCardActive;
-
-              return (
-                <article
-                  key={`${project.slug}-${idx}`}
-                  onMouseEnter={() => setHoveredCardIdx(idx)}
-                  onMouseLeave={() => setHoveredCardIdx(null)}
-                  onClick={() => handleCardClick(project.slug, idx)}
-                  style={
-                    isCardActive
-                      ? {
-                          backgroundColor: visual.accentTint,
-                          borderColor: visual.accentBorder,
-                        }
-                      : undefined
-                  }
-                  className={cn(
-                    "flex w-[24vw] shrink-0 cursor-pointer flex-col rounded-sm border p-2 transition-all duration-500 sm:w-[21.5vw] sm:p-3",
-                    isCardActive
-                      ? "-translate-y-1 shadow-lg"
-                      : "border-transparent"
-                  )}
-                >
-                  {/* Vertical Work Image Frame (B&W by default, reveals color on hover or click) */}
-                  <div
-                    title="Hover or click to change section background & toggle color"
-                    className={cn(
-                      "relative aspect-[1/1.22] w-full overflow-hidden border bg-surface-secondary transition-colors duration-500",
-                      isThemedBg ? "border-[#F8F8F6]/35" : "border-heading/25"
-                    )}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={imageUrl}
-                      alt={project.title}
-                      className={cn(
-                        "size-full object-cover transition-all duration-500",
-                        showColor
-                          ? "scale-[1.02] grayscale-0 contrast-100"
-                          : "grayscale contrast-110"
-                      )}
-                    />
-                  </div>
-
-                  {/* Solid Color Swatch Bar directly underneath (matching reference) */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCardClick(project.slug, idx);
-                    }}
-                    style={{
-                      backgroundColor: visual.swatch,
-                    }}
-                    title={`Apply ${visual.hexLabel} theme`}
-                    className={cn(
-                      "mt-3.5 h-5 w-full cursor-pointer border transition-all duration-300 sm:mt-4 sm:h-6",
-                      isCardActive
-                        ? "border-[#F8F8F6]/80 shadow-xs"
-                        : isThemedBg
-                          ? "border-[#F8F8F6]/30 hover:border-[#F8F8F6]/70"
-                          : "border-transparent hover:opacity-85"
-                    )}
-                  />
-
-                  {/* Hex / Code + Project Title & Link */}
-                  <div className="mt-2.5 flex flex-col gap-1 pr-1">
-                    <div
-                      className={cn(
-                        "flex items-center justify-between font-mono text-[8.5px] tracking-[0.14em] uppercase transition-colors duration-500 sm:text-[10.5px]",
-                        isThemedBg ? "text-[#F8F8F6]/80" : "text-body"
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          isCardActive && "font-semibold text-[#F8F8F6]"
-                        )}
-                      >
-                        {visual.hexLabel}
-                      </span>
-                      <span>{project.year}</span>
-                    </div>
-
-                    <div className="mt-0.5 flex items-baseline justify-between gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedCardIdx(idx);
-                          setActiveProject(project);
-                        }}
-                        className={cn(
-                          "cursor-pointer text-left font-serif text-[12px] leading-snug transition-colors duration-500 hover:opacity-75 sm:text-[15px]",
-                          isThemedBg ? "text-[#F8F8F6]" : "text-heading"
-                        )}
-                      >
-                        {project.title.split("—")[0].trim()}
-                      </button>
-
-                      {project.liveUrl && (
-                        <a
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className={cn(
-                            "shrink-0 transition-colors duration-500",
-                            isThemedBg
-                              ? "text-[#F8F8F6]/80 hover:text-[#F8F8F6]"
-                              : "text-heading/75 hover:text-heading"
-                          )}
-                          title="Open live deployment"
-                        >
-                          <ArrowUpRight className="size-3 sm:size-3.5" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                <ArrowLeft className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollRowBy("next")}
+                aria-label="Scroll projects right"
+                className="flex size-8 cursor-pointer items-center justify-center rounded-[3px] border border-border bg-background/80 text-heading transition-colors hover:border-heading"
+              >
+                <ArrowRight className="size-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* 3. Bottom Editorial Tagline Row */}
-      <div
-        className={cn(
-          "mx-auto w-full px-[5.5%] text-center font-sans text-[8.5px] font-normal tracking-[0.2em] uppercase transition-colors duration-500 sm:text-[11px]",
-          isThemedBg ? "text-[#F8F8F6]/85" : "text-heading/85"
-        )}
-      >
-        CRAFTING RELIABLE SOFTWARE SYSTEMS FOR AMBITIOUS PRODUCT TEAMS
+      {/* 1. Single-Row Horizontal Projects Track
+          Compact cards in 1 row; each project has its own light bg & text color */}
+      <div className="my-auto w-full py-8 sm:py-10">
+        <div
+          ref={rowRef}
+          onWheel={handleRowWheel}
+          className="flex w-full snap-x snap-mandatory flex-nowrap items-start gap-5 overflow-x-auto pb-4 [scrollbar-width:none] lg:gap-6 [&::-webkit-scrollbar]:hidden"
+        >
+          {projects.map((project, idx) => {
+            const fallbackImage =
+              DEFAULT_PROJECT_IMAGES[idx % DEFAULT_PROJECT_IMAGES.length];
+            const imageUrl = project.imageUrl || fallbackImage;
+            const isHovered = hoveredIdx === idx;
+            const shortName = project.title.split(/[—–-]/)[0].trim();
+            const theme = getProjectColorTheme(
+              project.themeColor,
+              project.slug,
+              idx
+            );
+
+            return (
+              <article
+                key={project._id || project.slug}
+                onMouseEnter={() => setHoveredIdx(idx)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                onClick={() => setSelectedIdx(idx)}
+                style={{
+                  backgroundColor: theme.lightBg,
+                  borderColor: isHovered ? theme.accentHex : theme.borderHex,
+                }}
+                className="group flex w-[62vw] shrink-0 snap-start cursor-pointer flex-col rounded-[3px] border p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:w-[35vw] sm:p-3.5 lg:w-[25.5vw]"
+              >
+                {/* Compact Landscape Frame with 3px border-radius */}
+                <div className="relative h-[145px] w-full overflow-hidden rounded-[3px] bg-surface-secondary sm:h-[170px] lg:h-[190px]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageUrl}
+                    alt={project.title}
+                    className={cn(
+                      "size-full rounded-[3px] object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]",
+                      isHovered
+                        ? "grayscale-0 contrast-100"
+                        : "grayscale contrast-115"
+                    )}
+                  />
+                </div>
+
+                {/* Colored Project Label & Action Underneath Image */}
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 truncate">
+                    <span
+                      style={{ backgroundColor: theme.accentHex }}
+                      className="size-2 shrink-0 rounded-full"
+                    />
+                    <span
+                      style={{ color: theme.textHex }}
+                      className="truncate font-sans text-xs font-semibold tracking-[0.02em] sm:text-[13px]"
+                    >
+                      {shortName}
+                    </span>
+                  </div>
+
+                  <span
+                    style={{
+                      backgroundColor: theme.badgeBg,
+                      color: theme.textHex,
+                    }}
+                    className="shrink-0 rounded-[3px] px-2 py-0.5 font-sans text-[10px] font-medium"
+                  >
+                    View →
+                  </span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Clean Editorial Case-Study Drawer when a project title or swatch is clicked */}
-      {activeProject && (
+      {/* Bottom Editorial Row */}
+      <div className="flex w-full items-center justify-between pt-2">
+        <span
+          style={{
+            color: hoveredTheme ? hoveredTheme.textHex : undefined,
+          }}
+          className="font-sans text-[11px] font-medium tracking-[0.06em] text-heading/80 transition-colors sm:text-xs"
+        >
+          Projects · {String(total).padStart(2, "0")}
+        </span>
+
+        <span className="font-sans text-[11px] text-body">
+          Scroll horizontally to view more projects
+        </span>
+      </div>
+
+      {/* 2. Scrollable Project Specification View (matching "download.jpg")
+          Positioned cleanly below the sticky navbar (top-14 sm:top-20) so it never collides with the navbar,
+          and themed with the project's light background + matching text/accent colors */}
+      {activeProject && activeTheme && selectedIdx !== null && (
         <div
           role="dialog"
           aria-modal="true"
-          onClick={() => setActiveProject(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-heading/40 p-4 backdrop-blur-xs"
+          aria-label={activeProject.title}
+          onClick={() => setSelectedIdx(null)}
+          className="fixed inset-x-0 top-14 bottom-0 z-40 flex items-start justify-center overflow-y-auto bg-heading/35 px-3 pt-4 pb-6 backdrop-blur-xs sm:top-20 sm:px-6 sm:pt-6 sm:pb-8 lg:px-10"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[85dvh] w-full max-w-xl overflow-y-auto border border-border bg-background p-6 shadow-xl sm:p-8"
+            style={{
+              backgroundColor: activeTheme.lightBg,
+              borderColor: activeTheme.borderHex,
+            }}
+            className="relative my-auto flex max-h-[calc(100dvh-5.5rem)] w-full max-w-5xl flex-col justify-between overflow-y-auto rounded-[3px] border px-5 py-6 shadow-2xl [scrollbar-width:thin] sm:max-h-[calc(100dvh-7.5rem)] sm:px-10 sm:py-8 lg:px-14 lg:py-9"
           >
-            <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
-              <div>
-                <span className="font-mono text-[10px] tracking-[0.18em] text-[#92400E] uppercase">
-                  {activeProject.category} · {activeProject.year}
-                </span>
-                <h3 className="mt-1 font-serif text-2xl font-bold text-heading">
-                  {activeProject.title}
-                </h3>
-                <p className="mt-1 text-xs text-body">
-                  {activeProject.subtitle}
-                </p>
-              </div>
+            {/* Subtle Vertical Architectural Grid Lines tinted with project color */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 grid grid-cols-6 px-5 sm:px-10 lg:px-14"
+            >
+              <div
+                style={{ borderColor: activeTheme.borderHex }}
+                className="border-x opacity-45"
+              />
+              <div
+                style={{ borderColor: activeTheme.borderHex }}
+                className="border-r opacity-45"
+              />
+              <div
+                style={{ borderColor: activeTheme.borderHex }}
+                className="border-r opacity-45"
+              />
+              <div
+                style={{ borderColor: activeTheme.borderHex }}
+                className="border-r opacity-45"
+              />
+              <div
+                style={{ borderColor: activeTheme.borderHex }}
+                className="border-r opacity-45"
+              />
+              <div
+                style={{ borderColor: activeTheme.borderHex }}
+                className="border-r opacity-45"
+              />
+            </div>
+
+            {/* Top Header Bar: Left Back to Projects, Center Project Brand Name, Right Close button */}
+            <div className="relative z-10 flex items-center justify-between">
               <button
                 type="button"
-                onClick={() => setActiveProject(null)}
-                className="cursor-pointer p-1 text-body hover:text-heading"
+                onClick={() => setSelectedIdx(null)}
+                style={{ color: activeTheme.textHex }}
+                className="group inline-flex cursor-pointer items-center gap-2.5 text-xs font-medium transition-opacity hover:opacity-70"
+              >
+                <span className="flex flex-col items-start gap-[4px]">
+                  <span
+                    style={{ backgroundColor: activeTheme.textHex }}
+                    className="h-[1.5px] w-5"
+                  />
+                  <span
+                    style={{ backgroundColor: activeTheme.textHex }}
+                    className="h-[1.5px] w-3.5"
+                  />
+                </span>
+                <span>Back to Projects</span>
+              </button>
+
+              {/* Center Brand Title */}
+              <div
+                style={{ color: activeTheme.textHex }}
+                className="font-sans text-sm tracking-[-0.02em] sm:text-base"
+              >
+                <span className="font-normal opacity-80">
+                  {activeProject.category}
+                </span>
+                <span className="font-bold">
+                  {" "}
+                  · {activeProject.title.split(/[—–-]/)[0].trim()}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedIdx(null)}
+                aria-label="Close project view"
+                style={{ color: activeTheme.textHex }}
+                className="flex size-8 cursor-pointer items-center justify-center rounded-full transition-opacity hover:opacity-70"
               >
                 <X className="size-4" />
               </button>
             </div>
 
-            <div className="mt-5 space-y-4 text-xs leading-relaxed text-body">
-              <p className="text-sm text-heading/90">{activeProject.summary}</p>
-              <div>
-                <span className="font-mono text-[10px] font-semibold tracking-wider text-heading uppercase">
-                  Problem:{" "}
-                </span>
-                <span>{activeProject.problem}</span>
-              </div>
-              <div>
-                <span className="font-mono text-[10px] font-semibold tracking-wider text-heading uppercase">
-                  Architecture:{" "}
-                </span>
-                <span>{activeProject.architecture}</span>
-              </div>
-              <div>
-                <span className="font-mono text-[10px] font-semibold tracking-wider text-heading uppercase">
-                  Outcome:{" "}
-                </span>
-                <span>{activeProject.outcome}</span>
+            {/* Middle Stage: Left Colored Headline + "View Live [▶]" + Description | Right Project Image + Far-Right "01 | 04" */}
+            <div className="relative z-10 my-auto grid grid-cols-1 items-center gap-8 py-6 lg:grid-cols-12 lg:gap-8 lg:py-9">
+              {/* Left 7 Columns: Headline + Bottom-Left Live Button + Scrollable Full Details */}
+              <div className="flex flex-col lg:col-span-7 lg:pr-6">
+                <h2
+                  style={{ color: activeTheme.textHex }}
+                  className="font-sans text-2xl leading-[1.12] font-bold tracking-[-0.03em] sm:text-3xl lg:text-4xl"
+                >
+                  {activeProject.title.toLowerCase()}.
+                </h2>
+
+                <p
+                  style={{ color: activeTheme.textHex }}
+                  className="mt-2.5 font-sans text-xs font-medium opacity-80 sm:text-sm"
+                >
+                  {activeProject.subtitle}
+                </p>
+
+                {/* Split Row below headline matching "See How [▶]" + Right Paragraph in download.jpg */}
+                <div className="mt-6 grid grid-cols-1 items-start gap-6 sm:mt-8 sm:grid-cols-12">
+                  {/* Left: "View Live" + Colored Square Button */}
+                  <div className="flex items-center gap-4 sm:col-span-4">
+                    {activeProject.liveUrl ? (
+                      <a
+                        href={activeProject.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-3.5"
+                      >
+                        <span
+                          style={{ color: activeTheme.textHex }}
+                          className="font-sans text-xs font-semibold"
+                        >
+                          View Live
+                        </span>
+                        <span
+                          style={{ backgroundColor: activeTheme.accentHex }}
+                          className="flex size-10 items-center justify-center rounded-[3px] text-white shadow-md transition-transform duration-300 group-hover:scale-105"
+                        >
+                          <Play className="size-3.5 fill-current" />
+                        </span>
+                      </a>
+                    ) : (
+                      <div className="inline-flex items-center gap-3.5">
+                        <span
+                          style={{ color: activeTheme.textHex }}
+                          className="font-sans text-xs font-semibold"
+                        >
+                          Case Study
+                        </span>
+                        <span
+                          style={{ backgroundColor: activeTheme.accentHex }}
+                          className="flex size-10 items-center justify-center rounded-[3px] text-white"
+                        >
+                          <Play className="size-3.5 fill-current" />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right: Multi-line product description + architecture + outcome + colored stack tags */}
+                  <div className="flex flex-col gap-3 sm:col-span-8">
+                    <p
+                      style={{ color: activeTheme.textHex }}
+                      className="font-sans text-xs leading-[1.7] font-normal opacity-90 sm:text-[13px]"
+                    >
+                      {activeProject.summary}
+                    </p>
+                    {activeProject.architecture && (
+                      <p
+                        style={{ color: activeTheme.textHex }}
+                        className="font-sans text-xs leading-[1.7] font-normal opacity-85"
+                      >
+                        <strong className="font-semibold">
+                          Architecture:{" "}
+                        </strong>
+                        {activeProject.architecture}
+                      </p>
+                    )}
+                    {activeProject.outcome && (
+                      <p
+                        style={{ color: activeTheme.textHex }}
+                        className="font-sans text-xs leading-[1.7] font-normal opacity-85"
+                      >
+                        <strong className="font-semibold">Outcome: </strong>
+                        {activeProject.outcome}
+                      </p>
+                    )}
+
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {activeProject.stack.map((tech) => (
+                        <span
+                          key={tech}
+                          style={{
+                            backgroundColor: activeTheme.badgeBg,
+                            color: activeTheme.textHex,
+                          }}
+                          className="rounded-[3px] px-2.5 py-0.5 font-sans text-[10px] font-medium"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-wrap gap-1.5 pt-2">
-                {activeProject.stack.map((tech) => (
-                  <span
-                    key={tech}
-                    className="border border-[#FACC15]/50 bg-[#FACC15]/15 px-2 py-0.5 font-mono text-[10px] text-heading"
+              {/* Right 5 Columns: Project Image (with 3px radius) + Far-Right Vertical Counter "01 | 04" */}
+              <div className="relative flex items-center justify-between gap-4 lg:col-span-5">
+                <div
+                  style={{ borderColor: activeTheme.borderHex }}
+                  className="w-full overflow-hidden rounded-[3px] border bg-surface-secondary shadow-lg"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={activeProject.imageUrl || activeFallbackImg}
+                    alt={activeProject.title}
+                    className="aspect-[4/3] w-full rounded-[3px] object-cover"
+                  />
+                </div>
+
+                {/* Far-Right Vertical Index Indicator ("01 | 04") */}
+                <div
+                  style={{ color: activeTheme.textHex }}
+                  className="hidden flex-col items-center gap-3 pl-2 lg:flex"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedIdx((selectedIdx - 1 + total) % total)
+                    }
+                    title="Previous project"
+                    className="cursor-pointer font-sans text-[11px] font-bold transition-opacity hover:opacity-60"
                   >
-                    {tech}
-                  </span>
-                ))}
+                    {String((selectedIdx % total) + 1).padStart(2, "0")}
+                  </button>
+                  <div
+                    style={{ backgroundColor: activeTheme.textHex }}
+                    className="h-24 w-[1px] opacity-35"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSelectedIdx((selectedIdx + 1) % total)}
+                    title="Next project"
+                    className="cursor-pointer font-sans text-[11px] font-bold opacity-65 transition-opacity hover:opacity-100"
+                  >
+                    {String(total).padStart(2, "0")}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-end gap-4 border-t border-border pt-4">
-              {activeProject.repoUrl && (
+            {/* Bottom Row: Prev/Next Controls on Left & Links on Right */}
+            <div
+              style={{ color: activeTheme.textHex }}
+              className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-2"
+            >
+              <div className="flex items-center gap-4 text-xs font-medium">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedIdx((selectedIdx - 1 + total) % total)
+                  }
+                  className="inline-flex cursor-pointer items-center gap-1.5 transition-opacity hover:opacity-65"
+                >
+                  <ArrowLeft className="size-3.5" />
+                  <span>Previous</span>
+                </button>
+                <span className="opacity-30">|</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedIdx((selectedIdx + 1) % total)}
+                  className="inline-flex cursor-pointer items-center gap-1.5 transition-opacity hover:opacity-65"
+                >
+                  <span>Next Project</span>
+                  <ArrowLeft className="size-3.5 rotate-180" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-6 font-sans text-[11px] font-medium opacity-85">
+                {activeProject.liveUrl && (
+                  <a
+                    href={activeProject.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 transition-opacity hover:opacity-100"
+                  >
+                    <span>Live Product</span>
+                    <ArrowUpRight className="size-3" />
+                  </a>
+                )}
+                {activeProject.repoUrl && (
+                  <a
+                    href={activeProject.repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 transition-opacity hover:opacity-100"
+                  >
+                    <span>GitHub</span>
+                    <ArrowUpRight className="size-3" />
+                  </a>
+                )}
                 <a
-                  href={activeProject.repoUrl}
+                  href={DEVELOPER_PROFILE.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-mono text-xs text-body hover:text-heading"
+                  className="transition-opacity hover:opacity-100"
                 >
-                  <span>Source Code</span>
-                  <ArrowUpRight className="size-3.5" />
+                  LinkedIn
                 </a>
-              )}
-              {activeProject.liveUrl && (
-                <a
-                  href={activeProject.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 border border-heading bg-heading px-4 py-2 font-mono text-xs text-background hover:opacity-85"
-                >
-                  <span>Visit Live System</span>
-                  <ArrowUpRight className="size-3.5" />
-                </a>
-              )}
+              </div>
             </div>
           </div>
         </div>

@@ -11,9 +11,9 @@ export function Logo() {
     <Link
       href="/"
       onClick={() => setActiveSection("hero")}
-      className="inline-flex items-baseline font-serif text-[18px] leading-none font-bold tracking-[-0.03em] text-heading transition-opacity hover:opacity-75 sm:text-[21px]"
+      className="inline-flex items-baseline font-sans text-xl leading-none font-semibold tracking-[-0.02em] text-heading transition-opacity hover:opacity-75 sm:text-2xl"
     >
-      <span>chiedozie</span>
+      <span>Dozie</span>
     </Link>
   );
 }

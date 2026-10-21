@@ -11,19 +11,19 @@ import { cn } from "@/lib/utils";
 const ABOUT_CHAPTERS = [
   {
     id: "profile",
-    accentHex: "#8B5CF6", // Purple
-    accentText: "#6D28D9",
-    accentBg: "rgba(139, 92, 246, 0.12)",
-    accentBorder: "rgba(139, 92, 246, 0.38)",
+    accentHex: "#623D28",
+    accentText: "#623D28",
+    accentBg: "rgba(98, 61, 40, 0.12)",
+    accentBorder: "rgba(98, 61, 40, 0.38)",
     sectionWash:
-      "radial-gradient(900px circle at 18% 28%, rgba(139, 92, 246, 0.08), transparent 70%)",
+      "radial-gradient(900px circle at 18% 28%, rgba(98, 61, 40, 0.08), transparent 70%)",
     lines: ["Chiedozie", "from Lagos", "Software Studio"],
-    metaLeft: "DOZIE STUDIO",
+    metaLeft: "CHIEDOZIE STUDIO",
     metaRight: "4 SYSTEMS IN TOTAL",
     ctaLabel: "Download this CV",
     ctaType: "cv" as const,
     leadParagraph:
-      "Formed across frontend product engineering and reactive backend architecture, Dozie builds calm, dependable web applications that teams can understand in under thirty seconds.",
+      "Formed across frontend product engineering and reactive backend architecture, Chiedozie builds calm, dependable web applications that teams can understand in under thirty seconds.",
     monoParagraph1:
       "Initially focused on high-velocity React interfaces and operational portals; designing end-to-end systems for event ticketing (KollaTunez), pipeline CRM workflows (Followpoint), and multi-school examination registries (NogaData).",
     monoParagraph2:
@@ -31,12 +31,12 @@ const ABOUT_CHAPTERS = [
   },
   {
     id: "experience",
-    accentHex: "#3B82F6", // Blue
-    accentText: "#1D4ED8",
-    accentBg: "rgba(59, 130, 246, 0.12)",
-    accentBorder: "rgba(59, 130, 246, 0.38)",
+    accentHex: "#32271F",
+    accentText: "#32271F",
+    accentBg: "rgba(50, 39, 31, 0.12)",
+    accentBorder: "rgba(50, 39, 31, 0.38)",
     sectionWash:
-      "radial-gradient(900px circle at 24% 35%, rgba(59, 130, 246, 0.08), transparent 70%)",
+      "radial-gradient(900px circle at 24% 35%, rgba(50, 39, 31, 0.08), transparent 70%)",
     lines: ["Independent", "Full-Stack", "Systems Engineer"],
     metaLeft: "2022 — PRESENT",
     metaRight: "UTC+1 GLOBAL DELIVERY",
@@ -51,12 +51,12 @@ const ABOUT_CHAPTERS = [
   },
   {
     id: "capabilities",
-    accentHex: "#10B981", // Emerald
-    accentText: "#047857",
-    accentBg: "rgba(16, 185, 129, 0.12)",
-    accentBorder: "rgba(16, 185, 129, 0.38)",
+    accentHex: "#1F4E3D",
+    accentText: "#1F4E3D",
+    accentBg: "rgba(31, 78, 61, 0.12)",
+    accentBorder: "rgba(31, 78, 61, 0.38)",
     sectionWash:
-      "radial-gradient(900px circle at 28% 32%, rgba(16, 185, 129, 0.08), transparent 70%)",
+      "radial-gradient(900px circle at 28% 32%, rgba(31, 78, 61, 0.08), transparent 70%)",
     lines: ["Next.js, Convex", "& TypeScript", "Architecture"],
     metaLeft: "CORE STACK",
     metaRight: "END-TO-END TYPE SAFETY",

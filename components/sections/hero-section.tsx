@@ -4,20 +4,71 @@ import { Camera, Plus, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import { useSectionFocus } from "@/components/providers/section-focus-provider";
 import type { ConvexConnectionState } from "@/lib/hooks/use-portfolio-data";
 import {
   DEFAULT_SITE_SETTINGS,
   type PortfolioProject,
   type PortfolioSiteSettings,
 } from "@/lib/portfolio-data";
-import { SECTION_ACCENTS } from "@/lib/section-accents";
 import { cn } from "@/lib/utils";
 
 const EDITORIAL_SLIDE_IMAGES = [
   "/images/hero-editorial.jpg",
   "/touse/ui/556264991474646099.jpg",
   "/touse/ui/601300987772936853.jpg",
+] as const;
+
+const HERO_COLOR_THEMES = [
+  {
+    id: "editorial-ivory",
+    label: "Warm Ivory",
+    bg: "#F8F8F6",
+    heading: "#0D0D0D",
+    body: "#6E6E6A",
+    ringTrack: "#DFDFDC",
+    ringArc: "#0D0D0D",
+    swatchBorder: "#DFDFDC",
+  },
+  {
+    id: "espresso",
+    label: "Espresso",
+    bg: "#32271F",
+    heading: "#F8F8F6",
+    body: "rgba(248, 248, 246, 0.8)",
+    ringTrack: "rgba(248, 248, 246, 0.22)",
+    ringArc: "#F8F8F6",
+    swatchBorder: "rgba(248, 248, 246, 0.45)",
+  },
+  {
+    id: "charcoal",
+    label: "Charcoal",
+    bg: "#2B2D2F",
+    heading: "#F8F8F6",
+    body: "rgba(248, 248, 246, 0.8)",
+    ringTrack: "rgba(248, 248, 246, 0.22)",
+    ringArc: "#F8F8F6",
+    swatchBorder: "rgba(248, 248, 246, 0.45)",
+  },
+  {
+    id: "cognac",
+    label: "Cognac",
+    bg: "#623D28",
+    heading: "#F8F8F6",
+    body: "rgba(248, 248, 246, 0.82)",
+    ringTrack: "rgba(248, 248, 246, 0.22)",
+    ringArc: "#F8F8F6",
+    swatchBorder: "rgba(248, 248, 246, 0.45)",
+  },
+  {
+    id: "sandstone",
+    label: "Sandstone",
+    bg: "#EAE6DF",
+    heading: "#141413",
+    body: "#57534E",
+    ringTrack: "rgba(20, 20, 19, 0.18)",
+    ringArc: "#32271F",
+    swatchBorder: "#32271F",
+  },
 ] as const;
 
 interface HeroSectionProps {
@@ -30,13 +81,15 @@ export function HeroSection({
   siteSettings = DEFAULT_SITE_SETTINGS,
   projects = [],
 }: HeroSectionProps) {
-  const { setActiveSection } = useSectionFocus();
   const [slideIndex, setSlideIndex] = useState(0);
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [themeIndex, setThemeIndex] = useState(0);
+  const [colorsOpen, setColorsOpen] = useState(false);
 
   // Images are black-and-white by default; clicking an image toggles its original color
   const [dpShowColor, setDpShowColor] = useState(false);
   const [editorialShowColor, setEditorialShowColor] = useState(false);
+
+  const activeTheme = HERO_COLOR_THEMES[themeIndex % HERO_COLOR_THEMES.length];
 
   const displayWord =
     !siteSettings.heroDisplayWord || siteSettings.heroDisplayWord === "dozie."
@@ -87,7 +140,8 @@ export function HeroSection({
           imageUrl: "/images/hero-editorial.jpg",
         };
 
-  const handleNextSlide = () => {
+  const handleCycleHeroColor = () => {
+    setThemeIndex((prev) => (prev + 1) % HERO_COLOR_THEMES.length);
     if (editorialSlides.length > 0) {
       setSlideIndex((prev) => (prev + 1) % editorialSlides.length);
     }
@@ -97,121 +151,101 @@ export function HeroSection({
     <section
       id="hero"
       data-section-id="hero"
-      className="relative h-[calc(100dvh-3.5rem)] min-h-[440px] w-full overflow-hidden bg-background select-none sm:h-[calc(100dvh-5rem)]"
+      style={{
+        backgroundColor: activeTheme.bg,
+        color: activeTheme.heading,
+      }}
+      className="relative h-[calc(100dvh-3.5rem)] min-h-[440px] w-full overflow-hidden transition-colors duration-500 ease-out select-none sm:h-[calc(100dvh-5rem)]"
     >
       <div className="relative h-full w-full">
-        {/* 1. Left Vertical "Categories +" — aligned with left stem of "dozie." */}
+        {/* 1. Left Vertical "Colors +" — click to cycle or choose Hero background & text colors */}
         <div className="absolute top-[33%] left-[5.2%] z-20 flex -translate-y-1/2 items-center sm:top-[35%]">
           <button
             type="button"
-            onClick={() => setCategoriesOpen((prev) => !prev)}
-            aria-expanded={categoriesOpen}
-            className={cn(
-              "inline-flex cursor-pointer items-center gap-3 rounded-full px-1.5 py-2 font-serif text-[10px] tracking-[0.03em] transition-all duration-300 [writing-mode:vertical-rl] rotate-180 focus:outline-none sm:gap-4 sm:text-[12px]",
-              categoriesOpen
-                ? "bg-[#F97316]/14 font-semibold text-[#EA580C]"
-                : "text-heading/80 hover:opacity-100"
-            )}
+            onClick={() => {
+              handleCycleHeroColor();
+              setColorsOpen((prev) => !prev);
+            }}
+            aria-expanded={colorsOpen}
+            style={{ color: activeTheme.heading }}
+            className="inline-flex cursor-pointer items-center gap-3 rounded-full px-1.5 py-2 font-sans text-[11px] font-medium tracking-[0.03em] transition-all duration-300 [writing-mode:vertical-rl] rotate-180 hover:opacity-80 focus:outline-none sm:gap-4 sm:text-[13px]"
           >
-            <span>Categories</span>
+            <span>Colors</span>
             <Plus
               className={cn(
-                "size-2.5 transition-transform duration-300 sm:size-3",
-                categoriesOpen && "rotate-45 text-[#F97316]"
+                "size-3 transition-transform duration-300 sm:size-3.5",
+                colorsOpen && "rotate-45"
               )}
             />
           </button>
 
-          {categoriesOpen && (
+          {colorsOpen && (
             <div className="ml-3 flex flex-col gap-1.5 sm:ml-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
-              {(
-                [
-                  {
-                    id: "work",
-                    label: "Work",
-                    color: SECTION_ACCENTS.work.accentHex,
-                    bg: SECTION_ACCENTS.work.badgeBg,
-                    text: SECTION_ACCENTS.work.readableTextHex,
-                  },
-                  {
-                    id: "capabilities",
-                    label: "Capabilities",
-                    color: SECTION_ACCENTS.capabilities.accentHex,
-                    bg: SECTION_ACCENTS.capabilities.badgeBg,
-                    text: SECTION_ACCENTS.capabilities.readableTextHex,
-                  },
-                  {
-                    id: "about",
-                    label: "About",
-                    color: SECTION_ACCENTS.about.accentHex,
-                    bg: SECTION_ACCENTS.about.badgeBg,
-                    text: SECTION_ACCENTS.about.readableTextHex,
-                  },
-                  {
-                    id: "contact",
-                    label: "Contact",
-                    color: SECTION_ACCENTS.contact.accentHex,
-                    bg: SECTION_ACCENTS.contact.badgeBg,
-                    text: SECTION_ACCENTS.contact.readableTextHex,
-                  },
-                ] as const
-              ).map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/#${cat.id}`}
-                  onClick={() => setActiveSection(cat.id)}
-                  style={{
-                    backgroundColor: cat.bg,
-                    color: cat.text,
-                  }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1 text-[10px] font-medium shadow-2xs transition-transform hover:-translate-y-0.5"
-                >
-                  <span
-                    className="size-1.5 rounded-full"
-                    style={{ backgroundColor: cat.color }}
-                  />
-                  <span>{cat.label}</span>
-                </Link>
-              ))}
+              {HERO_COLOR_THEMES.map((theme, idx) => {
+                const isSelected = idx === themeIndex % HERO_COLOR_THEMES.length;
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => setThemeIndex(idx)}
+                    style={{
+                      backgroundColor: theme.bg,
+                      color: theme.heading,
+                      borderColor: isSelected
+                        ? activeTheme.heading
+                        : theme.swatchBorder,
+                    }}
+                    className={cn(
+                      "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 font-sans text-[11px] font-medium shadow-xs transition-transform hover:-translate-y-0.5",
+                      isSelected && "ring-1 ring-current"
+                    )}
+                  >
+                    <span
+                      className="size-2 rounded-full border border-black/20"
+                      style={{ backgroundColor: theme.ringArc }}
+                    />
+                    <span>{theme.label}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* 2. Center Circular "Slide" Button at exact 49.4% horizontal, 38% vertical */}
+        {/* 2. Center Circular "Colors" Button — click to cycle Hero background & text colors */}
         <div className="absolute top-[36%] left-[44%] z-20 -translate-x-1/2 -translate-y-1/2 sm:top-[38%] sm:left-[49.4%]">
           <button
             type="button"
-            onClick={handleNextSlide}
-            aria-label="Slide editorial showcase"
-            className="group relative flex size-[42px] cursor-pointer items-center justify-center rounded-full transition-transform duration-300 active:scale-95 focus:outline-none sm:size-[54px] lg:size-[62px]"
+            onClick={handleCycleHeroColor}
+            aria-label="Change hero color theme"
+            style={{ color: activeTheme.heading }}
+            className="group relative flex size-[46px] cursor-pointer items-center justify-center rounded-full transition-transform duration-300 active:scale-95 focus:outline-none sm:size-[58px] lg:size-[66px]"
           >
             <svg
               viewBox="0 0 100 100"
-              className="pointer-events-none absolute inset-0 size-full -rotate-40 transition-transform duration-500 group-hover:rotate-12"
+              className="pointer-events-none absolute inset-0 size-full -rotate-40 transition-transform duration-500 group-hover:rotate-45"
             >
               <circle
                 cx="50"
                 cy="50"
                 r="46"
                 fill="none"
-                stroke="currentColor"
-                strokeWidth="0.85"
-                className="text-border"
+                stroke={activeTheme.ringTrack}
+                strokeWidth="1.1"
               />
               <circle
                 cx="50"
                 cy="50"
                 r="46"
                 fill="none"
-                stroke="currentColor"
-                strokeWidth="1.35"
+                stroke={activeTheme.ringArc}
+                strokeWidth="1.8"
                 strokeDasharray="115 290"
                 strokeLinecap="round"
-                className="text-heading/80"
               />
             </svg>
-            <span className="font-serif text-[8.5px] tracking-[0.02em] text-heading/90 sm:text-[10px]">
-              Slide
+            <span className="font-sans text-[9.5px] font-medium tracking-[0.02em] sm:text-[11px]">
+              Colors
             </span>
           </button>
         </div>
@@ -234,7 +268,7 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="group relative aspect-[1/1.48] max-h-[60dvh] w-full cursor-pointer overflow-hidden bg-surface-secondary"
+              className="group relative aspect-[1/1.48] max-h-[60dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
             >
               {dpCard.imageUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -242,7 +276,7 @@ export function HeroSection({
                   src={dpCard.imageUrl}
                   alt={dpCard.title}
                   className={cn(
-                    "size-full object-cover object-top transition-all duration-500",
+                    "size-full rounded-[3px] object-cover object-top transition-all duration-500",
                     dpShowColor
                       ? "grayscale-0 contrast-100"
                       : "grayscale contrast-110"
@@ -251,43 +285,11 @@ export function HeroSection({
               ) : (
                 <div className="flex size-full flex-col items-center justify-center gap-2 p-3 text-center">
                   <User className="size-7 text-body/50 sm:size-10" />
-                  <span className="font-serif text-[11px] text-body sm:text-sm">
+                  <span className="font-sans text-[11px] text-body sm:text-sm">
                     No DP Set
                   </span>
                 </div>
               )}
-
-              {/* Subtle "Change DP" link in bottom-right */}
-              <Link
-                href="/dashboard"
-                onClick={(e) => e.stopPropagation()}
-                className="absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-full border border-border/80 bg-background/90 px-2 py-0.5 text-[8.5px] font-medium text-heading opacity-0 backdrop-blur-xs transition-opacity duration-200 group-hover:opacity-100 hover:border-heading sm:px-2.5 sm:py-1 sm:text-[10px]"
-              >
-                <Camera className="size-2.5 text-heading sm:size-3" />
-                <span>Change DP</span>
-              </Link>
-            </div>
-
-            <div className="mt-2.5 flex flex-col sm:mt-4">
-              <span
-                className={cn(
-                  "inline-flex w-fit items-center gap-1.5 rounded-full font-sans text-[7px] font-normal tracking-[0.14em] uppercase transition-all duration-300 sm:text-[8.5px] lg:text-[9.5px]",
-                  dpShowColor
-                    ? "bg-[#F97316]/14 px-2 py-0.5 font-semibold text-[#EA580C]"
-                    : "text-body"
-                )}
-              >
-                {dpShowColor && (
-                  <span className="size-1.5 rounded-full bg-[#F97316]" />
-                )}
-                <span>{dpCard.category}</span>
-              </span>
-              <h2 className="mt-1 pl-2 font-serif text-[11px] leading-[1.18] font-normal tracking-[-0.01em] text-heading sm:mt-1.5 sm:pl-3 sm:text-[15px] lg:text-[19px] xl:text-[22px]">
-                {dpCard.title}
-              </h2>
-              <p className="pl-2 font-serif text-[10px] leading-[1.2] font-normal tracking-[-0.01em] text-heading sm:pl-3 sm:text-[14px] lg:text-[17px] xl:text-[20px]">
-                {dpCard.subtitle}
-              </p>
             </div>
           </div>
 
@@ -304,50 +306,37 @@ export function HeroSection({
                 }
               }}
               title="Click to toggle original color"
-              className="relative aspect-[1/1.48] max-h-[60dvh] w-full cursor-pointer overflow-hidden bg-surface-secondary"
+              className="relative aspect-[1/1.48] max-h-[60dvh] w-full cursor-pointer overflow-hidden rounded-[3px] bg-surface-secondary"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={activeEditorial.imageUrl}
                 alt={activeEditorial.title}
                 className={cn(
-                  "size-full object-cover object-left transition-all duration-500",
+                  "size-full rounded-[3px] object-cover object-left transition-all duration-500",
                   editorialShowColor
                     ? "grayscale-0 contrast-100"
                     : "grayscale contrast-105"
                 )}
               />
             </div>
-
-            <div className="mt-2.5 flex flex-col sm:mt-4">
-              <span
-                className={cn(
-                  "inline-flex w-fit items-center gap-1.5 rounded-full font-sans text-[7px] font-normal tracking-[0.14em] uppercase transition-all duration-300 sm:text-[8.5px] lg:text-[9.5px]",
-                  editorialShowColor
-                    ? "bg-[#3B82F6]/14 px-2 py-0.5 font-semibold text-[#2563EB]"
-                    : "text-body"
-                )}
-              >
-                {editorialShowColor && (
-                  <span className="size-1.5 rounded-full bg-[#3B82F6]" />
-                )}
-                <span>{activeEditorial.category}</span>
-              </span>
-              <h2 className="mt-1 pl-2 font-serif text-[11px] leading-[1.18] font-normal tracking-[-0.01em] text-heading sm:mt-1.5 sm:pl-3 sm:text-[15px] lg:text-[19px] xl:text-[22px]">
-                {activeEditorial.title}
-              </h2>
-              <p className="pl-2 font-serif text-[10px] leading-[1.2] font-normal tracking-[-0.01em] text-heading sm:pl-3 sm:text-[14px] lg:text-[17px] xl:text-[20px]">
-                {activeEditorial.subtitle}
-              </p>
-            </div>
           </div>
         </div>
 
-        {/* 4. Bottom-Left Giant "chiedozie." — fluidly scaled to match "less." in image.png */}
-        <div className="absolute bottom-[5.5%] left-[4.8%] pointer-events-none">
+        {/* 4. Bottom-Left Personal Intro (matching exact width of "chiedozie.") + Giant "chiedozie." */}
+        <div className="pointer-events-none absolute bottom-[5.5%] left-[4.8%] inline-flex flex-col">
+          <p
+            style={{ color: activeTheme.body }}
+            className="mb-3 w-0 min-w-full font-sans text-xs leading-snug font-normal transition-colors duration-500 sm:mb-4 sm:text-base lg:text-lg xl:text-xl"
+          >
+            I’m a software engineer from Lagos who loves turning complex ideas
+            into simple, reliable web products people enjoy using.
+          </p>
+
           <h1
             aria-label={displayWord}
-            className="font-serif text-[clamp(2.35rem,8.4vw,8.2rem)] leading-[0.82] font-black tracking-[-0.045em] text-heading"
+            style={{ color: activeTheme.heading }}
+            className="font-sans text-[clamp(2.35rem,8.4vw,8.2rem)] leading-[0.82] font-black tracking-[-0.045em] whitespace-nowrap transition-colors duration-500"
           >
             {displayWord}
           </h1>

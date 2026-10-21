@@ -108,34 +108,19 @@ export function ContactSection() {
       data-section-id="contact"
       className="relative w-full border-t border-border/60 bg-card"
     >
-      {/* Top active orange accent bar */}
+      {/* Top active accent bar */}
       <div
         data-section-accent-bar
         className={cn(
-          "pointer-events-none absolute top-0 left-0 h-[3px] w-full origin-left bg-[#F97316] transition-all duration-500",
+          "pointer-events-none absolute top-0 left-0 h-[3px] w-full origin-left bg-[#32271F] transition-all duration-500",
           isSectionActive ? "opacity-100" : "opacity-25"
         )}
       />
 
-      {/* Top Banner Band matching contact.png with warm orange active tint */}
-      <div
-        style={{
-          backgroundImage: isSectionActive
-            ? "linear-gradient(135deg, rgba(249, 115, 22, 0.085) 0%, rgba(250, 204, 21, 0.05) 100%)"
-            : undefined,
-        }}
-        className="w-full bg-background px-[7%] py-14 transition-colors duration-700 sm:py-20"
-      >
+      {/* Top Banner Band matching contact.png */}
+      <div className="w-full bg-background px-[7%] py-14 transition-colors duration-700 sm:py-20">
         <div className="mx-auto max-w-6xl">
-          <p
-            className={cn(
-              "inline-flex items-center gap-2 rounded-full border px-3 py-1 font-sans text-[11px] transition-all duration-500",
-              isSectionActive
-                ? "border-[#F97316]/40 bg-[#F97316]/12 font-medium text-[#EA580C]"
-                : "border-transparent text-body"
-            )}
-          >
-            <span className="size-1.5 rounded-full bg-[#F97316]" />
+          <p className="inline-flex items-center gap-2 font-sans text-[11px] text-body">
             <span>Home/Contact_Us</span>
           </p>
           <h2 className="mt-2.5 font-sans text-4xl font-bold tracking-tight text-heading sm:text-5xl">
@@ -152,14 +137,7 @@ export function ContactSection() {
             <h3 className="font-sans text-xl leading-[1.28] font-bold text-heading sm:text-2xl">
               Need more information?
               <br />
-              <span
-                className="transition-colors duration-500"
-                style={{
-                  color: isSectionActive ? "#EA580C" : undefined,
-                }}
-              >
-                Get in touch with us
-              </span>
+              <span>Get in touch with us</span>
             </h3>
 
             <p className="mt-3 max-w-sm text-xs leading-relaxed text-body">
@@ -169,14 +147,7 @@ export function ContactSection() {
             <div className="mt-9 flex flex-col gap-6">
               {/* 1. Phone Number */}
               <div className="group flex items-center gap-4">
-                <div
-                  className={cn(
-                    "flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300",
-                    isSectionActive
-                      ? "border-[#F97316]/35 bg-[#F97316]/12 text-[#EA580C]"
-                      : "border-transparent bg-surface-secondary/65 text-heading"
-                  )}
-                >
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-secondary/65 text-heading transition-all duration-300">
                   <Phone className="size-4 stroke-[1.75]" />
                 </div>
                 <div>
@@ -187,21 +158,14 @@ export function ContactSection() {
 
               {/* 2. Email */}
               <div className="group flex items-center gap-4">
-                <div
-                  className={cn(
-                    "flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300",
-                    isSectionActive
-                      ? "border-[#3B82F6]/35 bg-[#3B82F6]/12 text-[#2563EB]"
-                      : "border-transparent bg-surface-secondary/65 text-heading"
-                  )}
-                >
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-secondary/65 text-heading transition-all duration-300">
                   <Mail className="size-4 stroke-[1.75]" />
                 </div>
                 <div>
                   <p className="text-xs font-bold text-heading">Email</p>
                   <a
                     href={`mailto:${DEVELOPER_PROFILE.email}`}
-                    className="mt-0.5 block text-xs text-body transition-colors hover:text-[#2563EB]"
+                    className="mt-0.5 block text-xs text-body transition-colors hover:text-heading"
                   >
                     {DEVELOPER_PROFILE.email}
                   </a>
@@ -210,14 +174,7 @@ export function ContactSection() {
 
               {/* 3. Address */}
               <div className="group flex items-center gap-4">
-                <div
-                  className={cn(
-                    "flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300",
-                    isSectionActive
-                      ? "border-[#8B5CF6]/35 bg-[#8B5CF6]/12 text-[#7C3AED]"
-                      : "border-transparent bg-surface-secondary/65 text-heading"
-                  )}
-                >
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-secondary/65 text-heading transition-all duration-300">
                   <MapPin className="size-4 stroke-[1.75]" />
                 </div>
                 <div>
@@ -269,9 +226,9 @@ export function ContactSection() {
                   onBlur={() => setActiveField(null)}
                   onChange={(e) => setFirstName(e.target.value)}
                   className={cn(
-                    "h-11 rounded-md border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                    "h-11 rounded-[10px] border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
                     activeField === "firstName"
-                      ? "border-[#F97316] bg-[#F97316]/[0.04]"
+                      ? "border-heading bg-background"
                       : "border-border bg-card"
                   )}
                 />
@@ -283,9 +240,9 @@ export function ContactSection() {
                   onBlur={() => setActiveField(null)}
                   onChange={(e) => setLastName(e.target.value)}
                   className={cn(
-                    "h-11 rounded-md border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                    "h-11 rounded-[10px] border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
                     activeField === "lastName"
-                      ? "border-[#F97316] bg-[#F97316]/[0.04]"
+                      ? "border-heading bg-background"
                       : "border-border bg-card"
                   )}
                 />
@@ -300,9 +257,9 @@ export function ContactSection() {
                 onBlur={() => setActiveField(null)}
                 onChange={(e) => setEmail(e.target.value)}
                 className={cn(
-                  "h-11 w-full rounded-md border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                  "h-11 w-full rounded-[10px] border px-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
                   activeField === "email"
-                    ? "border-[#3B82F6] bg-[#3B82F6]/[0.04]"
+                    ? "border-heading bg-background"
                     : "border-border bg-card"
                 )}
               />
@@ -316,22 +273,22 @@ export function ContactSection() {
                 onBlur={() => setActiveField(null)}
                 onChange={(e) => setMessage(e.target.value)}
                 className={cn(
-                  "w-full rounded-md border p-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
+                  "w-full rounded-[10px] border p-4 text-xs text-heading placeholder:text-body/55 transition-colors focus:outline-none",
                   activeField === "message"
-                    ? "border-[#8B5CF6] bg-[#8B5CF6]/[0.04]"
+                    ? "border-heading bg-background"
                     : "border-border bg-card"
                 )}
               />
 
               {submitState.status === "success" && (
-                <div className="flex items-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs font-medium text-emerald-700">
+                <div className="flex items-center gap-2 rounded-[10px] border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs font-medium text-emerald-700">
                   <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
                   <span>{submitState.message}</span>
                 </div>
               )}
 
               {submitState.status === "error" && (
-                <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                <div className="flex items-center gap-2 rounded-[10px] border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
                   <AlertCircle className="size-4 shrink-0" />
                   <span>{submitState.message}</span>
                 </div>
@@ -341,10 +298,7 @@ export function ContactSection() {
                 <button
                   type="submit"
                   disabled={submitState.status === "submitting"}
-                  style={{
-                    backgroundColor: isSectionActive ? "#F97316" : undefined,
-                  }}
-                  className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md bg-heading px-6 text-xs font-medium text-white transition-all duration-300 hover:opacity-90 disabled:opacity-50"
+                  className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-[10px] bg-heading px-6 text-xs font-medium text-white transition-all duration-300 hover:opacity-90 disabled:opacity-50"
                 >
                   {submitState.status === "submitting" ? (
                     <>

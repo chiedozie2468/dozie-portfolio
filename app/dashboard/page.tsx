@@ -9,12 +9,18 @@ import {
   Download,
   Edit3,
   ExternalLink,
+  Eye,
+  EyeOff,
   FileText,
   Image as ImageIcon,
   Inbox,
+  KeyRound,
   Loader2,
+  Lock,
+  LogOut,
   Plus,
   RotateCcw,
+  ShieldCheck,
   Sparkles,
   Trash2,
   Upload,
@@ -30,6 +36,8 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { usePortfolioData } from "@/lib/hooks/use-portfolio-data";
 import {
   DEFAULT_SITE_SETTINGS,
+  getProjectColorTheme,
+  PROJECT_COLOR_THEME_LIST,
   type PortfolioProject,
 } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
@@ -57,9 +65,25 @@ interface ContactMessageItem {
   createdAt: number;
 }
 
+const ADMIN_SESSION_STORAGE_KEY = "dozie_admin_session_token";
+
 export default function DashboardPage() {
   const { projects, siteSettings, connectionState, refresh } =
     usePortfolioData();
+
+  // --- Admin Auth State ---
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [authenticatedEmail, setAuthenticatedEmail] = useState<string>("");
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "setup">("setup");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authConfirmPassword, setAuthConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"profile" | "works" | "inbox">(
     "profile"
@@ -124,6 +148,7 @@ export default function DashboardPage() {
   >(undefined);
   const [workLiveUrl, setWorkLiveUrl] = useState("");
   const [workRepoUrl, setWorkRepoUrl] = useState("");
+  const [workThemeColor, setWorkThemeColor] = useState("green");
   const [workOrder, setWorkOrder] = useState(projects.length + 1);
   const [isUploadingWorkImage, setIsUploadingWorkImage] = useState(false);
   const [isSavingWork, setIsSavingWork] = useState(false);
@@ -140,6 +165,118 @@ export default function DashboardPage() {
   const secondaryFileInputRef = useRef<HTMLInputElement | null>(null);
   const cvFileInputRef = useRef<HTMLInputElement | null>(null);
   const workImageInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Check admin session on mount
+  useEffect(() => {
+    let cancelled = false;
+    async function checkAdminSession() {
+      setIsCheckingAuth(true);
+      try {
+        const client = new ConvexHttpClient(getConvexUrl());
+        const status = await client.query(
+          api.portfolio.getAdminAuthStatus,
+          {}
+        );
+        if (!cancelled) {
+          setIsInitialized(status.isConfigured);
+          setAuthMode(status.isConfigured ? "login" : "setup");
+        }
+
+        const storedToken =
+          typeof window !== "undefined"
+            ? window.localStorage.getItem(ADMIN_SESSION_STORAGE_KEY)
+            : null;
+
+        if (storedToken) {
+          const verification = await client.query(
+            api.portfolio.verifyAdminSession,
+            { token: storedToken }
+          );
+          if (!cancelled && verification.valid) {
+            setAdminToken(storedToken);
+            setIsAuthenticated(true);
+            setAuthenticatedEmail(verification.email || "");
+          } else if (!cancelled) {
+            window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+          }
+        }
+      } catch {
+        // Ignore offline errors during initial check
+      } finally {
+        if (!cancelled) {
+          setIsCheckingAuth(false);
+        }
+      }
+    }
+    checkAdminSession();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setIsSubmittingAuth(true);
+
+    try {
+      const client = new ConvexHttpClient(getConvexUrl());
+      if (authMode === "setup") {
+        const res = await client.mutation(api.portfolio.setupAdminAccount, {
+          email: authEmail,
+          password: authPassword,
+          confirmPassword: authConfirmPassword,
+        });
+        window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, res.token);
+        setAdminToken(res.token);
+        setAuthenticatedEmail(res.email);
+        setIsInitialized(true);
+        setIsAuthenticated(true);
+        setAuthPassword("");
+        setAuthConfirmPassword("");
+      } else {
+        const res = await client.mutation(api.portfolio.loginAdmin, {
+          email: authEmail,
+          password: authPassword,
+        });
+        window.localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, res.token);
+        setAdminToken(res.token);
+        setAuthenticatedEmail(res.email);
+        setIsAuthenticated(true);
+        setAuthPassword("");
+      }
+    } catch (err) {
+      setAuthError(
+        err instanceof Error
+          ? err.message
+          : "Authentication failed. Please check your credentials."
+      );
+    } finally {
+      setIsSubmittingAuth(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      if (adminToken) {
+        const client = new ConvexHttpClient(getConvexUrl());
+        await client.mutation(api.portfolio.logoutAdmin, {
+          token: adminToken,
+        });
+      }
+    } catch {
+      // Ignore network errors on logout
+    } finally {
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+      }
+      setAdminToken(null);
+      setIsAuthenticated(false);
+      setAuthenticatedEmail("");
+      setAuthPassword("");
+      setAuthConfirmPassword("");
+    }
+  };
 
   useEffect(() => {
     setHeroDisplayWord(siteSettings.heroDisplayWord);
@@ -158,28 +295,33 @@ export default function DashboardPage() {
   }, [siteSettings]);
 
   const loadMessages = useCallback(async () => {
+    if (!adminToken) return;
     setLoadingMessages(true);
     try {
       const client = new ConvexHttpClient(getConvexUrl());
-      const list = await client.query(api.portfolio.listMessages, {});
+      const list = await client.query(api.portfolio.listMessages, {
+        adminToken,
+      });
       setMessages(list as ContactMessageItem[]);
     } catch {
       // Ignore if offline
     } finally {
       setLoadingMessages(false);
     }
-  }, []);
+  }, [adminToken]);
 
   useEffect(() => {
-    if (activeTab === "inbox") {
+    if (activeTab === "inbox" && isAuthenticated) {
       loadMessages();
     }
-  }, [activeTab, loadMessages]);
+  }, [activeTab, isAuthenticated, loadMessages]);
 
   // Upload helper to Convex Storage
   const uploadToConvexStorage = async (file: File): Promise<Id<"_storage">> => {
     const client = new ConvexHttpClient(getConvexUrl());
-    const postUrl = await client.mutation(api.portfolio.generateUploadUrl, {});
+    const postUrl = await client.mutation(api.portfolio.generateUploadUrl, {
+      adminToken: adminToken ?? undefined,
+    });
     const uploadResponse = await fetch(postUrl, {
       method: "POST",
       headers: { "Content-Type": file.type || "application/octet-stream" },
@@ -210,8 +352,11 @@ export default function DashboardPage() {
       const updated = await client.mutation(
         api.portfolio.updateSiteSettings,
         target === "dp"
-          ? { dpStorageId: storageId }
-          : { secondaryStorageId: storageId }
+          ? { adminToken: adminToken ?? undefined, dpStorageId: storageId }
+          : {
+              adminToken: adminToken ?? undefined,
+              secondaryStorageId: storageId,
+            }
       );
 
       if (target === "dp") setDpImageUrl(updated.dpImageUrl);
@@ -241,6 +386,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.updateSiteSettings, {
+        adminToken: adminToken ?? undefined,
         removeDp: true,
       });
       setDpImageUrl("");
@@ -264,6 +410,7 @@ export default function DashboardPage() {
       const storageId = await uploadToConvexStorage(file);
       const client = new ConvexHttpClient(getConvexUrl());
       const updated = await client.mutation(api.portfolio.updateSiteSettings, {
+        adminToken: adminToken ?? undefined,
         cvStorageId: storageId,
         cvFileName: file.name,
       });
@@ -292,6 +439,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.updateSiteSettings, {
+        adminToken: adminToken ?? undefined,
         heroDisplayWord,
         dpImageUrl,
         clearDpStorageId: dpImageUrl !== siteSettings.dpImageUrl,
@@ -329,6 +477,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.updateSiteSettings, {
+        adminToken: adminToken ?? undefined,
         ...DEFAULT_SITE_SETTINGS,
         clearDpStorageId: true,
         clearSecondaryStorageId: true,
@@ -364,6 +513,7 @@ export default function DashboardPage() {
     setWorkImageStorageId(undefined);
     setWorkLiveUrl("");
     setWorkRepoUrl("");
+    setWorkThemeColor("green");
     setWorkOrder(projects.length + 1);
   };
 
@@ -385,6 +535,9 @@ export default function DashboardPage() {
     setWorkImageStorageId(undefined);
     setWorkLiveUrl(project.liveUrl || "");
     setWorkRepoUrl(project.repoUrl || "");
+    setWorkThemeColor(
+      getProjectColorTheme(project.themeColor, project.slug).id
+    );
     setWorkOrder(project.order);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -396,10 +549,12 @@ export default function DashboardPage() {
       const storageId = await uploadToConvexStorage(file);
       setWorkImageStorageId(storageId);
       setWorkImageUrl(URL.createObjectURL(file));
-      setStatusMessage("Work cover image uploaded! Click 'Save Work' below to publish.");
+      setStatusMessage(
+        "Project cover image uploaded! Click 'Save Project' below to publish."
+      );
     } catch (err) {
       setErrorMessage(
-        err instanceof Error ? err.message : "Could not upload work image."
+        err instanceof Error ? err.message : "Could not upload project image."
       );
     } finally {
       setIsUploadingWorkImage(false);
@@ -409,7 +564,7 @@ export default function DashboardPage() {
   const handleSaveWork = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!workTitle.trim() || !workSummary.trim()) {
-      setErrorMessage("Please provide at least a Work Title and Summary.");
+      setErrorMessage("Please provide at least a Project Title and Summary.");
       return;
     }
 
@@ -428,6 +583,7 @@ export default function DashboardPage() {
 
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.upsertProject, {
+        adminToken: adminToken ?? undefined,
         id: editingProjectId ? (editingProjectId as Id<"projects">) : undefined,
         slug: generatedSlug,
         title: workTitle.trim(),
@@ -453,6 +609,7 @@ export default function DashboardPage() {
         removeImage: !workImageUrl.trim() && !workImageStorageId,
         liveUrl: workLiveUrl.trim() || undefined,
         repoUrl: workRepoUrl.trim() || undefined,
+        themeColor: workThemeColor,
         featured: true,
         order: Number(workOrder) || projects.length + 1,
       });
@@ -460,13 +617,13 @@ export default function DashboardPage() {
       await refresh();
       setStatusMessage(
         editingProjectId
-          ? `Updated work "${workTitle}"!`
-          : `Added new work "${workTitle}" to your portfolio!`
+          ? `Updated project "${workTitle}"!`
+          : `Added new project "${workTitle}" to your portfolio!`
       );
       resetWorkForm();
     } catch (err) {
       setErrorMessage(
-        err instanceof Error ? err.message : "Failed to save work."
+        err instanceof Error ? err.message : "Failed to save project."
       );
     } finally {
       setIsSavingWork(false);
@@ -481,6 +638,7 @@ export default function DashboardPage() {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
       await client.mutation(api.portfolio.deleteProject, {
+        adminToken: adminToken ?? undefined,
         id: project._id as Id<"projects">,
       });
       await refresh();
@@ -495,12 +653,200 @@ export default function DashboardPage() {
   const handleDeleteMessage = async (id: Id<"messages">) => {
     try {
       const client = new ConvexHttpClient(getConvexUrl());
-      await client.mutation(api.portfolio.deleteMessage, { id });
+      await client.mutation(api.portfolio.deleteMessage, {
+        adminToken: adminToken ?? undefined,
+        id,
+      });
       setMessages((prev) => prev.filter((m) => m._id !== id));
     } catch {
       // Ignore
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex min-h-[75vh] items-center justify-center py-16">
+        <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 text-sm font-medium text-heading">
+          <Loader2 className="size-4 animate-spin" />
+          <span>Verifying encrypted admin session...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-[82vh] items-center justify-center py-12">
+        <Container className="max-w-md">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <div className="mb-6 flex items-center justify-between">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-body transition-colors hover:text-heading"
+              >
+                <ArrowLeft className="size-3.5" />
+                <span>Back to Portfolio</span>
+              </Link>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-secondary/70 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-wider text-heading uppercase">
+                <Lock className="size-3" />
+                Protected
+              </span>
+            </div>
+
+            <div className="mb-6">
+              <h1 className="font-serif text-2xl font-bold tracking-tight text-heading sm:text-3xl">
+                {authMode === "setup"
+                  ? "Create Admin Password"
+                  : "Admin Sign In"}
+              </h1>
+              <p className="mt-1.5 text-xs leading-relaxed text-body">
+                {authMode === "setup"
+                  ? "Enter your authorized admin email, create a strong password, and confirm it to unlock your studio dashboard."
+                  : "Sign in with your authorized admin email and password to manage your portfolio."}
+              </p>
+            </div>
+
+            {/* Mode Switcher Tabs */}
+            <div className="mb-6 grid grid-cols-2 gap-1.5 rounded-xl border border-border bg-background p-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode("login");
+                  setAuthError(null);
+                }}
+                className={cn(
+                  "cursor-pointer rounded-lg py-2 text-xs font-semibold transition-all",
+                  authMode === "login"
+                    ? "bg-heading text-background"
+                    : "text-body hover:text-heading"
+                )}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode("setup");
+                  setAuthError(null);
+                }}
+                className={cn(
+                  "cursor-pointer rounded-lg py-2 text-xs font-semibold transition-all",
+                  authMode === "setup"
+                    ? "bg-heading text-background"
+                    : "text-body hover:text-heading"
+                )}
+              >
+                {isInitialized ? "Reset / Setup" : "Create Password"}
+              </button>
+            </div>
+
+            {authError && (
+              <div className="mb-5 rounded-xl border border-destructive/50 bg-background p-3.5 text-xs font-medium text-destructive">
+                {authError}
+              </div>
+            )}
+
+            <form onSubmit={handleAuthSubmit} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-heading">
+                  Authorized Admin Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  placeholder="Enter your admin email"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-heading focus:border-heading focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-heading">
+                  {authMode === "setup" ? "Create Password" : "Password"}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    autoComplete={
+                      authMode === "setup" ? "new-password" : "current-password"
+                    }
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    placeholder={
+                      authMode === "setup"
+                        ? "Create password (min. 6 characters)"
+                        : "Enter your password"
+                    }
+                    className="w-full rounded-xl border border-border bg-background py-2.5 pr-10 pl-3.5 text-sm text-heading focus:border-heading focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-body hover:text-heading"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {authMode === "setup" && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-heading">
+                    Confirm Password
+                  </label>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    value={authConfirmPassword}
+                    onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                    placeholder="Re-enter password to confirm"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-heading focus:border-heading focus:outline-none"
+                  />
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmittingAuth}
+                className="mt-2 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-heading px-5 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {isSubmittingAuth ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>
+                      {authMode === "setup"
+                        ? "Creating Password & Signing In..."
+                        : "Signing In..."}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <KeyRound className="size-4" />
+                    <span>
+                      {authMode === "setup"
+                        ? "Create Password & Sign In"
+                        : "Sign In to Dashboard"}
+                    </span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="py-10 md:py-14">
@@ -519,16 +865,21 @@ export default function DashboardPage() {
               Admin Studio Dashboard
             </h1>
             <p className="mt-1 text-sm text-body">
-              Manage your DP portrait, CV download file, and uploaded works live
-              on Convex (
-              <span className="font-mono text-xs text-heading">
-                optimistic-bulldog-318
-              </span>
-              ).
+              Signed in as{" "}
+              <span className="font-mono text-xs font-semibold text-heading">
+                {authenticatedEmail || "Admin"}
+              </span>{" "}
+              · Manage your DP portrait, CV download, and Projects live on
+              Convex.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 font-mono text-xs text-heading">
+              <ShieldCheck className="size-3.5 text-emerald-600" />
+              <span>Protected Session</span>
+            </span>
+
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 font-mono text-xs text-heading">
               <span
                 className="size-2 rounded-full"
@@ -542,15 +893,14 @@ export default function DashboardPage() {
                 : "Connecting..."}
             </span>
 
-            <a
-              href="https://dashboard.convex.dev/t/chiedozie-onyekwelu/portfolio/optimistic-bulldog-318"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-heading transition-colors hover:border-heading"
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-heading transition-colors hover:border-destructive hover:text-destructive"
             >
-              <span>Convex Cloud</span>
-              <ExternalLink className="size-3.5" />
-            </a>
+              <LogOut className="size-3.5" />
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
 
@@ -589,7 +939,7 @@ export default function DashboardPage() {
             )}
           >
             <Briefcase className="size-3.5" />
-            <span>2. Upload &amp; Manage Works ({projects.length})</span>
+            <span>2. Upload &amp; Manage Projects ({projects.length})</span>
           </button>
 
           <button
@@ -1252,6 +1602,41 @@ export default function DashboardPage() {
                       onChange={(e) => setWorkOrder(Number(e.target.value))}
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-heading focus:border-heading focus:outline-none"
                     />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="mb-1.5 block text-xs font-medium text-heading">
+                    Project Theme Color (Light BG &amp; Text Color)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {PROJECT_COLOR_THEME_LIST.map((theme) => {
+                      const isSelected = workThemeColor === theme.id;
+                      return (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => setWorkThemeColor(theme.id)}
+                          style={{
+                            backgroundColor: theme.lightBg,
+                            color: theme.textHex,
+                            borderColor: isSelected
+                              ? theme.accentHex
+                              : theme.borderHex,
+                          }}
+                          className={cn(
+                            "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition-all",
+                            isSelected && "ring-2 ring-offset-1"
+                          )}
+                        >
+                          <span
+                            style={{ backgroundColor: theme.accentHex }}
+                            className="size-2.5 shrink-0 rounded-full"
+                          />
+                          <span className="truncate">{theme.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

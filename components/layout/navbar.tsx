@@ -70,10 +70,10 @@ export function Navbar() {
                         : undefined
                     }
                     className={cn(
-                      "py-1 text-[11px] tracking-[0.01em] transition-colors duration-200 focus:outline-none",
+                      "py-1.5 text-sm tracking-[-0.01em] transition-colors duration-200 focus:outline-none sm:text-[15px]",
                       isActive
                         ? "font-semibold text-heading"
-                        : "font-normal text-heading/75 hover:text-heading"
+                        : "font-normal text-heading/80 hover:text-heading"
                     )}
                   >
                     {link.label}
@@ -89,13 +89,9 @@ export function Navbar() {
             download={cvFileName}
             target="_blank"
             rel="noopener noreferrer"
-            className="group hidden items-center gap-2 text-[11px] font-normal tracking-[0.02em] text-heading transition-opacity hover:opacity-70 md:inline-flex"
+            className="group hidden items-center gap-2.5 text-sm font-medium tracking-[-0.01em] text-heading transition-opacity hover:opacity-70 md:inline-flex sm:text-[15px]"
           >
             <span>Download CV</span>
-            <span className="flex flex-col items-end justify-center gap-[3.5px]">
-              <span className="h-[1.5px] w-5 bg-heading" />
-              <span className="h-[1.5px] w-5 bg-heading" />
-            </span>
           </a>
 
           {/* Small Screen Sidebar Toggle Button (visible only < md) */}
@@ -146,9 +142,9 @@ export function Navbar() {
                   setActiveSection("hero");
                   setSidebarOpen(false);
                 }}
-                className="font-serif text-2xl font-bold tracking-[-0.03em] text-heading"
+                className="font-sans text-2xl font-bold tracking-[-0.03em] text-heading"
               >
-                chiedozie
+                Dozie
               </Link>
 
               <button
@@ -170,10 +166,10 @@ export function Navbar() {
                   setSidebarOpen(false);
                 }}
                 className={cn(
-                  "text-sm tracking-[0.01em] transition-colors",
+                  "text-base tracking-[-0.01em] transition-colors",
                   isHome && activeSection === "hero"
                     ? "font-semibold text-heading"
-                    : "font-normal text-heading/70 hover:text-heading"
+                    : "font-normal text-heading/75 hover:text-heading"
                 )}
               >
                 Home
@@ -198,10 +194,10 @@ export function Navbar() {
                         : undefined
                     }
                     className={cn(
-                      "text-sm tracking-[0.01em] transition-colors",
+                      "text-base tracking-[-0.01em] transition-colors",
                       isActive
                         ? "font-semibold text-heading"
-                        : "font-normal text-heading/70 hover:text-heading"
+                        : "font-normal text-heading/75 hover:text-heading"
                     )}
                   >
                     {link.label}
@@ -225,9 +221,9 @@ export function Navbar() {
                     ? undefined
                     : activeAccent.readableTextHex,
               }}
-              className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-heading transition-opacity hover:opacity-75"
+              className="inline-flex items-center gap-2.5 text-base font-medium tracking-wide text-heading transition-opacity hover:opacity-75"
             >
-              <Download className="size-3.5" />
+              <Download className="size-4" />
               <span>Download CV</span>
             </a>
           </div>
