@@ -11,7 +11,9 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import { TalkingFaceIcon } from "@/components/icons/section-line-icons";
+import { useHeroTheme } from "@/components/providers/hero-theme-provider";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
+import { downloadPortfolioCv } from "@/lib/download-portfolio-cv";
 import { usePortfolioData } from "@/lib/hooks/use-portfolio-data";
 import { DEFAULT_SITE_SETTINGS, DEVELOPER_PROFILE } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
@@ -172,7 +174,8 @@ export function AboutSection() {
   const [eduShowColor, setEduShowColor] = useState(false);
   const [eduLightboxOpen, setEduLightboxOpen] = useState(false);
   const { activeSection, reducedMotion } = useSectionFocus();
-  const { siteSettings } = usePortfolioData();
+  const { activeTheme } = useHeroTheme();
+  const { projects, siteSettings } = usePortfolioData();
   const isSectionActive = activeSection === "about";
   const stageRef = useRef<HTMLDivElement | null>(null);
 
@@ -186,14 +189,14 @@ export function AboutSection() {
     siteSettings.educationCaption ||
     DEFAULT_SITE_SETTINGS.educationCaption ||
     "Miva Open University — B.Sc. Computer Science";
-  const cvUrl =
-    siteSettings.cvUrl ||
-    DEFAULT_SITE_SETTINGS.cvUrl ||
-    "/chiedozie-onyekwelu-cv.pdf";
-  const cvFileName =
-    siteSettings.cvFileName ||
-    DEFAULT_SITE_SETTINGS.cvFileName ||
-    "Chiedozie-Onyekwelu-CV.pdf";
+
+  const handleDownloadCv = () => {
+    downloadPortfolioCv({
+      activeTheme,
+      projects,
+      siteSettings,
+    });
+  };
 
   // Motion-graphic staggered entrance whenever the active chapter changes
   useEffect(() => {
@@ -380,20 +383,18 @@ export function AboutSection() {
             {chapter.ctaType !== "none" && chapter.ctaLabel && (
               <div data-about-cta className="mt-6 sm:mt-8">
                 {chapter.ctaType === "cv" ? (
-                  <a
-                    href={cvUrl}
-                    download={cvFileName}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={handleDownloadCv}
                     style={{
-                      backgroundColor: chapter.buttonBg,
-                      color: chapter.buttonText,
+                      backgroundColor: activeTheme.bg,
+                      color: activeTheme.heading,
                     }}
-                    className="group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-6 font-mono text-[13px] font-light shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
+                    className="group inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-none px-6 font-mono text-[13px] font-light transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 sm:h-11 sm:px-7"
                   >
                     <Download className="size-3.5 transition-transform group-hover:scale-110" />
                     <span>{chapter.ctaLabel}</span>
-                  </a>
+                  </button>
                 ) : (
                   <button
                     type="button"

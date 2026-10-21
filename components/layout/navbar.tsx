@@ -10,15 +10,15 @@ import { Logo } from "@/components/layout/logo";
 import { navLinks } from "@/components/layout/nav-links";
 import { useHeroTheme } from "@/components/providers/hero-theme-provider";
 import { useSectionFocus } from "@/components/providers/section-focus-provider";
+import { downloadPortfolioCv } from "@/lib/download-portfolio-cv";
 import { usePortfolioData } from "@/lib/hooks/use-portfolio-data";
-import { DEFAULT_SITE_SETTINGS } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { activeSection, activeAccent, setActiveSection } = useSectionFocus();
+  const { activeSection, setActiveSection } = useSectionFocus();
   const { activeTheme } = useHeroTheme();
-  const { siteSettings } = usePortfolioData();
+  const { projects, siteSettings } = usePortfolioData();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isHome = pathname === "/";
 
@@ -31,14 +31,13 @@ export function Navbar() {
       (activeTheme.id === "editorial-ivory" ||
         activeTheme.id === "warm-ivory"));
 
-  const cvUrl =
-    siteSettings.cvUrl ||
-    DEFAULT_SITE_SETTINGS.cvUrl ||
-    "/chiedozie-onyekwelu-cv.pdf";
-  const cvFileName =
-    siteSettings.cvFileName ||
-    DEFAULT_SITE_SETTINGS.cvFileName ||
-    "Chiedozie-Onyekwelu-CV.pdf";
+  const handleDownloadCv = () => {
+    downloadPortfolioCv({
+      activeTheme,
+      projects,
+      siteSettings,
+    });
+  };
 
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
@@ -117,19 +116,17 @@ export function Navbar() {
           </div>
 
           {/* Desktop Right end: Download CV action with background matching the current Hero section color, no border, radius 0 */}
-          <a
-            href={cvUrl}
-            download={cvFileName}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={handleDownloadCv}
             style={{
               backgroundColor: activeTheme.bg,
               color: activeTheme.heading,
             }}
-            className="group hidden items-center gap-2.5 rounded-none px-4 py-2 text-sm font-medium tracking-[-0.01em] transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 md:inline-flex sm:text-[15px]"
+            className="group hidden cursor-pointer items-center gap-2.5 rounded-none px-4 py-2 text-sm font-medium tracking-[-0.01em] transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 md:inline-flex sm:text-[15px]"
           >
             <span>Download CV</span>
-          </a>
+          </button>
 
           {/* Small Screen Sidebar Toggle Button (visible only < md) */}
           <button
@@ -285,23 +282,23 @@ export function Navbar() {
             </nav>
           </div>
 
-          {/* Sidebar Footer: Download CV link with background matching the current Hero section color, no border, radius 0 */}
+          {/* Sidebar Footer: Download CV button with background matching the current Hero section color, no border, radius 0 */}
           <div className="pt-6">
-            <a
-              href={cvUrl}
-              download={cvFileName}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setSidebarOpen(false)}
+            <button
+              type="button"
+              onClick={() => {
+                setSidebarOpen(false);
+                handleDownloadCv();
+              }}
               style={{
                 backgroundColor: activeTheme.bg,
                 color: activeTheme.heading,
               }}
-              className="inline-flex items-center gap-2.5 rounded-none px-4 py-2.5 text-base font-medium tracking-wide transition-all duration-300 hover:opacity-90"
+              className="inline-flex cursor-pointer items-center gap-2.5 rounded-none px-4 py-2.5 text-base font-medium tracking-wide transition-all duration-300 hover:opacity-90"
             >
               <Download className="size-4" />
               <span>Download CV</span>
-            </a>
+            </button>
           </div>
         </aside>
       </div>
